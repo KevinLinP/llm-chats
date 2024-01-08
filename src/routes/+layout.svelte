@@ -38,9 +38,12 @@
 	</SignedOut>
 
 	<SignedIn let:signOut let:auth>
-		<slot {auth}/>
-		<div>
-			<button class="btn btn-link" on:click={signOut}>Sign Out</button>
+		<div class="container">
+			<div class="d-flex justify-content-end">
+				<button class="btn btn-link" on:click={signOut}>Sign Out</button>
+			</div>
+
+			<slot {auth}/>
 		</div>
 	</SignedIn>
 </FirebaseApp>
