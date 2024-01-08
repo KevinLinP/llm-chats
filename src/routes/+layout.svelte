@@ -24,22 +24,9 @@
 
 		signInWithPopup(auth, provider)
 			.then((result) => {
-				// This gives you a Google Access Token. You can use it to access the Google API.
-				const credential = GoogleAuthProvider.credentialFromResult(result);
-				const token = credential.accessToken;
-				// The signed-in user info.
-				const user = result.user;
-				// IdP data available using getAdditionalUserInfo(result)
-				// ...
+				GoogleAuthProvider.credentialFromResult(result);
 			}).catch((error) => {
-				// Handle Errors here.
-				const errorCode = error.code;
-				const errorMessage = error.message;
-				// The email of the user's account used.
-				const email = error.customData.email;
-				// The AuthCredential type that was used.
-				const credential = GoogleAuthProvider.credentialFromError(error);
-				// ...
+				console.log({error})
 			});
 	};
 
@@ -47,11 +34,13 @@
 
 <FirebaseApp {auth} {firestore}>
 	<SignedOut>
-    <button on:click={handleSignIn}>Sign In</button>
+    <button class="btn btn-primary" on:click={handleSignIn}>Sign In</button>
 	</SignedOut>
 
-	<SignedIn let:signOut>
-		<slot />
-		<button on:click={signOut}>Sign Out</button>
+	<SignedIn let:signOut let:auth>
+		<slot {auth}/>
+		<div>
+			<button class="btn btn-link" on:click={signOut}>Sign Out</button>
+		</div>
 	</SignedIn>
 </FirebaseApp>
