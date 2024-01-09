@@ -25,9 +25,11 @@
   let userMessage = 'Write a haiku about the sunset.';
   // TODO: render Markdown properly
   let assistantMessage = '';
+  let error = '';
 
   const handleSend = async () => {
     assistantMessage = '';
+    error = '';
 
     try {
       const completion = await openai.chat.completions.create({
@@ -50,7 +52,7 @@
         }
       }
     } catch (e) {
-      console.error(e);
+      error = e;
     }
   }
 
@@ -70,5 +72,6 @@
 <input id="temperature" type="number" min="0" max="2" bind:value={temperature} class="form-control"/> -->
 
 <p>{assistantMessage}</p>
+<p class="text-danger">{error}</p>
 
 <button class="btn btn-primary" on:click={handleSend}>Send</button>

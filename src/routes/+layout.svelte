@@ -8,13 +8,13 @@
 
 	// Initialize Firebase
 	const firebaseConfig = {
-	apiKey: "AIzaSyDpPsmgDCUuhJZ6UP3cJeY8MLZPKT1bgsY",
-	authDomain: "llm-chats.firebaseapp.com",
-	projectId: "llm-chats",
-	storageBucket: "llm-chats.appspot.com",
-	messagingSenderId: "223168031874",
-	appId: "1:223168031874:web:97a85b31f915013520189b"
-};
+		apiKey: "AIzaSyDpPsmgDCUuhJZ6UP3cJeY8MLZPKT1bgsY",
+		authDomain: "llm-chats.firebaseapp.com",
+		projectId: "llm-chats",
+		storageBucket: "llm-chats.appspot.com",
+		messagingSenderId: "223168031874",
+		appId: "1:223168031874:web:97a85b31f915013520189b"
+	};
 	const app = initializeApp(firebaseConfig);
 	const firestore = getFirestore(app);
 	const auth = getAuth(app);
