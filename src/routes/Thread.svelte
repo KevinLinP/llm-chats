@@ -1,7 +1,13 @@
 <script>
+	import { serverTimestamp, updateDoc } from 'firebase/firestore';
   import OpenAI from 'openai';
 
   export let thread;
+
+  $: {
+    console.log(thread);
+    console.log(thread.data());
+  }
 
   const openai = new OpenAI({
     apiKey: 'not needed',
@@ -10,21 +16,27 @@
   });
 
   let systemMessage = 'You are a helpful assistant.';
-  let userMessage = 'Write a haiku about the sunset.';
+  let userMessage = '';
   // TODO: render Markdown properly
   let assistantMessage = '';
   let error = '';
+
+  const messages = thread.data().plain?.messages || [
+    { role: 'system', content: systemMessage }
+  ];
 
   const handleSend = async () => {
     assistantMessage = '';
     error = '';
 
+    const newMessages = [
+      ...messages,
+      { role: 'user', content: userMessage }
+    ];
+
     try {
       const completion = await openai.chat.completions.create({
-        messages: [
-          { role: 'system', content: systemMessage},
-          { role: 'user', content: userMessage }
-        ],
+        messages: newMessages, 
         stream: true
       });
 
@@ -38,6 +50,19 @@
           assistantMessage += choice.finish_reason;
         }
       }
+
+      newMessages.push({ 
+        role: 'assistant',
+        content: assistantMessage.trim()
+      });
+
+      updateDoc(thread.ref, {
+        plain: {messages: newMessages},
+        updated: serverTimestamp()
+      });
+
+      userMessage = '';
+      assistantMessage = '';
     } catch (e) {
       error = e;
     }
@@ -46,16 +71,22 @@
 
 <div>Thread: {thread?.id}</div>
 
-<div class="mb-3">
-  <label for="system-message" class="form-label">System Message</label>
-  <textarea id="system-message" bind:value={systemMessage} class="form-control" rows="1"/>
-</div>
+{#if thread.data().plain?.messages}
+  {#each thread.data().plain.messages as message, i (i)}
+    <div class="mb-3">
+      <div>{message.role}</div>
+      <div>{message.content}</div>
+    </div>
+  {/each}
+{:else}
+  <div class="mb-3">
+    <label for="system-message" class="form-label">system</label>
+    <textarea id="system-message" bind:value={systemMessage} class="form-control" rows="1"/>
+  </div>
+{/if}
 
-<label for="user-message" class="form-label">User Message</label>
+<label for="user-message" class="form-label">user</label>
 <textarea id="user-message" bind:value={userMessage} class="form-control" rows="3"/>
-
-<!-- <label for="temperature" class="form-label">Temperature</label>
-<input id="temperature" type="number" min="0" max="2" bind:value={temperature} class="form-control"/> -->
 
 <p>{assistantMessage}</p>
 <p class="text-danger">{error}</p>

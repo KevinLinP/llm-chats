@@ -4,7 +4,7 @@
   import { writable } from 'svelte/store';
 
   export let db;
-  export let setCurrentThread;
+  export let setCurrentThreadRef;
 
   let threads = writable([]);
 
@@ -29,8 +29,8 @@
 
 {#each $threads as thread (thread.id)}
   <div class="mb-2">
-    <button class="btn btn-primary" on:click={setCurrentThread(thread)}>
-      {thread.data().created}
+    <button class="btn btn-primary" on:click={setCurrentThreadRef(thread.ref)}>
+      {thread.data().updated}
     </button>
     <button class="btn btn-danger" on:click={handleDestroy(thread)}>
       🗑
