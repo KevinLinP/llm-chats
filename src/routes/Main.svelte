@@ -1,6 +1,7 @@
 <script>
 	import { getFirestore } from 'firebase/firestore';
 
+  import Thread from './Thread.svelte';
   import ThreadList from './ThreadList.svelte';
 
   export let app;
@@ -17,4 +18,4 @@
 
 <ThreadList {db} {setCurrentThread}/>
 
-<div>Current Thread: {currentThread?.id}</div>
+<Thread {db} thread={currentThread}/>
