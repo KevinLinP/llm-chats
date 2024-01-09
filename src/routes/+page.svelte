@@ -1,11 +1,44 @@
 <script>
   import OpenAI from 'openai';
   import { setupCrypto } from './crypto.js';
-  // import { userStore } from 'sveltefire';
+  import { Collection } from 'sveltefire';
 
-  // export let auth;
+	import { FirebaseApp, userStore } from 'sveltefire';
+	import { initializeApp } from 'firebase/app';
+	import { getFirestore } from 'firebase/firestore';
+	import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+	import { SignedIn, SignedOut } from 'sveltefire';
+  import { collection, addDoc, serverTimestamp } from "firebase/firestore"; 
 
-  // const user = userStore(auth);
+	// Initialize Firebase
+	const firebaseConfig = {
+		apiKey: "AIzaSyDpPsmgDCUuhJZ6UP3cJeY8MLZPKT1bgsY",
+		authDomain: "llm-chats.firebaseapp.com",
+		projectId: "llm-chats",
+		storageBucket: "llm-chats.appspot.com",
+		messagingSenderId: "223168031874",
+		appId: "1:223168031874:web:97a85b31f915013520189b"
+	};
+	const app = initializeApp(firebaseConfig);
+	const firestore = getFirestore(app);
+	const auth = getAuth(app);
+
+
+	const handleSignIn = () => {
+		const provider = new GoogleAuthProvider();
+
+		signInWithPopup(auth, provider)
+			.then((result) => {
+				GoogleAuthProvider.credentialFromResult(result);
+			}).catch((error) => {
+				console.log({error})
+			});
+	};
+
+	const user = userStore(auth);
+	user.subscribe((user) => {
+		if (user) console.log({user});
+	});
 
   if (typeof window !== 'undefined') {
     setupCrypto();
@@ -56,9 +89,44 @@
     }
   }
 
+  $: {
+    console.log(firestore, auth)
+  }
+
+  const db = firestore;
+
+  let handleCreateThread = async () => {
+    const docRef = await addDoc(collection(db, "threads"), {
+      created: serverTimestamp(),
+    });
+    console.log({docRef});
+  }
+
+
   // TODO: turn into array of messages
   // TODO: better layout
 </script>
+
+<FirebaseApp {auth} {firestore}>
+  <SignedOut>
+    <button class="btn btn-primary" on:click={handleSignIn}>Sign In</button>
+  </SignedOut>
+
+  <SignedIn let:signOut let:auth>
+    <div class="container">
+      <div class="d-flex justify-content-end">
+        <button class="btn btn-link" on:click={signOut}>Sign Out</button>
+      </div>
+
+<Collection ref={'threads'} let:data>
+  {#each data as thread}
+    <p>{thread.created}</p>
+  {/each}
+</Collection>
+
+<button class="btn btn-primary" on:click={handleCreateThread}>Create Thread</button>
+
+
 
 <div class="mb-3">
   <label for="system-message" class="form-label">System Message</label>
@@ -75,3 +143,7 @@
 <p class="text-danger">{error}</p>
 
 <button class="btn btn-primary" on:click={handleSend}>Send</button>
+
+    </div>
+  </SignedIn>
+</FirebaseApp>
