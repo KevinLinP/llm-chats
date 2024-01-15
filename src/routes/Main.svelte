@@ -37,6 +37,8 @@
 
 {#if $currentThread}
   {#each [$currentThread] as thread (thread.id)}
-    <Thread {db} thread={thread}/>
+    {#if thread}
+      <Thread {db} thread={thread}/>
+    {/if}
   {/each}
 {/if}

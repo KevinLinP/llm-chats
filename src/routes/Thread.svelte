@@ -3,6 +3,7 @@
   import OpenAI from 'openai';
 
   export let thread;
+  export let db;
 
   $: {
     console.log(thread);
@@ -20,17 +21,18 @@
   // TODO: render Markdown properly
   let assistantMessage = '';
   let error = '';
-
-  const messages = thread.data().plain?.messages || [
-    { role: 'system', content: systemMessage }
-  ];
+  let title = thread.data().plain?.title || '';
+  
+  $: plain = thread.data()?.plain;
+  $: messages = plain.messages;
+  $: console.log({plain});
 
   const handleSend = async () => {
     assistantMessage = '';
     error = '';
 
     const newMessages = [
-      ...messages,
+      ...(messages || [{role: 'system', content: systemMessage}]),
       { role: 'user', content: userMessage }
     ];
 
@@ -57,7 +59,10 @@
       });
 
       updateDoc(thread.ref, {
-        plain: {messages: newMessages},
+        plain: {
+          ...plain,
+          messages: newMessages
+        },
         updated: serverTimestamp()
       });
 
@@ -67,12 +72,22 @@
       error = e;
     }
   }
+
+  const saveTitle = async () => {
+    updateDoc(thread.ref, {
+      plain: {
+        ...plain,
+        title
+      },
+      updated: serverTimestamp()
+    });
+  }
 </script>
 
-<div>Thread: {thread?.id}</div>
+<input type="text" bind:value={title} on:blur={saveTitle} class="form-control minimal-input" placeholder="title"/>
 
-{#if thread.data().plain?.messages}
-  {#each thread.data().plain.messages as message, i (i)}
+{#if messages?.length > 0}
+  {#each messages as message, i (i)}
     <div class="mb-3">
       <div>{message.role}</div>
       <div>{message.content}</div>
@@ -80,15 +95,24 @@
   {/each}
 {:else}
   <div class="mb-3">
-    <label for="system-message" class="form-label">system</label>
+    <label for="system-message" class="form-label minimal-input">system</label>
     <textarea id="system-message" bind:value={systemMessage} class="form-control" rows="1"/>
   </div>
 {/if}
 
 <label for="user-message" class="form-label">user</label>
-<textarea id="user-message" bind:value={userMessage} class="form-control" rows="3"/>
+<textarea id="user-message" bind:value={userMessage} class="form-control minimal-input" rows="1"/>
 
 <p>{assistantMessage}</p>
 <p class="text-danger">{error}</p>
 
 <button class="btn btn-primary" on:click={handleSend}>Send</button>
+
+<style lang="scss">
+  .minimal-input {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+  }
+</style>

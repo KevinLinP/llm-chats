@@ -16,6 +16,7 @@
 
   const handleCreateThread = async () => {
     const docRef = await addDoc(collection(db, "threads"), {
+      plain: {},
       created: serverTimestamp(),
       updated: serverTimestamp(),
     });
@@ -30,7 +31,7 @@
 {#each $threads as thread (thread.id)}
   <div class="mb-2">
     <button class="btn btn-primary" on:click={setCurrentThreadRef(thread.ref)}>
-      {thread.data().updated}
+      {thread.data().plain?.title || 'Untitled'}
     </button>
     <button class="btn btn-danger" on:click={handleDestroy(thread)}>
       🗑
