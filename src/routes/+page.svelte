@@ -38,7 +38,7 @@
   };
 </script>
 
-<div class="container">
+<div class="container-fluid">
   {#if !signedIn}
   <button class="btn btn-primary" on:click={handleSignIn}>Sign In</button>
   {:else}

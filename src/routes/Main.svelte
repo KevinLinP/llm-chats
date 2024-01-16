@@ -33,12 +33,19 @@
   });
 </script>
 
-<ThreadList {db} {setCurrentThreadRef}/>
+<div class="d-flex flex-direction-row" style="gap: 3rem;">
+  <div>
+    <ThreadList {db} {setCurrentThreadRef}/>
+  </div>
 
-{#if $currentThread}
-  {#each [$currentThread] as thread (thread.id)}
-    {#if thread}
-      <Thread {db} thread={thread}/>
+  <div class="flex-grow-1">
+    {#if $currentThread}
+      {#each [$currentThread] as thread (thread.id)}
+        {#if thread}
+          <Thread {db} thread={thread}/>
+        {/if}
+      {/each}
     {/if}
-  {/each}
-{/if}
+  </div>
+</div>
+
