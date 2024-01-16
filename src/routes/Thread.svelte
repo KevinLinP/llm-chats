@@ -85,7 +85,7 @@
 </script>
 
 <div class="mb-3">
-  <input type="text" bind:value={title} on:blur={saveTitle} class="form-control title-input" placeholder="title"/>
+  <input type="text" bind:value={title} on:blur={saveTitle} class="form-control title-input" class:blank={!title.length} placeholder="title"/>
 </div>
 
 
@@ -99,32 +99,42 @@
 {:else}
   <div class="mb-3">
     <label for="system-message" class="form-label minimal-input">system</label>
-    <textarea id="system-message" bind:value={systemMessage} class="form-control" rows="1"/>
+    <textarea id="system-message" bind:value={systemMessage} class="form-control minimal-input" rows="1"/>
   </div>
 {/if}
 
-<label for="user-message" class="form-label">user</label>
-<textarea id="user-message" bind:value={userMessage} on:keydown={(e) => {
-  if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
-    e.preventDefault();
-    handleSend();
-  }
-}} class="form-control minimal-input"  rows="1"/>
+<div class="d-flex flex-direction-row align-items-end">
+  <div class="flex-grow-1">
+    <label for="user-message" class="form-label">user</label>
+    <textarea id="user-message" bind:value={userMessage} on:keydown={(e) => {
+      if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    }} class="form-control minimal-input"  rows="1"/>
+  </div>
+
+  <div>
+    <button class="btn btn-text" on:click={handleSend}>Send</button>
+  </div>
+</div>
+
 
 <p>{assistantMessage}</p>
 <p class="text-danger">{error}</p>
 
-<button class="btn btn-primary" on:click={handleSend}>Send</button>
 
 <style lang="scss">
   .title-input {
     border-radius: 0;
     &:not(:focus) {
-      border: none;
-      padding-left: 0;
+      &:not(.blank) {
+        border: none;
+        padding-left: 0;
+      }
     }
 
-    &:focus, .blank {
+    &:focus, &.blank {
       border-top: none;
       border-left: none;
       border-right: none;
