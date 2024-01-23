@@ -1,51 +1,48 @@
 <script>
-	import { initializeApp } from 'firebase/app';
-	import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+	import { getFirestore, onSnapshot } from 'firebase/firestore';
+  import { onDestroy } from 'svelte';
 
-  import Main from './Main.svelte';
+  import Thread from './Thread.svelte';
+  import ThreadList from './ThreadList.svelte';
+	import { writable } from 'svelte/store';
 
-	// Initialize Firebase
-  const firebaseConfig = {
-		apiKey: "AIzaSyDpPsmgDCUuhJZ6UP3cJeY8MLZPKT1bgsY",
-		authDomain: "llm-chats.firebaseapp.com",
-		projectId: "llm-chats",
-		storageBucket: "llm-chats.appspot.com",
-		messagingSenderId: "223168031874",
-		appId: "1:223168031874:web:97a85b31f915013520189b"
-	};
+	const db = getFirestore();
 
-	const app = initializeApp(firebaseConfig);
-	const auth = getAuth(app);
+  let unsubscribe = null;
+  let currentThreadRef = null;
+  const currentThread = writable(null);
 
-  let signedIn = false;
-  auth.onAuthStateChanged(user => {
-    signedIn = !!user;
+  const setCurrentThreadRef = (threadRef) => {
+    currentThreadRef = threadRef;
+  }
+
+  $: {
+    if (currentThreadRef) {
+      if (unsubscribe) unsubscribe();
+
+      unsubscribe = onSnapshot(currentThreadRef, (doc) => {
+        currentThread.set(doc);
+      });
+    }
+  }
+
+  onDestroy(() => {
+    if (unsubscribe) unsubscribe();
   });
-
-	const handleSignIn = () => {
-		const provider = new GoogleAuthProvider();
-
-		signInWithPopup(auth, provider)
-			.then((result) => {
-				GoogleAuthProvider.credentialFromResult(result);
-			}).catch((error) => {
-				console.log({error})
-			});
-	};
-
-  const handleSignOut = () => {
-    auth.signOut();
-  };
 </script>
 
-<div class="container-fluid">
-  {#if !signedIn}
-  <button class="btn btn-primary" on:click={handleSignIn}>Sign In</button>
-  {:else}
-    <div class="d-flex justify-content-end">
-      <button class="btn btn-link" on:click={handleSignOut}>Sign Out</button>
-    </div>
+<div class="d-flex flex-direction-row" style="gap: 3rem;">
+  <div>
+    <ThreadList {db} {setCurrentThreadRef}/>
+  </div>
 
-    <Main {app}/>
-  {/if}
+  <div class="flex-grow-1">
+    {#if $currentThread}
+      {#each [$currentThread] as thread (thread.id)}
+        {#if thread}
+          <Thread {db} thread={thread}/>
+        {/if}
+      {/each}
+    {/if}
+  </div>
 </div>

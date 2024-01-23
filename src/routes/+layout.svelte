@@ -1,5 +1,50 @@
 <script>
 	import '../app.scss';
+	import { initializeApp } from 'firebase/app';
+	import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+
+	// Initialize Firebase
+  const firebaseConfig = {
+		apiKey: "AIzaSyDpPsmgDCUuhJZ6UP3cJeY8MLZPKT1bgsY",
+		authDomain: "llm-chats.firebaseapp.com",
+		projectId: "llm-chats",
+		storageBucket: "llm-chats.appspot.com",
+		messagingSenderId: "223168031874",
+		appId: "1:223168031874:web:97a85b31f915013520189b"
+	};
+
+	const app = initializeApp(firebaseConfig);
+	const auth = getAuth(app);
+
+  let signedIn = false;
+  auth.onAuthStateChanged(user => {
+    signedIn = !!user;
+  });
+
+	const handleSignIn = () => {
+		const provider = new GoogleAuthProvider();
+
+		signInWithPopup(auth, provider)
+			.then((result) => {
+				GoogleAuthProvider.credentialFromResult(result);
+			}).catch((error) => {
+				console.log({error})
+			});
+	};
+
+  const handleSingOut = () => {
+    auth.signOut();
+  };
 </script>
 
-<slot />
+<div class="container-fluid">
+  {#if !signedIn}
+		<button class="btn btn-primary" on:click={handleSignIn}>Sign In</button>
+  {:else}
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-link" on:click={handleSingOut}>Sign Out</button>
+    </div>
+
+		<slot />
+  {/if}
+</div>
