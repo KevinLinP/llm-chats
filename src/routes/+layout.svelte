@@ -2,6 +2,7 @@
 	import '../app.scss';
 	import { initializeApp } from 'firebase/app';
 	import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+	import EncryptionContext from './EncryptionContext.svelte';
 
 	// Initialize Firebase
   const firebaseConfig = {
@@ -45,6 +46,8 @@
       <button class="btn btn-link" on:click={handleSingOut}>Sign Out</button>
     </div>
 
-		<slot />
+		<EncryptionContext>
+			<slot />
+		</EncryptionContext>
   {/if}
 </div>

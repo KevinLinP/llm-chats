@@ -1,6 +1,6 @@
 <script>
 	import { getFirestore, onSnapshot } from 'firebase/firestore';
-  import { onDestroy } from 'svelte';
+  import { getContext, onDestroy } from 'svelte';
 
   import Thread from './Thread.svelte';
   import ThreadList from './ThreadList.svelte';
@@ -11,6 +11,9 @@
   let unsubscribe = null;
   let currentThreadRef = null;
   const currentThread = writable(null);
+
+  const encryptionKey = getContext('encryptionKey')
+  console.log(encryptionKey);
 
   const setCurrentThreadRef = (threadRef) => {
     currentThreadRef = threadRef;
