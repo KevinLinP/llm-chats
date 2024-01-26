@@ -7,6 +7,7 @@
   export let setCurrentThreadRef;
 
   let threads = writable([]);
+  let plainThreads = writable({});
 
   const q = query(collection(db, "threads"), orderBy("updated", "desc"));
   const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -15,6 +16,39 @@
   onDestroy(unsubscribe);
 
   const encryptionKey = getContext('encryptionKey');
+
+  const decryptThreads = async (threads) => {
+    const promises = threads.map((thread) => {
+      const iv = new Uint8Array(thread.data().iv.toUint8Array());
+      const encrypted = new Uint8Array(thread.data().encrypted.toUint8Array());
+
+      const decrypted = window.crypto.subtle.decrypt(
+        {
+          name: 'AES-GCM',
+          iv,
+        },
+        encryptionKey,
+        encrypted,
+      );
+
+      return decrypted.then((decrypted) => {
+        const dec = new TextDecoder();
+        return [thread.id, JSON.parse(dec.decode(decrypted))];
+      });
+    });
+
+    const plainThreadData = await Promise.all(promises);
+    const something = {};
+    plainThreadData.forEach((td) => {
+      something[td[0]] = td[1];
+    });
+
+    console.log(something)
+
+    $plainThreads = something;
+  }
+
+  $: decryptThreads($threads);
 
   const handleCreateThread = async () => {
     const enc = new TextEncoder();
@@ -42,31 +76,12 @@
   const handleDestroy = (thread) => {
     deleteDoc(thread.ref);
   }
-
-  const plain = (thread) => {
-    const iv = new Uint8Array(thread.data().iv.toUint8Array());
-    const encrypted = new Uint8Array(thread.data().encrypted.toUint8Array());
-
-    const decrypted = window.crypto.subtle.decrypt(
-      {
-        name: 'AES-GCM',
-        iv,
-      },
-      encryptionKey,
-      encrypted,
-    );
-
-    return decrypted.then((decrypted) => {
-      const dec = new TextDecoder();
-      return JSON.parse(dec.decode(decrypted));
-    });
-  }
 </script>
 
 {#each $threads as thread (thread.id)}
   <div class="mb-2">
     <button class="btn btn-primary" on:click={setCurrentThreadRef(thread.ref)}>
-      {plain(thread).title || 'Untitled'}
+      {$plainThreads[thread.id]?.title || 'Untitled'}
     </button>
     <button class="btn btn-danger" on:click={handleDestroy(thread)}>
       🗑
