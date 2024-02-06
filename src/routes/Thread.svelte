@@ -1,16 +1,12 @@
 <script>
 	import { getContext } from 'svelte';
 	import { serverTimestamp, updateDoc } from 'firebase/firestore';
+	import { decrypt, encrypt } from './crypto';
 	import OpenAI from 'openai';
 
 	export let thread;
 
 	const encryptionKey = getContext('encryptionKey');
-	console.log(encryptionKey);
-
-	$: {
-		console.log(thread.data());
-	}
 
 	const openai = new OpenAI({
 		apiKey: 'not needed',
@@ -23,31 +19,20 @@
 	// TODO: render Markdown properly
 	let assistantMessage = '';
 	let error = '';
+	let title = '';
 
-	$: iv = new Uint8Array(thread.data().iv.toUint8Array());
-	$: encrypted = new Uint8Array(thread.data().encrypted.toUint8Array());
-
-	let plain = null;
+	let plain = {};
 
 	$: {
-		const decryptThread = async () => {
-			const decrypted = await window.crypto.subtle.decrypt(
-				{
-					name: 'AES-GCM',
-					iv
-				},
-				encryptionKey,
-				encrypted
-			);
-
-			plain = JSON.parse(new TextDecoder().decode(decrypted));
+		const runDecrypt = async () => {
+			if (thread.data()) {
+				plain = await decrypt({ encryptionKey, thread });
+			}
 		};
 
-		decryptThread();
+		runDecrypt();
 	}
 
-	$: title = plain?.title || '';
-	$: console.log({ plain, title });
 	$: messages = plain?.messages || [];
 
 	const handleSend = async () => {
@@ -80,28 +65,40 @@
 				role: 'assistant',
 				content: assistantMessage.trim()
 			});
-
-			updateDoc(thread.ref, {
-				plain: {
-					...plain,
-					messages: newMessages
-				},
-				updated: serverTimestamp()
-			});
-
-			userMessage = '';
-			assistantMessage = '';
 		} catch (e) {
 			error = e;
 		}
+
+		const { encrypted, iv } = await encrypt({
+			encryptionKey,
+			plain: {
+				...plain,
+				messages: newMessages
+			}
+		});
+
+		updateDoc(thread.ref, {
+			encrypted,
+			iv,
+			updated: serverTimestamp()
+		});
+
+		userMessage = '';
+		assistantMessage = '';
 	};
 
 	const saveTitle = async () => {
-		updateDoc(thread.ref, {
+		const { encrypted, iv } = await encrypt({
+			encryptionKey,
 			plain: {
 				...plain,
 				title
-			},
+			}
+		});
+
+		updateDoc(thread.ref, {
+			encrypted,
+			iv,
 			updated: serverTimestamp()
 		});
 	};
