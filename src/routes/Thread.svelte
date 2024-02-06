@@ -23,7 +23,6 @@
 	// TODO: render Markdown properly
 	let assistantMessage = '';
 	let error = '';
-	let title = thread.data().plain?.title || '';
 
 	$: iv = new Uint8Array(thread.data().iv.toUint8Array());
 	$: encrypted = new Uint8Array(thread.data().encrypted.toUint8Array());
@@ -31,7 +30,7 @@
 	let plain = null;
 
 	$: {
-		const something = async () => {
+		const decryptThread = async () => {
 			const decrypted = await window.crypto.subtle.decrypt(
 				{
 					name: 'AES-GCM',
@@ -44,11 +43,11 @@
 			plain = JSON.parse(new TextDecoder().decode(decrypted));
 		};
 
-		something();
+		decryptThread();
 	}
 
-	$: console.log({ plain });
-
+	$: title = plain?.title || '';
+	$: console.log({ plain, title });
 	$: messages = plain?.messages || [];
 
 	const handleSend = async () => {

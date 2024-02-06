@@ -40,7 +40,7 @@
 		{#if $currentThread}
 			{#each [$currentThread] as thread (thread.id)}
 				{#if thread}
-					<Thread {db} {thread} />
+					<Thread {thread} />
 				{/if}
 			{/each}
 		{/if}
