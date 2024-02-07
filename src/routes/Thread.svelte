@@ -1,10 +1,27 @@
 <script>
-	import { getContext } from 'svelte';
-	import { serverTimestamp, updateDoc } from 'firebase/firestore';
+	import { getContext, onDestroy } from 'svelte';
+	import { serverTimestamp, updateDoc, onSnapshot } from 'firebase/firestore';
 	import { decrypt, encrypt } from './crypto';
 	import OpenAI from 'openai';
 
-	export let thread;
+	export let currentThreadRefStore;
+	let thread = null;
+	let unsubscribe = null;
+
+	$: {
+		const currentThreadRef = $currentThreadRefStore;
+		if (currentThreadRef) {
+			if (unsubscribe) unsubscribe();
+
+			unsubscribe = onSnapshot(currentThreadRef, (doc) => {
+				thread = doc;
+			});
+		}
+	}
+
+	onDestroy(() => {
+		if (unsubscribe) unsubscribe();
+	});
 
 	const encryptionKey = getContext('encryptionKey');
 
@@ -67,6 +84,7 @@
 			});
 		} catch (e) {
 			error = e;
+			return;
 		}
 
 		const { encrypted, iv } = await encrypt({

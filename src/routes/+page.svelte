@@ -1,48 +1,17 @@
 <script>
-	import { getFirestore, onSnapshot } from 'firebase/firestore';
-	import { getContext, onDestroy } from 'svelte';
-
 	import Thread from './Thread.svelte';
 	import ThreadList from './ThreadList.svelte';
 	import { writable } from 'svelte/store';
 
-	const db = getFirestore();
-
-	let unsubscribe = null;
-	let currentThreadRef = null;
-	const currentThread = writable(null);
-
-	const setCurrentThreadRef = (threadRef) => {
-		currentThreadRef = threadRef;
-	};
-
-	$: {
-		if (currentThreadRef) {
-			if (unsubscribe) unsubscribe();
-
-			unsubscribe = onSnapshot(currentThreadRef, (doc) => {
-				currentThread.set(doc);
-			});
-		}
-	}
-
-	onDestroy(() => {
-		if (unsubscribe) unsubscribe();
-	});
+	let currentThreadRefStore = writable(null);
 </script>
 
 <div class="d-flex flex-direction-row" style="gap: 3rem;">
 	<div>
-		<ThreadList {db} {setCurrentThreadRef} />
+		<ThreadList {currentThreadRefStore} />
 	</div>
 
 	<div class="flex-grow-1">
-		{#if $currentThread}
-			{#each [$currentThread] as thread (thread.id)}
-				{#if thread}
-					<Thread {thread} />
-				{/if}
-			{/each}
-		{/if}
+		<Thread {currentThreadRefStore} />
 	</div>
 </div>
