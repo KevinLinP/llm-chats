@@ -103,13 +103,12 @@
 			}
 		});
 
-		updateDoc(currentThreadRef, {
+		await updateDoc(currentThreadRef, {
 			encrypted,
 			iv,
 			updated: serverTimestamp()
 		});
 
-		userMessage = '';
 		assistantMessage = '';
 	};
 
@@ -154,10 +153,11 @@
 
 	{#if displayedMessages?.length}
 		{#each displayedMessages as message, i (i)}
-			<div class="mb-3">
-				<div>{message.role}</div>
-				<div>{message.content}</div>
-			</div>
+			<p class="mb-3">
+				{message.role}
+				<br />
+				{message.content}
+			</p>
 		{/each}
 	{:else}
 		<div class="mb-3">
@@ -171,10 +171,14 @@
 		</div>
 	{/if}
 
-	<p>{assistantMessage}</p>
-	<p class="text-danger">{error}</p>
-
-	{#if !isStreaming}
+	{#if isStreaming}
+		<p class="mb-3">
+			assistant
+			<br />
+			{assistantMessage}
+		</p>
+		<p class="text-danger">{error}</p>
+	{:else}
 		<div class="d-flex flex-direction-row align-items-end">
 			<div class="flex-grow-1">
 				<label for="user-message" class="form-label">user</label>
