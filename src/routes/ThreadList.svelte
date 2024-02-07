@@ -1,5 +1,6 @@
 <script>
 	import { getContext, onDestroy } from 'svelte';
+	import { decrypt } from './crypto';
 	import {
 		collection,
 		query,
@@ -19,31 +20,19 @@
 	let plainThreads = writable({});
 
 	const q = query(collection(db, 'threads'), orderBy('updated', 'desc'));
-	const unsubscribe = onSnapshot(q, (querySnapshot) => {
+	let unsubscribe = null;
+	$: unsubscribe = onSnapshot(q, (querySnapshot) => {
 		$threads = querySnapshot.docs;
 	});
-	onDestroy(unsubscribe);
+	onDestroy(() => {
+		if (unsubscribe) unsubscribe();
+	});
 
 	const encryptionKey = getContext('encryptionKey');
 
 	const decryptThreads = async (threads) => {
 		const promises = threads.map((thread) => {
-			const iv = new Uint8Array(thread.data().iv.toUint8Array());
-			const encrypted = new Uint8Array(thread.data().encrypted.toUint8Array());
-
-			const decrypted = window.crypto.subtle.decrypt(
-				{
-					name: 'AES-GCM',
-					iv
-				},
-				encryptionKey,
-				encrypted
-			);
-
-			return decrypted.then((decrypted) => {
-				const dec = new TextDecoder();
-				return [thread.id, JSON.parse(dec.decode(decrypted))];
-			});
+			return decrypt({ encryptionKey, thread });
 		});
 
 		const plainThreadData = await Promise.all(promises);
@@ -51,8 +40,6 @@
 		plainThreadData.forEach((td) => {
 			something[td[0]] = td[1];
 		});
-
-		console.log(something);
 
 		$plainThreads = something;
 	};
