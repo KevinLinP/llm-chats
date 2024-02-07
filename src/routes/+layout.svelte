@@ -18,6 +18,7 @@
 
 	const app = initializeApp(firebaseConfig);
 	const auth = getAuth(app);
+	setContext('auth', auth);
 	const db = getFirestore(app);
 	setContext('db', db);
 
@@ -37,20 +38,12 @@
 				console.log({ error });
 			});
 	};
-
-	const handleSignOut = () => {
-		auth.signOut();
-	};
 </script>
 
-<div class="container-fluid">
+<div class="container-fluid py-5">
 	{#if !signedIn}
 		<button class="btn btn-primary" on:click={handleSignIn}>Sign In</button>
 	{:else}
-		<div class="d-flex justify-content-end">
-			<button class="btn btn-link" on:click={handleSignOut}>Sign Out</button>
-		</div>
-
 		<EncryptionContext>
 			<slot />
 		</EncryptionContext>

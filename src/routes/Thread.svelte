@@ -1,6 +1,6 @@
 <script>
 	import { getContext, onDestroy } from 'svelte';
-	import { serverTimestamp, updateDoc, onSnapshot } from 'firebase/firestore';
+	import { serverTimestamp, updateDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
 	import { decrypt, encrypt } from './crypto';
 	import OpenAI from 'openai';
 
@@ -14,6 +14,8 @@
 	let unsubscribe = null;
 	let displayedMessages = [];
 	let isStreaming = false;
+	let titleInput = null;
+	let userMessageTextarea = null;
 
 	currentThreadRefStore.subscribe((ref) => {
 		currentThreadRef = ref;
@@ -27,8 +29,12 @@
 					plain = await decrypt({ encryptionKey, thread });
 					title = plain.title;
 					displayedMessages = plain.messages || [];
+				} else {
+					thread = null;
 				}
 			});
+		} else {
+			thread = null;
 		}
 	});
 
@@ -42,7 +48,7 @@
 		dangerouslyAllowBrowser: true
 	});
 
-	let systemMessage = 'You are a helpful assistant.';
+	let systemMessage = 'You are a helpful assistant that NEVER includes follow-up instructions.';
 	let userMessage = '';
 	// TODO: render Markdown properly
 	let assistantMessage = '';
@@ -103,6 +109,8 @@
 			}
 		});
 
+		if (userMessageTextarea) userMessageTextarea.focus();
+
 		await updateDoc(currentThreadRef, {
 			encrypted,
 			iv,
@@ -131,34 +139,47 @@
 			updated: serverTimestamp()
 		});
 	};
+
+	const handleDestroy = () => {
+		thread = null;
+		deleteDoc(currentThreadRef);
+		currentThreadRefStore.set(null);
+	};
 </script>
 
 {#if thread}
-	<div class="mb-3">
-		<input
-			type="text"
-			bind:value={title}
-			on:blur={saveTitle}
-			on:keydown={(e) => {
-				if (e.key === 'Enter') {
-					e.preventDefault();
-					saveTitle();
-				}
-			}}
-			class="form-control title-input"
-			class:blank={!title?.length}
-			placeholder="title"
-		/>
+	<div class="mb-3 d-flex flex-direction-row">
+		<div class="flex-grow-1">
+			<input
+				type="text"
+				bind:this={titleInput}
+				bind:value={title}
+				on:blur={saveTitle}
+				on:keydown={(e) => {
+					if (e.key === 'Enter') {
+						e.preventDefault();
+						saveTitle();
+						titleInput.blur();
+					}
+				}}
+				class="form-control title-input"
+				class:blank={!title?.length}
+				placeholder="title"
+			/>
+		</div>
+		<button class="btn btn-link" on:click={handleDestroy}>delete</button>
 	</div>
 
 	{#if displayedMessages?.length}
-		{#each displayedMessages as message, i (i)}
-			<p class="mb-3">
-				{message.role}
-				<br />
-				{message.content}
-			</p>
-		{/each}
+		<div class="pe-5">
+			{#each displayedMessages as message, i (i)}
+				<p class="mb-3">
+					{message.role}
+					<br />
+					{message.content}
+				</p>
+			{/each}
+		</div>
 	{:else}
 		<div class="mb-3">
 			<label for="system-message" class="form-label minimal-input">system</label>
@@ -172,12 +193,14 @@
 	{/if}
 
 	{#if isStreaming}
-		<p class="mb-3">
-			assistant
-			<br />
-			{assistantMessage}
-		</p>
-		<p class="text-danger">{error}</p>
+		<div class="pe-5">
+			<p class="mb-3">
+				assistant
+				<br />
+				{assistantMessage}
+			</p>
+			<p class="text-danger">{error}</p>
+		</div>
 	{:else}
 		<div class="d-flex flex-direction-row align-items-end">
 			<div class="flex-grow-1">
@@ -185,6 +208,7 @@
 				<textarea
 					id="user-message"
 					bind:value={userMessage}
+					bind:this={userMessageTextarea}
 					on:keydown={(e) => {
 						if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
 							e.preventDefault();
@@ -206,9 +230,12 @@
 <style lang="scss">
 	.title-input {
 		border-radius: 0;
+		font-size: 1.5rem;
 		&:not(:focus) {
 			&:not(.blank) {
-				border: none;
+				border-top: none;
+				border-left: none;
+				border-right: none;
 				padding-left: 0;
 			}
 		}

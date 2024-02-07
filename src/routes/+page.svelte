@@ -6,12 +6,12 @@
 	let currentThreadRefStore = writable(null);
 </script>
 
-<div class="d-flex flex-direction-row" style="gap: 3rem;">
-	<div>
+<div class="row">
+	<div class="col-2">
 		<ThreadList {currentThreadRefStore} />
 	</div>
 
-	<div class="flex-grow-1">
+	<div class="col-10">
 		<Thread {currentThreadRefStore} />
 	</div>
 </div>

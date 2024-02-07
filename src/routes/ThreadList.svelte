@@ -7,8 +7,7 @@
 		orderBy,
 		onSnapshot,
 		addDoc,
-		serverTimestamp,
-		deleteDoc
+		serverTimestamp
 	} from 'firebase/firestore';
 	import { writable } from 'svelte/store';
 
@@ -64,19 +63,14 @@
 	const setCurrentThreadRef = (ref) => {
 		currentThreadRefStore.set(ref);
 	};
-
-	const handleDestroy = (thread) => {
-		deleteDoc(thread.ref);
-	};
 </script>
 
 {#each $threads as thread (thread.id)}
 	<div class="mb-2">
-		<button class="btn btn-primary" on:click={setCurrentThreadRef(thread.ref)}>
-			{$plainThreads[thread.id]?.title || 'Untitled'}
+		<button class="btn btn-secondary" on:click={setCurrentThreadRef(thread.ref)}>
+			{$plainThreads[thread.id]?.title || 'untitled'}
 		</button>
-		<button class="btn btn-danger" on:click={handleDestroy(thread)}> 🗑 </button>
 	</div>
 {/each}
 
-<button class="btn btn-primary" on:click={handleCreateThread}> Create Thread </button>
+<button class="mt-3 btn btn-link" on:click={handleCreateThread}>create thread</button>
