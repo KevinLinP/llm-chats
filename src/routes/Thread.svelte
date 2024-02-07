@@ -12,6 +12,8 @@
 	let title = null;
 	let plain = {};
 	let unsubscribe = null;
+	let displayedMessages = [];
+	let isStreaming = false;
 
 	currentThreadRefStore.subscribe((ref) => {
 		currentThreadRef = ref;
@@ -24,16 +26,9 @@
 					thread = doc;
 					plain = await decrypt({ encryptionKey, thread });
 					title = plain.title;
-				} else {
-					thread = null;
-					title = null;
-					plain = {};
+					displayedMessages = plain.messages || [];
 				}
 			});
-		} else {
-			thread = null;
-			title = null;
-			plain = {};
 		}
 	});
 
@@ -53,22 +48,28 @@
 	let assistantMessage = '';
 	let error = '';
 
-	$: messages = plain?.messages || [];
-
 	const handleSend = async () => {
 		assistantMessage = '';
 		error = '';
 
 		// TODO: immediately show user message as submitted, even if isn't persisted yet
 
-		const newMessages = [
-			...(messages || [{ role: 'system', content: systemMessage }]),
-			{ role: 'user', content: userMessage }
-		];
+		if (displayedMessages.length) {
+			displayedMessages = [...displayedMessages, { role: 'user', content: userMessage }];
+		} else {
+			displayedMessages = [
+				{ role: 'system', content: systemMessage },
+				{ role: 'user', content: userMessage }
+			];
+		}
+
+		userMessage = '';
 
 		try {
+			isStreaming = true;
+
 			const completion = await openai.chat.completions.create({
-				messages: newMessages,
+				messages: displayedMessages,
 				stream: true
 			});
 
@@ -83,10 +84,12 @@
 				}
 			}
 
-			newMessages.push({
-				role: 'assistant',
-				content: assistantMessage.trim()
-			});
+			displayedMessages = [
+				...displayedMessages,
+				{ role: 'assistant', content: assistantMessage.trim() }
+			];
+
+			isStreaming = false;
 		} catch (e) {
 			error = e;
 			return;
@@ -96,7 +99,7 @@
 			encryptionKey,
 			plain: {
 				...plain,
-				messages: newMessages
+				messages: displayedMessages
 			}
 		});
 
@@ -149,8 +152,8 @@
 		/>
 	</div>
 
-	{#if messages?.length > 0}
-		{#each messages as message, i (i)}
+	{#if displayedMessages?.length}
+		{#each displayedMessages as message, i (i)}
 			<div class="mb-3">
 				<div>{message.role}</div>
 				<div>{message.content}</div>
@@ -168,30 +171,32 @@
 		</div>
 	{/if}
 
-	<div class="d-flex flex-direction-row align-items-end">
-		<div class="flex-grow-1">
-			<label for="user-message" class="form-label">user</label>
-			<textarea
-				id="user-message"
-				bind:value={userMessage}
-				on:keydown={(e) => {
-					if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
-						e.preventDefault();
-						handleSend();
-					}
-				}}
-				class="form-control minimal-input"
-				rows="1"
-			/>
-		</div>
-
-		<div>
-			<button class="btn btn-text" on:click={handleSend}>Send</button>
-		</div>
-	</div>
-
 	<p>{assistantMessage}</p>
 	<p class="text-danger">{error}</p>
+
+	{#if !isStreaming}
+		<div class="d-flex flex-direction-row align-items-end">
+			<div class="flex-grow-1">
+				<label for="user-message" class="form-label">user</label>
+				<textarea
+					id="user-message"
+					bind:value={userMessage}
+					on:keydown={(e) => {
+						if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
+							e.preventDefault();
+							handleSend();
+						}
+					}}
+					class="form-control minimal-input"
+					rows="1"
+				/>
+			</div>
+
+			<div>
+				<button class="btn btn-text" on:click={handleSend}>Send</button>
+			</div>
+		</div>
+	{/if}
 {/if}
 
 <style lang="scss">
