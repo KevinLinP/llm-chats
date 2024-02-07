@@ -48,7 +48,7 @@
 	$: decryptThreads($threads);
 
 	const handleCreateThread = async () => {
-		const plain = { title: 'testing' };
+		const plain = { title: null };
 		const { encrypted, iv } = await encrypt({ encryptionKey, plain });
 
 		const ref = await addDoc(collection(db, 'threads'), {

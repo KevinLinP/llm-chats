@@ -5,26 +5,41 @@
 	import OpenAI from 'openai';
 
 	export let currentThreadRefStore;
+	const encryptionKey = getContext('encryptionKey');
+
+	let currentThreadRef = null;
 	let thread = null;
+	let title = null;
+	let plain = {};
 	let unsubscribe = null;
 
-	$: currentThreadRef = $currentThreadRefStore;
+	currentThreadRefStore.subscribe((ref) => {
+		currentThreadRef = ref;
 
-	$: {
 		if (currentThreadRef) {
 			if (unsubscribe) unsubscribe();
 
-			unsubscribe = onSnapshot(currentThreadRef, (doc) => {
-				thread = doc;
+			unsubscribe = onSnapshot(currentThreadRef, async (doc) => {
+				if (doc.exists()) {
+					thread = doc;
+					plain = await decrypt({ encryptionKey, thread });
+					title = plain.title;
+				} else {
+					thread = null;
+					title = null;
+					plain = {};
+				}
 			});
+		} else {
+			thread = null;
+			title = null;
+			plain = {};
 		}
-	}
+	});
 
 	onDestroy(() => {
 		if (unsubscribe) unsubscribe();
 	});
-
-	const encryptionKey = getContext('encryptionKey');
 
 	const openai = new OpenAI({
 		apiKey: 'not needed',
@@ -37,25 +52,14 @@
 	// TODO: render Markdown properly
 	let assistantMessage = '';
 	let error = '';
-	let title = '';
-
-	let plain = {};
-
-	$: {
-		const runDecrypt = async () => {
-			if (thread?.data()) {
-				plain = await decrypt({ encryptionKey, thread });
-			}
-		};
-
-		runDecrypt();
-	}
 
 	$: messages = plain?.messages || [];
 
 	const handleSend = async () => {
 		assistantMessage = '';
 		error = '';
+
+		// TODO: immediately show user message as submitted, even if isn't persisted yet
 
 		const newMessages = [
 			...(messages || [{ role: 'system', content: systemMessage }]),
@@ -127,66 +131,68 @@
 	};
 </script>
 
-<div class="mb-3">
-	<input
-		type="text"
-		bind:value={title}
-		on:blur={saveTitle}
-		on:keydown={(e) => {
-			if (e.key === 'Enter') {
-				e.preventDefault();
-				saveTitle();
-			}
-		}}
-		class="form-control title-input"
-		class:blank={!title.length}
-		placeholder="title"
-	/>
-</div>
-
-{#if messages?.length > 0}
-	{#each messages as message, i (i)}
-		<div class="mb-3">
-			<div>{message.role}</div>
-			<div>{message.content}</div>
-		</div>
-	{/each}
-{:else}
+{#if thread}
 	<div class="mb-3">
-		<label for="system-message" class="form-label minimal-input">system</label>
-		<textarea
-			id="system-message"
-			bind:value={systemMessage}
-			class="form-control minimal-input"
-			rows="1"
-		/>
-	</div>
-{/if}
-
-<div class="d-flex flex-direction-row align-items-end">
-	<div class="flex-grow-1">
-		<label for="user-message" class="form-label">user</label>
-		<textarea
-			id="user-message"
-			bind:value={userMessage}
+		<input
+			type="text"
+			bind:value={title}
+			on:blur={saveTitle}
 			on:keydown={(e) => {
-				if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
+				if (e.key === 'Enter') {
 					e.preventDefault();
-					handleSend();
+					saveTitle();
 				}
 			}}
-			class="form-control minimal-input"
-			rows="1"
+			class="form-control title-input"
+			class:blank={!title?.length}
+			placeholder="title"
 		/>
 	</div>
 
-	<div>
-		<button class="btn btn-text" on:click={handleSend}>Send</button>
-	</div>
-</div>
+	{#if messages?.length > 0}
+		{#each messages as message, i (i)}
+			<div class="mb-3">
+				<div>{message.role}</div>
+				<div>{message.content}</div>
+			</div>
+		{/each}
+	{:else}
+		<div class="mb-3">
+			<label for="system-message" class="form-label minimal-input">system</label>
+			<textarea
+				id="system-message"
+				bind:value={systemMessage}
+				class="form-control minimal-input"
+				rows="1"
+			/>
+		</div>
+	{/if}
 
-<p>{assistantMessage}</p>
-<p class="text-danger">{error}</p>
+	<div class="d-flex flex-direction-row align-items-end">
+		<div class="flex-grow-1">
+			<label for="user-message" class="form-label">user</label>
+			<textarea
+				id="user-message"
+				bind:value={userMessage}
+				on:keydown={(e) => {
+					if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
+						e.preventDefault();
+						handleSend();
+					}
+				}}
+				class="form-control minimal-input"
+				rows="1"
+			/>
+		</div>
+
+		<div>
+			<button class="btn btn-text" on:click={handleSend}>Send</button>
+		</div>
+	</div>
+
+	<p>{assistantMessage}</p>
+	<p class="text-danger">{error}</p>
+{/if}
 
 <style lang="scss">
 	.title-input {
