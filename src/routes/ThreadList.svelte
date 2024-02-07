@@ -1,6 +1,6 @@
 <script>
 	import { getContext, onDestroy } from 'svelte';
-	import { decrypt } from './crypto';
+	import { decrypt, encrypt } from './crypto';
 	import {
 		collection,
 		query,
@@ -8,8 +8,7 @@
 		onSnapshot,
 		addDoc,
 		serverTimestamp,
-		deleteDoc,
-		Bytes
+		deleteDoc
 	} from 'firebase/firestore';
 	import { writable } from 'svelte/store';
 
@@ -32,10 +31,12 @@
 
 	const decryptThreads = async (threads) => {
 		const promises = threads.map((thread) => {
-			return decrypt({ encryptionKey, thread });
+			return decrypt({ encryptionKey, thread }).then((plain) => {
+				return [thread.id, plain];
+			});
 		});
-
 		const plainThreadData = await Promise.all(promises);
+
 		const something = {};
 		plainThreadData.forEach((td) => {
 			something[td[0]] = td[1];
@@ -47,29 +48,20 @@
 	$: decryptThreads($threads);
 
 	const handleCreateThread = async () => {
-		const enc = new TextEncoder();
 		const plain = { title: 'testing' };
-		const encoded = enc.encode(JSON.stringify(plain));
-		const iv = window.crypto.getRandomValues(new Uint8Array(12));
-		const encrypted = await window.crypto.subtle.encrypt(
-			{
-				name: 'AES-GCM',
-				iv
-			},
-			encryptionKey,
-			encoded
-		);
+		const { encrypted, iv } = await encrypt({ encryptionKey, plain });
 
-		const docRef = await addDoc(collection(db, 'threads'), {
-			iv: Bytes.fromUint8Array(iv),
-			encrypted: Bytes.fromUint8Array(new Uint8Array(encrypted)),
+		const ref = await addDoc(collection(db, 'threads'), {
+			iv,
+			encrypted,
 			created: serverTimestamp(),
 			updated: serverTimestamp()
 		});
-		console.log({ docRef });
+
+		setCurrentThreadRef(ref);
 	};
 
-	const setCurrentThreadRef = (ref) => () => {
+	const setCurrentThreadRef = (ref) => {
 		currentThreadRefStore.set(ref);
 	};
 

@@ -8,8 +8,9 @@
 	let thread = null;
 	let unsubscribe = null;
 
+	$: currentThreadRef = $currentThreadRefStore;
+
 	$: {
-		const currentThreadRef = $currentThreadRefStore;
 		if (currentThreadRef) {
 			if (unsubscribe) unsubscribe();
 
@@ -42,7 +43,7 @@
 
 	$: {
 		const runDecrypt = async () => {
-			if (thread.data()) {
+			if (thread?.data()) {
 				plain = await decrypt({ encryptionKey, thread });
 			}
 		};
@@ -95,7 +96,7 @@
 			}
 		});
 
-		updateDoc(thread.ref, {
+		updateDoc(currentThreadRef, {
 			encrypted,
 			iv,
 			updated: serverTimestamp()
@@ -106,15 +107,19 @@
 	};
 
 	const saveTitle = async () => {
+		const newPlain = {
+			...plain,
+			title
+		};
+
+		console.log({ newPlain });
+
 		const { encrypted, iv } = await encrypt({
 			encryptionKey,
-			plain: {
-				...plain,
-				title
-			}
+			plain: newPlain
 		});
 
-		updateDoc(thread.ref, {
+		updateDoc(currentThreadRef, {
 			encrypted,
 			iv,
 			updated: serverTimestamp()
@@ -127,6 +132,12 @@
 		type="text"
 		bind:value={title}
 		on:blur={saveTitle}
+		on:keydown={(e) => {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				saveTitle();
+			}
+		}}
 		class="form-control title-input"
 		class:blank={!title.length}
 		placeholder="title"
