@@ -65,12 +65,14 @@
 	};
 </script>
 
-{#each $threads as thread (thread.id)}
-	<div class="mb-2">
-		<button class="btn btn-secondary" on:click={setCurrentThreadRef(thread.ref)}>
-			{$plainThreads[thread.id]?.title || 'untitled'}
-		</button>
-	</div>
-{/each}
+{#if $threads.length}
+	{#each $threads as thread (thread.id)}
+		<div class="mb-2">
+			<button class="btn btn-secondary" on:click={setCurrentThreadRef(thread.ref)}>
+				{$plainThreads[thread.id]?.title || 'untitled'}
+			</button>
+		</div>
+	{/each}
 
-<button class="mt-3 btn btn-link" on:click={handleCreateThread}>create thread</button>
+	<button class="mt-3 btn btn-link" on:click={handleCreateThread}>create thread</button>
+{/if}
