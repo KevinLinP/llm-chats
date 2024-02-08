@@ -22,16 +22,16 @@
 
 	const availableModels = [
 		{
-			id: 'local',
-			label: 'local',
-			completionCreateOptions: {}
-		},
-		{
 			id: 'openai-gpt-3.5-turbo',
 			label: 'OpenAI GPT-3.5 Turbo',
 			completionCreateOptions: {
 				model: 'gpt-3.5-turbo-0125'
 			}
+		},
+		{
+			id: 'local',
+			label: 'local',
+			completionCreateOptions: {}
 		}
 	];
 
@@ -65,6 +65,7 @@
 					plain = await decrypt({ encryptionKey, thread });
 					title = plain.title;
 					displayedMessages = plain.messages || [];
+					selectedModelId = plain.selectedModelId;
 				} else {
 					thread = null;
 				}
@@ -82,8 +83,9 @@
 	$: {
 		if (selectedModel) {
 			const options = openAiOptions.find((option) => option.id === selectedModel.id)?.options;
-			console.log({ options });
-			openai = new OpenAI({ dangerouslyAllowBrowser: true, ...options });
+			if (options) {
+				openai = new OpenAI({ dangerouslyAllowBrowser: true, ...options });
+			}
 		}
 	}
 
@@ -145,7 +147,8 @@
 			encryptionKey,
 			plain: {
 				...plain,
-				messages: displayedMessages
+				messages: displayedMessages,
+				selectedModelId
 			}
 		});
 
