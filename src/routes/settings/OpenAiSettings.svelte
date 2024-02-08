@@ -14,6 +14,10 @@
 	};
 </script>
 
-<label for="openai-key" class="form-label">openAi.apiKey</label>
+<div class="mb-2">
+	<label for="openai-key" class="form-label">openAi.apiKey</label>
 
-<input type="text" id="openai-key" class="form-control" bind:value={apiKey} on:blur={save} />
+	<input type="text" id="openai-key" class="form-control" bind:value={apiKey} on:blur={save} />
+</div>
+
+<a href="https://platform.openai.com/usage" target="_blank">OpenAI Usage ⌝</a>
