@@ -1,29 +1,19 @@
 <script>
 	import { getContext, onDestroy } from 'svelte';
-	import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 
-	const auth = getContext('auth');
-	const db = getContext('db');
+	const userRef = getContext('userRef');
 	const openAiConfig = getContext('openAiConfig');
-	let user = null;
-	let key = '';
+	let apiKey = '';
 
-	const userRef = doc(db, 'users', auth.currentUser.uid);
-
-	let unsubscribe = null;
-	unsubscribe = onSnapshot(userRef, (doc) => {
-		if (!doc.exists()) return;
-
-		key = doc.data().openAi?.apiKey;
-	});
-	onDestroy(() => {
-		if (unsubscribe) unsubscribe();
+	openAiConfig.subscribe((config) => {
+		apiKey = config?.apiKey;
 	});
 
-	const saveKey = () => {
+	const save = () => {
 		setDoc(userRef, { openAi: { apiKey: key } }, { merge: true });
 	};
 </script>
 
-<label for="openai-key" class="form-label">OpenAI API Key</label>
-<input type="text" id="openai-key" class="form-control" bind:value={key} on:blur={saveKey} />
+<label for="openai-key" class="form-label">openAi.apiKey</label>
+
+<input type="text" id="openai-key" class="form-control" bind:value={apiKey} on:blur={save} />

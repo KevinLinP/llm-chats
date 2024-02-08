@@ -5,7 +5,7 @@
 	import { getFirestore } from 'firebase/firestore';
 	import EncryptionContext from './EncryptionContext.svelte';
 	import { setContext } from 'svelte';
-	import { writable } from 'svelte/store';
+	import OpenAiConfigContext from './OpenAiConfigContext.svelte';
 
 	// Initialize Firebase
 	const firebaseConfig = {
@@ -22,9 +22,6 @@
 	setContext('auth', auth);
 	const db = getFirestore(app);
 	setContext('db', db);
-
-	const openAiConfig = writable(null);
-	setContext('openAiConfig', openAiConfig);
 
 	let signedIn = false;
 	auth.onAuthStateChanged((user) => {
@@ -49,7 +46,9 @@
 		<button class="btn btn-primary" on:click={handleSignIn}>Sign In</button>
 	{:else}
 		<EncryptionContext>
-			<slot />
+			<OpenAiConfigContext>
+				<slot />
+			</OpenAiConfigContext>
 		</EncryptionContext>
 	{/if}
 </div>

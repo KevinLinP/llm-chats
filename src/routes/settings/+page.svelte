@@ -3,7 +3,7 @@
 	import OpenAiSettings from './OpenAiSettings.svelte';
 </script>
 
-<div>
+<div class="mb-5">
 	<OpenAiSettings />
 </div>
 
