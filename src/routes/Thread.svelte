@@ -4,6 +4,8 @@
 	import { decrypt, encrypt } from './crypto';
 	import OpenAI from 'openai';
 
+	// TODO: break this down into smaller files
+
 	export let currentThreadRefStore;
 	const encryptionKey = getContext('encryptionKey');
 
@@ -76,7 +78,9 @@
 					plain = await decrypt({ encryptionKey, thread });
 					title = plain.title;
 					displayedMessages = plain.messages || [];
-					selectedModelId = plain.selectedModelId;
+					if (plain.selectedModelId) {
+						selectedModelId = plain.selectedModelId;
+					}
 				} else {
 					thread = null;
 				}
@@ -220,15 +224,7 @@
 			/>
 		</div>
 
-		<div>
-			<select class="form-select model-select" bind:value={selectedModelId}>
-				{#each availableModels as { id, label }}
-					<option value={id}>{label}</option>
-				{/each}
-			</select>
-		</div>
-
-		<button class="btn btn-link" on:click={handleDestroy}>delete</button>
+		<button class="btn btn-text" on:click={handleDestroy}>delete</button>
 	</div>
 
 	{#if displayedMessages?.length}
@@ -280,9 +276,15 @@
 					rows="1"
 				/>
 			</div>
+		</div>
 
+		<div class="mt-2 d-flex flex-direction-row justify-content-end">
 			<div>
-				<button class="btn btn-text" on:click={handleSend}>Send</button>
+				<select class="form-select model-select" bind:value={selectedModelId}>
+					{#each availableModels as { id, label }}
+						<option value={id}>{label}</option>
+					{/each}
+				</select>
 			</div>
 		</div>
 	{/if}
