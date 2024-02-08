@@ -19,6 +19,12 @@
 
 	const openAiConfig = getContext('openAiConfig');
 
+	$: {
+		if (title) {
+			document.title = `${title} - LLM-Chats`;
+		}
+	}
+
 	const availableModels = [
 		{
 			id: 'openai-gpt-3.5-turbo',
