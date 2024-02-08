@@ -34,6 +34,7 @@
 	"type": "module",
 	"dependencies": {
 		"@sveltejs/adapter-cloudflare": "^3.0.1",
+		"firebase": "^10.8.0",
 		"openai": "^4.24.1"
 	}
 }
