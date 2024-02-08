@@ -28,6 +28,13 @@
 			}
 		},
 		{
+			id: 'openai-gpt-4-turbo',
+			label: 'OpenAI GPT-4 Turbo',
+			completionCreateOptions: {
+				model: 'gpt-4-0125-preview'
+			}
+		},
+		{
 			id: 'local',
 			label: 'local',
 			completionCreateOptions: {}
@@ -49,7 +56,6 @@
 	];
 
 	let selectedModelId = availableModels[0].id;
-	console.log({ selectedModelId, availableModels });
 	$: selectedModel = availableModels.find((model) => model.id === selectedModelId);
 
 	currentThreadRefStore.subscribe((ref) => {
@@ -167,8 +173,6 @@
 			...plain,
 			title
 		};
-
-		console.log({ newPlain });
 
 		const { encrypted, iv } = await encrypt({
 			encryptionKey,
