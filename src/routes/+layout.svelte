@@ -5,6 +5,7 @@
 	import { getFirestore } from 'firebase/firestore';
 	import EncryptionContext from './EncryptionContext.svelte';
 	import { setContext } from 'svelte';
+	import { writable } from 'svelte/store';
 
 	// Initialize Firebase
 	const firebaseConfig = {
@@ -21,6 +22,9 @@
 	setContext('auth', auth);
 	const db = getFirestore(app);
 	setContext('db', db);
+
+	const openAiConfig = writable(null);
+	setContext('openAiConfig', openAiConfig);
 
 	let signedIn = false;
 	auth.onAuthStateChanged((user) => {
