@@ -3,7 +3,6 @@
 	import { serverTimestamp, updateDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
 	import { decrypt, encrypt } from './crypto';
 	import OpenAI from 'openai';
-	import { get } from 'svelte/store';
 
 	export let currentThreadRefStore;
 	const encryptionKey = getContext('encryptionKey');
@@ -89,7 +88,7 @@
 		}
 	}
 
-	let systemMessage = 'You are a helpful assistant that NEVER includes follow-up instructions.';
+	let systemMessage = 'You are a helpful assistant.';
 	let userMessage = '';
 	// TODO: render Markdown properly
 	let assistantMessage = '';
