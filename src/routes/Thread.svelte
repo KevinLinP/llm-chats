@@ -3,6 +3,7 @@
 	import { serverTimestamp, updateDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
 	import { decrypt, encrypt } from './crypto';
 	import OpenAI from 'openai';
+	import { get } from 'svelte/store';
 
 	export let currentThreadRefStore;
 	const encryptionKey = getContext('encryptionKey');
@@ -16,6 +17,41 @@
 	let isStreaming = false;
 	let titleInput = null;
 	let userMessageTextarea = null;
+
+	const openAiConfig = getContext('openAiConfig');
+
+	const availableModels = [
+		{
+			id: 'local',
+			label: 'local',
+			completionCreateOptions: {}
+		},
+		{
+			id: 'openai-gpt-3.5-turbo',
+			label: 'OpenAI GPT-3.5 Turbo',
+			completionCreateOptions: {
+				model: 'gpt-3.5-turbo-0125'
+			}
+		}
+	];
+
+	$: openAiOptions = [
+		{
+			id: 'local',
+			options: {
+				apiKey: 'not needed',
+				baseURL: 'http://localhost:1234/v1/'
+			}
+		},
+		{
+			id: 'openai-gpt-3.5-turbo',
+			options: $openAiConfig
+		}
+	];
+
+	let selectedModelId = availableModels[0].id;
+	console.log({ selectedModelId, availableModels });
+	$: selectedModel = availableModels.find((model) => model.id === selectedModelId);
 
 	currentThreadRefStore.subscribe((ref) => {
 		currentThreadRef = ref;
@@ -42,11 +78,14 @@
 		if (unsubscribe) unsubscribe();
 	});
 
-	const openai = new OpenAI({
-		apiKey: 'not needed',
-		baseURL: 'http://localhost:1234/v1/',
-		dangerouslyAllowBrowser: true
-	});
+	let openai = null;
+	$: {
+		if (selectedModel) {
+			const options = openAiOptions.find((option) => option.id === selectedModel.id)?.options;
+			console.log({ options });
+			openai = new OpenAI({ dangerouslyAllowBrowser: true, ...options });
+		}
+	}
 
 	let systemMessage = 'You are a helpful assistant that NEVER includes follow-up instructions.';
 	let userMessage = '';
@@ -76,7 +115,8 @@
 
 			const completion = await openai.chat.completions.create({
 				messages: displayedMessages,
-				stream: true
+				stream: true,
+				...selectedModel.completionCreateOptions
 			});
 
 			for await (const chunk of completion) {
@@ -181,14 +221,24 @@
 			{/each}
 		</div>
 	{:else}
-		<div class="mb-3">
-			<label for="system-message" class="form-label minimal-input">system</label>
-			<textarea
-				id="system-message"
-				bind:value={systemMessage}
-				class="form-control minimal-input"
-				rows="1"
-			/>
+		<div class="d-flex flex-direction-row mb-3 align-items-center" style="gap: 1rem;">
+			<div class="flex-grow-1">
+				<label for="system-message" class="form-label minimal-input">system</label>
+				<textarea
+					id="system-message"
+					bind:value={systemMessage}
+					class="form-control minimal-input"
+					rows="1"
+				/>
+			</div>
+
+			<div>
+				<select class="form-select" bind:value={selectedModelId}>
+					{#each availableModels as { id, label }}
+						<option value={id}>{label}</option>
+					{/each}
+				</select>
+			</div>
 		</div>
 	{/if}
 
