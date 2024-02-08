@@ -188,7 +188,7 @@
 </script>
 
 {#if thread}
-	<div class="mb-3 d-flex flex-direction-row">
+	<div class="mb-3 d-flex flex-direction-row align-items-end">
 		<div class="flex-grow-1">
 			<input
 				type="text"
@@ -207,6 +207,15 @@
 				placeholder="title"
 			/>
 		</div>
+
+		<div>
+			<select class="form-select model-select" bind:value={selectedModelId}>
+				{#each availableModels as { id, label }}
+					<option value={id}>{label}</option>
+				{/each}
+			</select>
+		</div>
+
 		<button class="btn btn-link" on:click={handleDestroy}>delete</button>
 	</div>
 
@@ -221,24 +230,14 @@
 			{/each}
 		</div>
 	{:else}
-		<div class="d-flex flex-direction-row mb-3 align-items-center" style="gap: 1rem;">
-			<div class="flex-grow-1">
-				<label for="system-message" class="form-label minimal-input">system</label>
-				<textarea
-					id="system-message"
-					bind:value={systemMessage}
-					class="form-control minimal-input"
-					rows="1"
-				/>
-			</div>
-
-			<div>
-				<select class="form-select" bind:value={selectedModelId}>
-					{#each availableModels as { id, label }}
-						<option value={id}>{label}</option>
-					{/each}
-				</select>
-			</div>
+		<div class="mb-3">
+			<label for="system-message" class="form-label minimal-input">system</label>
+			<textarea
+				id="system-message"
+				bind:value={systemMessage}
+				class="form-control minimal-input"
+				rows="1"
+			/>
 		</div>
 	{/if}
 
@@ -302,5 +301,9 @@
 		border-left: none;
 		border-right: none;
 		border-radius: 0;
+	}
+
+	.model-select {
+		border: 0;
 	}
 </style>
