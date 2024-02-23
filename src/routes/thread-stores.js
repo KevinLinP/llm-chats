@@ -29,8 +29,10 @@ export const plainStore = derived(
 		if (thread) {
 			const plain = await decrypt({ encryptionKey, thread });
 			set(plain);
+			messagesStore.set(plain.messages || []);
 		} else {
 			set(null);
+			messagesStore.set([]);
 		}
 	}
 );

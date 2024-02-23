@@ -20,8 +20,6 @@
 	$: currentThreadRef = $currentThreadRefStore;
 	$: thread = $threadStore;
 
-	$: displayedMessages = $plainStore?.messages || [];
-
 	let userMessageTextarea = null;
 
 	const openAiConfig = getContext('openAiConfig');
@@ -86,20 +84,20 @@
 
 		// TODO: immediately show user message as submitted, even if isn't persisted yet
 
-		if (displayedMessages.length) {
-			displayedMessages = [...displayedMessages, { role: 'user', content: userMessage }];
+		if ($messagesStore.length) {
+			messagesStore.update((messages) => [...messages, { role: 'user', content: userMessage }]);
 		} else {
-			displayedMessages = [
+			messagesStore.set([
 				{ role: 'system', content: systemMessage },
 				{ role: 'user', content: userMessage }
-			];
+			]);
 		}
 
 		userMessage = '';
 
 		try {
 			const completion = await openai.chat.completions.create({
-				messages: displayedMessages,
+				messages: $messagesStore,
 				stream: true,
 				...selectedModel.completionCreateOptions
 			});
@@ -115,10 +113,10 @@
 				}
 			}
 
-			displayedMessages = [
-				...displayedMessages,
+			messagesStore.update((messages) => [
+				...messages,
 				{ role: 'assistant', content: $streamingMessageStore.trim() }
-			];
+			]);
 
 			$streamingMessageStore = null;
 		} catch (e) {
@@ -130,7 +128,7 @@
 			encryptionKey,
 			plain: {
 				...$plainStore,
-				messages: displayedMessages,
+				messages: $messagesStore,
 				selectedModelId
 			}
 		});
@@ -159,9 +157,9 @@
 		<button class="btn btn-text" on:click={handleDestroy}>delete</button>
 	</div>
 
-	{#if displayedMessages?.length}
+	{#if $messagesStore.length}
 		<div class="pe-5">
-			{#each displayedMessages as message, i (i)}
+			{#each $messagesStore as message, i (i)}
 				<p class="mb-3">
 					{message.role}
 					<br />
