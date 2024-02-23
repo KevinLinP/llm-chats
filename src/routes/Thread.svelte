@@ -2,7 +2,6 @@
 	import { getContext } from 'svelte';
 	import { serverTimestamp, updateDoc, deleteDoc } from 'firebase/firestore';
 	import OpenAI from 'openai';
-	import { writable } from 'svelte/store';
 
 	import ThreadTitle from './ThreadTitle.svelte';
 	import { encrypt } from './crypto';
@@ -13,8 +12,7 @@
 	const encryptionKey = getContext('encryptionKey');
 
 	$: currentThreadRef = $currentThreadRefStore;
-
-	let thread = null;
+	$: thread = $threadStore;
 
 	$: displayedMessages = $plainStore?.messages || [];
 
@@ -61,11 +59,6 @@
 
 	$: selectedModelId = $plainStore?.selectedModelId || availableModels[0].id;
 	$: selectedModel = availableModels.find((model) => model.id === selectedModelId);
-
-	threadStore.subscribe(async (value) => {
-		thread = value;
-		if (!thread) return;
-	});
 
 	let openai = null;
 	$: {
@@ -152,9 +145,8 @@
 	};
 
 	const handleDestroy = () => {
-		thread = null;
-		deleteDoc(currentThreadRef);
 		currentThreadRefStore.set(null);
+		deleteDoc(currentThreadRef);
 	};
 </script>
 
