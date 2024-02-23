@@ -34,3 +34,6 @@ export const plainStore = derived(
 		}
 	}
 );
+
+export const messagesStore = writable([]);
+export const streamingMessageStore = writable(null);

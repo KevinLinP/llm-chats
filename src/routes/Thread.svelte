@@ -5,7 +5,13 @@
 
 	import ThreadTitle from './ThreadTitle.svelte';
 	import { encrypt } from './crypto';
-	import { currentThreadRefStore, threadStore, plainStore } from './thread-stores.js';
+	import {
+		currentThreadRefStore,
+		threadStore,
+		plainStore,
+		messagesStore,
+		streamingMessageStore
+	} from './thread-stores.js';
 
 	// TODO: break this down into smaller files
 
@@ -16,7 +22,6 @@
 
 	$: displayedMessages = $plainStore?.messages || [];
 
-	let isStreaming = false;
 	let userMessageTextarea = null;
 
 	const openAiConfig = getContext('openAiConfig');
@@ -73,11 +78,10 @@
 	let systemMessage = 'You are a helpful assistant.';
 	let userMessage = '';
 	// TODO: render Markdown properly
-	let assistantMessage = '';
 	let error = '';
 
 	const handleSend = async () => {
-		assistantMessage = '';
+		$streamingMessageStore = '';
 		error = '';
 
 		// TODO: immediately show user message as submitted, even if isn't persisted yet
@@ -94,8 +98,6 @@
 		userMessage = '';
 
 		try {
-			isStreaming = true;
-
 			const completion = await openai.chat.completions.create({
 				messages: displayedMessages,
 				stream: true,
@@ -106,19 +108,19 @@
 				const choice = chunk.choices[0];
 				const chunkContent = choice.delta.content;
 				if (chunkContent) {
-					assistantMessage += chunkContent;
+					streamingMessageStore.update((message) => message + chunkContent);
 				}
 				if (choice.finish_reason && choice.finish_reason != 'stop') {
-					assistantMessage += choice.finish_reason;
+					streamingMessageStore.update((message) => message + choice.finish_reason);
 				}
 			}
 
 			displayedMessages = [
 				...displayedMessages,
-				{ role: 'assistant', content: assistantMessage.trim() }
+				{ role: 'assistant', content: $streamingMessageStore.trim() }
 			];
 
-			isStreaming = false;
+			$streamingMessageStore = null;
 		} catch (e) {
 			error = e;
 			return;
@@ -140,8 +142,6 @@
 			iv,
 			updated: serverTimestamp()
 		});
-
-		assistantMessage = '';
 	};
 
 	const handleDestroy = () => {
@@ -181,12 +181,12 @@
 		</div>
 	{/if}
 
-	{#if isStreaming}
+	{#if $streamingMessageStore}
 		<div class="pe-5">
 			<p class="mb-3">
 				assistant
 				<br />
-				{assistantMessage}
+				{$streamingMessageStore}
 			</p>
 			<p class="text-danger">{error}</p>
 		</div>
