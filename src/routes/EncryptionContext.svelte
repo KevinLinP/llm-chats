@@ -1,23 +1,27 @@
 <script>
 	import { generateJwkKey } from './crypto.js';
 	import EncryptionContextSetter from './EncryptionContextSetter.svelte';
+	import { encryptionKeyStore } from './crypto-stores.js';
+
 	const localStorage = window.localStorage;
 	const localStorageKey = 'base64EncryptionKey';
 
-	let encryptionKey = null;
+	$: encryptionKey = $encryptionKeyStore;
 	let newJwk = '';
 
 	const restoreKey = async () => {
 		const jwk = localStorage.getItem(localStorageKey);
-		if (!jwk) return; 
+		if (!jwk) return;
 
-		encryptionKey = await window.crypto.subtle.importKey(
+		const key = await window.crypto.subtle.importKey(
 			'jwk',
 			JSON.parse(jwk),
 			{ name: 'AES-GCM' },
 			false,
 			['encrypt', 'decrypt']
 		);
+
+		$encryptionKeyStore = key;
 	};
 
 	const run = async () => {
@@ -35,11 +39,15 @@
 	};
 </script>
 
-
 {#if encryptionKey}
-	<EncryptionContextSetter encryptionKey={encryptionKey}>
-		<slot/>
+	<EncryptionContextSetter {encryptionKey}>
+		<slot />
 	</EncryptionContextSetter>
 {:else}
-	<textarea class="form-control" placeholder="base64 encryption key" bind:value={newJwk} on:blur={saveKey}></textarea>
+	<textarea
+		class="form-control"
+		placeholder="base64 encryption key"
+		bind:value={newJwk}
+		on:blur={saveKey}
+	></textarea>
 {/if}

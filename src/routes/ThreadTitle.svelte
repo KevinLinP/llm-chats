@@ -1,6 +1,6 @@
 <script>
 	import { getContext } from 'svelte';
-	import { encrypt } from '../crypto';
+	import { encrypt } from './crypto';
 	import { serverTimestamp, updateDoc } from 'firebase/firestore';
 
 	export let threadRef;
@@ -12,7 +12,7 @@
 
 	let title = '';
 	plainStore.subscribe((value) => {
-		title = value.title;
+		title = value?.title;
 	});
 
 	let titleInput = null;

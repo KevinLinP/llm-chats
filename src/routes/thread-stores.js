@@ -1,6 +1,9 @@
 import { derived, writable } from 'svelte/store';
 import { onSnapshot } from 'firebase/firestore';
 
+import { encryptionKeyStore } from './crypto-stores.js';
+import { decrypt } from './crypto.js';
+
 export const currentThreadRefStore = writable(null);
 
 export const threadStore = derived(currentThreadRefStore, ($threadRef, set) => {
@@ -19,3 +22,15 @@ export const threadStore = derived(currentThreadRefStore, ($threadRef, set) => {
 		unsubscribe && unsubscribe();
 	};
 });
+
+export const plainStore = derived(
+	[threadStore, encryptionKeyStore],
+	async ([thread, encryptionKey], set) => {
+		if (thread) {
+			const plain = await decrypt({ encryptionKey, thread });
+			set(plain);
+		} else {
+			set(null);
+		}
+	}
+);

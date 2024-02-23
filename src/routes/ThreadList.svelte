@@ -10,7 +10,7 @@
 	} from 'firebase/firestore';
 	import { writable } from 'svelte/store';
 
-	import { currentThreadRefStore } from './stores.js';
+	import { currentThreadRefStore } from './thread-stores.js';
 	import { decrypt, encrypt } from './crypto';
 
 	const db = getContext('db');

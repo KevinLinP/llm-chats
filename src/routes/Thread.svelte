@@ -1,12 +1,12 @@
 <script>
-	import { getContext, onDestroy } from 'svelte';
-	import { serverTimestamp, updateDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
+	import { getContext } from 'svelte';
+	import { serverTimestamp, updateDoc, deleteDoc } from 'firebase/firestore';
 	import OpenAI from 'openai';
 	import { writable } from 'svelte/store';
 
-	import ThreadTitle from './Thread/ThreadTitle.svelte';
-	import { decrypt, encrypt } from './crypto';
-	import { currentThreadRefStore, threadStore } from './stores.js';
+	import ThreadTitle from './ThreadTitle.svelte';
+	import { encrypt } from './crypto';
+	import { currentThreadRefStore, threadStore, plainStore } from './thread-stores.js';
 
 	// TODO: break this down into smaller files
 
@@ -15,8 +15,9 @@
 	$: currentThreadRef = $currentThreadRefStore;
 
 	let thread = null;
-	let plainStore = writable({});
-	let displayedMessages = [];
+
+	$: displayedMessages = $plainStore?.messages || [];
+
 	let isStreaming = false;
 	let userMessageTextarea = null;
 
@@ -58,18 +59,12 @@
 		}
 	];
 
-	let selectedModelId = availableModels[0].id;
+	$: selectedModelId = $plainStore?.selectedModelId || availableModels[0].id;
 	$: selectedModel = availableModels.find((model) => model.id === selectedModelId);
 
 	threadStore.subscribe(async (value) => {
 		thread = value;
 		if (!thread) return;
-
-		$plainStore = await decrypt({ encryptionKey, thread });
-		displayedMessages = $plainStore.messages || [];
-		if ($plainStore.selectedModelId) {
-			selectedModelId = $plainStore.selectedModelId;
-		}
 	});
 
 	let openai = null;
