@@ -6,16 +6,16 @@
 
 	import ThreadTitle from './Thread/ThreadTitle.svelte';
 	import { decrypt, encrypt } from './crypto';
-	import { currentThreadRefStore } from './stores.js';
+	import { currentThreadRefStore, threadStore } from './stores.js';
 
 	// TODO: break this down into smaller files
 
 	const encryptionKey = getContext('encryptionKey');
 
-	let currentThreadRef = null;
+	$: currentThreadRef = $currentThreadRefStore;
+
 	let thread = null;
 	let plainStore = writable({});
-	let unsubscribe = null;
 	let displayedMessages = [];
 	let isStreaming = false;
 	let userMessageTextarea = null;
@@ -61,31 +61,15 @@
 	let selectedModelId = availableModels[0].id;
 	$: selectedModel = availableModels.find((model) => model.id === selectedModelId);
 
-	currentThreadRefStore.subscribe((ref) => {
-		currentThreadRef = ref;
+	threadStore.subscribe(async (value) => {
+		thread = value;
+		if (!thread) return;
 
-		if (currentThreadRef) {
-			if (unsubscribe) unsubscribe();
-
-			unsubscribe = onSnapshot(currentThreadRef, async (doc) => {
-				if (doc.exists()) {
-					thread = doc;
-					$plainStore = await decrypt({ encryptionKey, thread });
-					displayedMessages = $plainStore.messages || [];
-					if ($plainStore.selectedModelId) {
-						selectedModelId = $plainStore.selectedModelId;
-					}
-				} else {
-					thread = null;
-				}
-			});
-		} else {
-			thread = null;
+		$plainStore = await decrypt({ encryptionKey, thread });
+		displayedMessages = $plainStore.messages || [];
+		if ($plainStore.selectedModelId) {
+			selectedModelId = $plainStore.selectedModelId;
 		}
-	});
-
-	onDestroy(() => {
-		if (unsubscribe) unsubscribe();
 	});
 
 	let openai = null;

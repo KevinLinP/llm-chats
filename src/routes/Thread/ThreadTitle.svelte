@@ -34,6 +34,8 @@
 			plain: newPlain
 		});
 
+		console.log(threadRef, encrypted, iv);
+
 		updateDoc(threadRef, {
 			encrypted,
 			iv,
