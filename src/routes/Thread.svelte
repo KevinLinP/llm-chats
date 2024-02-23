@@ -161,7 +161,7 @@
 {#if thread}
 	<div class="mb-3 d-flex flex-direction-row align-items-end">
 		<div class="flex-grow-1">
-			<ThreadTitle threadRef={currentThreadRef} {plainStore} />
+			<ThreadTitle />
 		</div>
 
 		<button class="btn btn-text" on:click={handleDestroy}>delete</button>

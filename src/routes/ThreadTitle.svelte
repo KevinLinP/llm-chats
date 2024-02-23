@@ -1,10 +1,11 @@
 <script>
 	import { getContext } from 'svelte';
-	import { encrypt } from './crypto';
 	import { serverTimestamp, updateDoc } from 'firebase/firestore';
 
-	export let threadRef;
-	export let plainStore;
+	import { currentThreadRefStore, plainStore } from './thread-stores.js';
+	import { encrypt } from './crypto';
+
+	$: threadRef = $currentThreadRefStore;
 
 	const encryptionKey = getContext('encryptionKey');
 
@@ -33,8 +34,6 @@
 			encryptionKey,
 			plain: newPlain
 		});
-
-		console.log(threadRef, encrypted, iv);
 
 		updateDoc(threadRef, {
 			encrypted,
