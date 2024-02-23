@@ -1,15 +1,15 @@
 <script>
 	import { getContext, onDestroy } from 'svelte';
 	import { serverTimestamp, updateDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
-	import { decrypt, encrypt } from './crypto';
 	import OpenAI from 'openai';
+	import { writable } from 'svelte/store';
 
 	import ThreadTitle from './Thread/ThreadTitle.svelte';
-	import { writable } from 'svelte/store';
+	import { decrypt, encrypt } from './crypto';
+	import { currentThreadRefStore } from './stores.js';
 
 	// TODO: break this down into smaller files
 
-	export let currentThreadRefStore;
 	const encryptionKey = getContext('encryptionKey');
 
 	let currentThreadRef = null;

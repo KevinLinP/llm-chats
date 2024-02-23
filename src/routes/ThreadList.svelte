@@ -1,6 +1,5 @@
 <script>
 	import { getContext, onDestroy } from 'svelte';
-	import { decrypt, encrypt } from './crypto';
 	import {
 		collection,
 		query,
@@ -11,7 +10,8 @@
 	} from 'firebase/firestore';
 	import { writable } from 'svelte/store';
 
-	export let currentThreadRefStore;
+	import { currentThreadRefStore } from './stores.js';
+	import { decrypt, encrypt } from './crypto';
 
 	const db = getContext('db');
 	let threads = writable([]);
@@ -61,7 +61,7 @@
 	};
 
 	const setCurrentThreadRef = (ref) => {
-		currentThreadRefStore.set(ref);
+		$currentThreadRefStore = ref;
 	};
 </script>
 
