@@ -1,26 +1,23 @@
 <script>
 	import { getContext } from 'svelte';
-	import { serverTimestamp, updateDoc, deleteDoc } from 'firebase/firestore';
+	import { deleteDoc } from 'firebase/firestore';
 	import OpenAI from 'openai';
 
 	import ThreadTitle from './ThreadTitle.svelte';
-	import { encrypt } from './crypto';
 	import {
 		currentThreadRefStore,
 		threadStore,
 		plainStore,
 		messagesStore,
-		streamingMessageStore
+		streamingMessageStore,
+		errorStore
 	} from './thread-stores.js';
+	import ThreadMessageInput from './ThreadMessageInput.svelte';
 
 	// TODO: break this down into smaller files
 
-	const encryptionKey = getContext('encryptionKey');
-
 	$: currentThreadRef = $currentThreadRefStore;
 	$: thread = $threadStore;
-
-	let userMessageTextarea = null;
 
 	const openAiConfig = getContext('openAiConfig');
 
@@ -73,75 +70,6 @@
 		}
 	}
 
-	let systemMessage = 'You are a helpful assistant.';
-	let userMessage = '';
-	// TODO: render Markdown properly
-	let error = '';
-
-	const handleSend = async () => {
-		$streamingMessageStore = '';
-		error = '';
-
-		// TODO: immediately show user message as submitted, even if isn't persisted yet
-
-		if ($messagesStore.length) {
-			messagesStore.update((messages) => [...messages, { role: 'user', content: userMessage }]);
-		} else {
-			messagesStore.set([
-				{ role: 'system', content: systemMessage },
-				{ role: 'user', content: userMessage }
-			]);
-		}
-
-		userMessage = '';
-
-		try {
-			const completion = await openai.chat.completions.create({
-				messages: $messagesStore,
-				stream: true,
-				...selectedModel.completionCreateOptions
-			});
-
-			for await (const chunk of completion) {
-				const choice = chunk.choices[0];
-				const chunkContent = choice.delta.content;
-				if (chunkContent) {
-					streamingMessageStore.update((message) => message + chunkContent);
-				}
-				if (choice.finish_reason && choice.finish_reason != 'stop') {
-					streamingMessageStore.update((message) => message + choice.finish_reason);
-				}
-			}
-
-			messagesStore.update((messages) => [
-				...messages,
-				{ role: 'assistant', content: $streamingMessageStore.trim() }
-			]);
-
-			$streamingMessageStore = null;
-		} catch (e) {
-			error = e;
-			return;
-		}
-
-		const { encrypted, iv } = await encrypt({
-			encryptionKey,
-			plain: {
-				...$plainStore,
-				messages: $messagesStore,
-				selectedModelId
-			}
-		});
-
-		if (userMessageTextarea) userMessageTextarea.focus();
-
-		await updateDoc(currentThreadRef, {
-			encrypted,
-			iv,
-			updated: serverTimestamp()
-		});
-	};
-
 	const handleDestroy = () => {
 		currentThreadRefStore.set(null);
 		deleteDoc(currentThreadRef);
@@ -167,16 +95,6 @@
 				</p>
 			{/each}
 		</div>
-	{:else}
-		<div class="mb-3">
-			<label for="system-message" class="form-label minimal-input">system</label>
-			<textarea
-				id="system-message"
-				bind:value={systemMessage}
-				class="form-control minimal-input"
-				rows="1"
-			/>
-		</div>
 	{/if}
 
 	{#if $streamingMessageStore}
@@ -186,25 +104,12 @@
 				<br />
 				{$streamingMessageStore}
 			</p>
-			<p class="text-danger">{error}</p>
+			<p class="text-danger">{$errorStore}</p>
 		</div>
 	{:else}
 		<div class="d-flex flex-direction-row align-items-end">
 			<div class="flex-grow-1">
-				<label for="user-message" class="form-label">user</label>
-				<textarea
-					id="user-message"
-					bind:value={userMessage}
-					bind:this={userMessageTextarea}
-					on:keydown={(e) => {
-						if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
-							e.preventDefault();
-							handleSend();
-						}
-					}}
-					class="form-control minimal-input"
-					rows="1"
-				/>
+				<ThreadMessageInput />
 			</div>
 		</div>
 
