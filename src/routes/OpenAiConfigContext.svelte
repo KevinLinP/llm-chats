@@ -1,10 +1,10 @@
 <script>
 	import { getContext, setContext } from 'svelte';
-	import { writable } from 'svelte/store';
 	import { doc, getDoc } from 'firebase/firestore';
+	import { openAiConfigStore } from './api-stores.js';
 
-	const openAiConfig = writable(null);
-	setContext('openAiConfig', openAiConfig);
+	// const openAiConfig = writable(null);
+	setContext('openAiConfig', openAiConfigStore);
 
 	const auth = getContext('auth');
 	const db = getContext('db');
@@ -15,7 +15,7 @@
 		let user = await getDoc(userRef);
 		if (!user.exists()) return;
 
-		openAiConfig.set({
+		openAiConfigStore.set({
 			apiKey: user.data().openAi?.apiKey
 		});
 	};

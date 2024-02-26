@@ -1,6 +1,12 @@
 <script>
+	import { updateDoc, serverTimestamp } from 'firebase/firestore';
+
 	import { plainStore, messagesStore, streamingMessageStore, errorStore } from './thread-stores.js';
+	import { openAiStore } from './api-stores.js';
 	import { encryptionKeyStore } from './crypto-stores.js';
+	import { encrypt } from './crypto.js';
+	import { currentThreadRefStore } from './thread-stores.js';
+	import { selectedModelIdStore, selectedModelStore } from './model-stores.js';
 
 	let systemMessage = 'You are a helpful assistant.';
 	let userMessage = '';
@@ -12,61 +18,71 @@
 		$streamingMessageStore = '';
 		$errorStore = '';
 
-		// TODO: immediately show user message as submitted, even if isn't persisted yet
+		const previousMessages = $messagesStore;
+		let messages = previousMessages.length
+			? [...previousMessages, { role: 'user', content: userMessage }]
+			: [
+					{ role: 'system', content: systemMessage },
+					{ role: 'user', content: userMessage }
+				];
 
-		if ($messagesStore.length) {
-			messagesStore.update((messages) => [...messages, { role: 'user', content: userMessage }]);
-		} else {
-			messagesStore.set([
-				{ role: 'system', content: systemMessage },
-				{ role: 'user', content: userMessage }
-			]);
-		}
+		// if ($messagesStore.length) {
+		// 	messagesStore.update((messages) => [...messages, { role: 'user', content: userMessage }]);
+		// } else {
+		// 	messagesStore.set([
+		// 		{ role: 'system', content: systemMessage },
+		// 		{ role: 'user', content: userMessage }
+		// 	]);
+		// }
+
+		$messagesStore = messages;
 
 		userMessage = '';
 
-		console.log(openai);
-		try {
-			const completion = await openai.chat.completions.create({
-				messages: $messagesStore,
-				stream: true,
-				...selectedModel.completionCreateOptions
-			});
+		// try {
+		const completion = await $openAiStore.chat.completions.create({
+			messages,
+			stream: true,
+			...$selectedModelStore.completionCreateOptions
+		});
 
-			for await (const chunk of completion) {
-				const choice = chunk.choices[0];
-				const chunkContent = choice.delta.content;
-				if (chunkContent) {
-					streamingMessageStore.update((message) => message + chunkContent);
-				}
-				if (choice.finish_reason && choice.finish_reason != 'stop') {
-					streamingMessageStore.update((message) => message + choice.finish_reason);
-				}
+		let streamingMessage = '';
+
+		for await (const chunk of completion) {
+			const choice = chunk.choices[0];
+			const chunkContent = choice.delta.content;
+			if (chunkContent) {
+				streamingMessage = streamingMessage + chunkContent;
+				// streamingMessageStore.update((message) => message + chunkContent);
+			}
+			if (choice.finish_reason && choice.finish_reason != 'stop') {
+				streamingMessage = streamingMessage + choice.finish_reason;
 			}
 
-			messagesStore.update((messages) => [
-				...messages,
-				{ role: 'assistant', content: $streamingMessageStore.trim() }
-			]);
-
-			$streamingMessageStore = null;
-		} catch (e) {
-			$errorStore = e;
-			return;
+			$streamingMessageStore = streamingMessage;
 		}
+
+		messages = [...messages, { role: 'assistant', content: streamingMessage.trim() }];
+		$streamingMessageStore = null;
+		$messagesStore = messages;
+
+		// } catch (e) {
+		// 	$errorStore = e;
+		// 	return;
+		// }
 
 		const { encrypted, iv } = await encrypt({
 			encryptionKey,
 			plain: {
 				...$plainStore,
-				messages: $messagesStore,
-				selectedModelId
+				messages,
+				selectedModelId: $selectedModelIdStore
 			}
 		});
 
 		if (userMessageTextarea) userMessageTextarea.focus();
 
-		await updateDoc(currentThreadRef, {
+		await updateDoc($currentThreadRefStore, {
 			encrypted,
 			iv,
 			updated: serverTimestamp()
@@ -100,3 +116,12 @@
 	class="form-control minimal-input"
 	rows="1"
 />
+
+<style lang="scss">
+	.minimal-input {
+		border-top: none;
+		border-left: none;
+		border-right: none;
+		border-radius: 0;
+	}
+</style>

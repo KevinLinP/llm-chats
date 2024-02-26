@@ -7,12 +7,13 @@
 	import {
 		currentThreadRefStore,
 		threadStore,
-		plainStore,
+		// plainStore,
 		messagesStore,
 		streamingMessageStore,
 		errorStore
 	} from './thread-stores.js';
 	import ThreadMessageInput from './ThreadMessageInput.svelte';
+	import ThreadModelSelector from './ThreadModelSelector.svelte';
 
 	// TODO: break this down into smaller files
 
@@ -21,54 +22,40 @@
 
 	const openAiConfig = getContext('openAiConfig');
 
-	const availableModels = [
-		{
-			id: 'openai-gpt-3.5-turbo',
-			label: 'OpenAI GPT-3.5 Turbo',
-			completionCreateOptions: {
-				model: 'gpt-3.5-turbo-0125'
-			}
-		},
-		{
-			id: 'openai-gpt-4-turbo',
-			label: 'OpenAI GPT-4 Turbo',
-			completionCreateOptions: {
-				model: 'gpt-4-0125-preview'
-			}
-		},
-		{
-			id: 'local',
-			label: 'local',
-			completionCreateOptions: {}
-		}
-	];
+	// const availableModels = [
+	// 	{
+	// 		id: 'openai-gpt-3.5-turbo',
+	// 		label: 'OpenAI GPT-3.5 Turbo',
+	// 		completionCreateOptions: {
+	// 			model: 'gpt-3.5-turbo-0125'
+	// 		}
+	// 	},
+	// 	{
+	// 		id: 'openai-gpt-4-turbo',
+	// 		label: 'OpenAI GPT-4 Turbo',
+	// 		completionCreateOptions: {
+	// 			model: 'gpt-4-0125-preview'
+	// 		}
+	// 	},
+	// 	{
+	// 		id: 'local',
+	// 		label: 'local',
+	// 		completionCreateOptions: {}
+	// 	}
+	// ];
 
-	$: openAiOptions = [
-		{
-			id: 'local',
-			options: {
-				apiKey: 'not needed',
-				baseURL: 'http://localhost:1234/v1/'
-			}
-		},
-		{
-			id: 'openai-gpt-3.5-turbo',
-			options: $openAiConfig
-		}
-	];
+	// $: selectedModelId = $plainStore?.selectedModelId || availableModels[0].id;
+	// $: selectedModel = availableModels.find((model) => model.id === selectedModelId);
 
-	$: selectedModelId = $plainStore?.selectedModelId || availableModels[0].id;
-	$: selectedModel = availableModels.find((model) => model.id === selectedModelId);
-
-	let openai = null;
-	$: {
-		if (selectedModel) {
-			const options = openAiOptions.find((option) => option.id === selectedModel.id)?.options;
-			if (options) {
-				openai = new OpenAI({ dangerouslyAllowBrowser: true, ...options });
-			}
-		}
-	}
+	// let openai = null;
+	// $: {
+	// 	if (selectedModel) {
+	// 		const options = openAiOptions.find((option) => option.id === selectedModel.id)?.options;
+	// 		if (options) {
+	// 			openai = new OpenAI({ dangerouslyAllowBrowser: true, ...options });
+	// 		}
+	// 	}
+	// }
 
 	const handleDestroy = () => {
 		currentThreadRefStore.set(null);
@@ -115,25 +102,13 @@
 
 		<div class="mt-2 d-flex flex-direction-row justify-content-end">
 			<div>
-				<select class="form-select model-select" bind:value={selectedModelId}>
+				<ThreadModelSelector />
+				<!-- <select class="form-select model-select" bind:value={selectedModelId}>
 					{#each availableModels as { id, label }}
 						<option value={id}>{label}</option>
 					{/each}
-				</select>
+				</select> -->
 			</div>
 		</div>
 	{/if}
 {/if}
-
-<style lang="scss">
-	.minimal-input {
-		border-top: none;
-		border-left: none;
-		border-right: none;
-		border-radius: 0;
-	}
-
-	.model-select {
-		border: 0;
-	}
-</style>
