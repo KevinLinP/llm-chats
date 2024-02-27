@@ -3,9 +3,9 @@
 	import { initializeApp } from 'firebase/app';
 	import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 	import { getFirestore } from 'firebase/firestore';
-	import EncryptionContext from './EncryptionContext.svelte';
+	import EncryptionContext from '$lib/components/EncryptionContext.svelte';
 	import { setContext } from 'svelte';
-	import OpenAiConfigContext from './OpenAiConfigContext.svelte';
+	import OpenAiConfigContext from '$lib/components/OpenAiConfigContext.svelte';
 
 	// Initialize Firebase
 	const firebaseConfig = {

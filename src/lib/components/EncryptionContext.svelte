@@ -1,7 +1,7 @@
 <script>
-	import { generateJwkKey } from './crypto.js';
+	import { generateJwkKey } from '../crypto.js';
 	import EncryptionContextSetter from './EncryptionContextSetter.svelte';
-	import { encryptionKeyStore } from './crypto-stores.js';
+	import { encryptionKeyStore } from '../stores/crypto-stores.js';
 
 	const localStorage = window.localStorage;
 	const localStorageKey = 'base64EncryptionKey';

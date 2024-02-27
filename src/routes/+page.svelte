@@ -1,6 +1,6 @@
 <script>
-	import Thread from './Thread.svelte';
-	import ThreadList from './ThreadList.svelte';
+	import Thread from '$lib/components/thread/Thread.svelte';
+	import ThreadList from '$lib/components/ThreadList.svelte';
 </script>
 
 <div class="row">

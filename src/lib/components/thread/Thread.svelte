@@ -11,7 +11,7 @@
 		messagesStore,
 		streamingMessageStore,
 		errorStore
-	} from './thread-stores.js';
+	} from '$lib/stores/thread-stores.js';
 	import ThreadMessageInput from './ThreadMessageInput.svelte';
 	import ThreadModelSelector from './ThreadModelSelector.svelte';
 

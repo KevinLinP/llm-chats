@@ -1,5 +1,5 @@
 <script>
-	import { selectedModelIdStore, availableModels } from './model-stores.js';
+	import { selectedModelIdStore, availableModels } from '$lib/stores/model-stores.js';
 </script>
 
 <select class="form-select model-select" bind:value={$selectedModelIdStore}>

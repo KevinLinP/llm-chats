@@ -1,5 +1,5 @@
 import { writable, derived } from 'svelte/store';
-import { selectedModelIdStore } from './model-stores.js';
+import { selectedModelIdStore } from '$lib/stores/model-stores.js';
 import OpenAI from 'openai';
 
 export const openAiConfigStore = writable(null);

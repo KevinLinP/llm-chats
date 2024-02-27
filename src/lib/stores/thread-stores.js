@@ -2,7 +2,7 @@ import { derived, writable } from 'svelte/store';
 import { onSnapshot } from 'firebase/firestore';
 
 import { encryptionKeyStore } from './crypto-stores.js';
-import { decrypt } from './crypto.js';
+import { decrypt } from '../crypto.js';
 
 export const currentThreadRefStore = writable(null);
 

@@ -1,7 +1,7 @@
 <script>
 	import { getContext, setContext } from 'svelte';
 	import { doc, getDoc } from 'firebase/firestore';
-	import { openAiConfigStore } from './api-stores.js';
+	import { openAiConfigStore } from '../stores/api-stores.js';
 
 	// const openAiConfig = writable(null);
 	setContext('openAiConfig', openAiConfigStore);

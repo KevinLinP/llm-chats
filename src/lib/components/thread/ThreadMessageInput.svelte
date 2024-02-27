@@ -1,12 +1,17 @@
 <script>
 	import { updateDoc, serverTimestamp } from 'firebase/firestore';
 
-	import { plainStore, messagesStore, streamingMessageStore, errorStore } from './thread-stores.js';
-	import { openAiStore } from './api-stores.js';
-	import { encryptionKeyStore } from './crypto-stores.js';
-	import { encrypt } from './crypto.js';
-	import { currentThreadRefStore } from './thread-stores.js';
-	import { selectedModelIdStore, selectedModelStore } from './model-stores.js';
+	import {
+		plainStore,
+		messagesStore,
+		streamingMessageStore,
+		errorStore
+	} from '../../stores/thread-stores.js';
+	import { openAiStore } from '../../stores/api-stores.js';
+	import { encryptionKeyStore } from '../../stores/crypto-stores.js';
+	import { encrypt } from '../../crypto.js';
+	import { currentThreadRefStore } from '../../stores/thread-stores.js';
+	import { selectedModelIdStore, selectedModelStore } from '$lib/stores/model-stores.js';
 
 	let systemMessage = 'You are a helpful assistant.';
 	let userMessage = '';
@@ -25,15 +30,6 @@
 					{ role: 'system', content: systemMessage },
 					{ role: 'user', content: userMessage }
 				];
-
-		// if ($messagesStore.length) {
-		// 	messagesStore.update((messages) => [...messages, { role: 'user', content: userMessage }]);
-		// } else {
-		// 	messagesStore.set([
-		// 		{ role: 'system', content: systemMessage },
-		// 		{ role: 'user', content: userMessage }
-		// 	]);
-		// }
 
 		$messagesStore = messages;
 

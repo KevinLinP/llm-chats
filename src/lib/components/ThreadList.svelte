@@ -10,8 +10,8 @@
 	} from 'firebase/firestore';
 	import { writable } from 'svelte/store';
 
-	import { currentThreadRefStore } from './thread-stores.js';
-	import { decrypt, encrypt } from './crypto';
+	import { currentThreadRefStore } from '$lib/stores/thread-stores.js';
+	import { decrypt, encrypt } from '$lib/crypto.js';
 
 	const db = getContext('db');
 	let threads = writable([]);

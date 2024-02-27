@@ -1,6 +1,6 @@
 <script>
-	import SignoutButton from './SignoutButton.svelte';
-	import OpenAiSettings from './OpenAiSettings.svelte';
+	import SignoutButton from '$lib/components/SignoutButton.svelte';
+	import OpenAiSettings from '$lib/components/OpenAiSettings.svelte';
 </script>
 
 <div class="mb-5">

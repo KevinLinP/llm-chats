@@ -2,8 +2,8 @@
 	import { getContext } from 'svelte';
 	import { serverTimestamp, updateDoc } from 'firebase/firestore';
 
-	import { currentThreadRefStore, plainStore } from './thread-stores.js';
-	import { encrypt } from './crypto';
+	import { currentThreadRefStore, plainStore } from '../../stores/thread-stores.js';
+	import { encrypt } from '../../crypto.js';
 
 	$: threadRef = $currentThreadRefStore;
 
