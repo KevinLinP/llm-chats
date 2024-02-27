@@ -1,88 +1,18 @@
 <script>
-	import { updateDoc, serverTimestamp } from 'firebase/firestore';
-
-	import {
-		plainStore,
-		messagesStore,
-		streamingMessageStore,
-		errorStore,
-		currentThreadRefStore
-	} from '$lib/stores/thread-stores.js';
-	import { openAiStore } from '$lib/stores/api-stores.js';
-	import { encryptionKeyStore } from '$lib/stores/crypto-stores.js';
-	import { encrypt } from '$lib/utils/crypto.js';
-	import { selectedModelIdStore, selectedModelStore } from '$lib/stores/model-stores.js';
+	import { messagesStore } from '$lib/stores/thread-stores.js';
+	import { getCompletion } from '$lib/utils/thread.js';
 
 	let systemMessage = 'You are a helpful assistant.';
 	let userMessage = '';
 	let userMessageTextarea = null;
 
-	$: encryptionKey = $encryptionKeyStore;
-
 	const handleSend = async () => {
-		$streamingMessageStore = '';
-		$errorStore = '';
-
-		const previousMessages = $messagesStore;
-		let messages = previousMessages.length
-			? [...previousMessages, { role: 'user', content: userMessage }]
-			: [
-					{ role: 'system', content: systemMessage },
-					{ role: 'user', content: userMessage }
-				];
-
-		$messagesStore = messages;
-
+		const userMessageCopy = userMessage;
 		userMessage = '';
 
-		// try {
-		const completion = await $openAiStore.chat.completions.create({
-			messages,
-			stream: true,
-			...$selectedModelStore.completionCreateOptions
-		});
-
-		let streamingMessage = '';
-
-		for await (const chunk of completion) {
-			const choice = chunk.choices[0];
-			const chunkContent = choice.delta.content;
-			if (chunkContent) {
-				streamingMessage = streamingMessage + chunkContent;
-				// streamingMessageStore.update((message) => message + chunkContent);
-			}
-			if (choice.finish_reason && choice.finish_reason != 'stop') {
-				streamingMessage = streamingMessage + choice.finish_reason;
-			}
-
-			$streamingMessageStore = streamingMessage;
-		}
-
-		messages = [...messages, { role: 'assistant', content: streamingMessage.trim() }];
-		$streamingMessageStore = null;
-		$messagesStore = messages;
-
-		// } catch (e) {
-		// 	$errorStore = e;
-		// 	return;
-		// }
-
-		const { encrypted, iv } = await encrypt({
-			encryptionKey,
-			plain: {
-				...$plainStore,
-				messages,
-				selectedModelId: $selectedModelIdStore
-			}
-		});
+		await getCompletion({ systemMessage, userMessage: userMessageCopy });
 
 		if (userMessageTextarea) userMessageTextarea.focus();
-
-		await updateDoc($currentThreadRefStore, {
-			encrypted,
-			iv,
-			updated: serverTimestamp()
-		});
 	};
 </script>
 
