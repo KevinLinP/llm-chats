@@ -11,7 +11,7 @@
 	import { writable } from 'svelte/store';
 
 	import { currentThreadRefStore } from '$lib/stores/thread-stores.js';
-	import { decrypt, encrypt } from '$lib/crypto.js';
+	import { decrypt, encrypt } from '$lib/utils/crypto.js';
 
 	const db = getContext('db');
 	let threads = writable([]);

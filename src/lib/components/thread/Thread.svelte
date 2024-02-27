@@ -1,13 +1,10 @@
 <script>
-	import { getContext } from 'svelte';
 	import { deleteDoc } from 'firebase/firestore';
-	import OpenAI from 'openai';
 
 	import ThreadTitle from './ThreadTitle.svelte';
 	import {
 		currentThreadRefStore,
 		threadStore,
-		// plainStore,
 		messagesStore,
 		streamingMessageStore,
 		errorStore
@@ -15,47 +12,8 @@
 	import ThreadMessageInput from './ThreadMessageInput.svelte';
 	import ThreadModelSelector from './ThreadModelSelector.svelte';
 
-	// TODO: break this down into smaller files
-
 	$: currentThreadRef = $currentThreadRefStore;
 	$: thread = $threadStore;
-
-	const openAiConfig = getContext('openAiConfig');
-
-	// const availableModels = [
-	// 	{
-	// 		id: 'openai-gpt-3.5-turbo',
-	// 		label: 'OpenAI GPT-3.5 Turbo',
-	// 		completionCreateOptions: {
-	// 			model: 'gpt-3.5-turbo-0125'
-	// 		}
-	// 	},
-	// 	{
-	// 		id: 'openai-gpt-4-turbo',
-	// 		label: 'OpenAI GPT-4 Turbo',
-	// 		completionCreateOptions: {
-	// 			model: 'gpt-4-0125-preview'
-	// 		}
-	// 	},
-	// 	{
-	// 		id: 'local',
-	// 		label: 'local',
-	// 		completionCreateOptions: {}
-	// 	}
-	// ];
-
-	// $: selectedModelId = $plainStore?.selectedModelId || availableModels[0].id;
-	// $: selectedModel = availableModels.find((model) => model.id === selectedModelId);
-
-	// let openai = null;
-	// $: {
-	// 	if (selectedModel) {
-	// 		const options = openAiOptions.find((option) => option.id === selectedModel.id)?.options;
-	// 		if (options) {
-	// 			openai = new OpenAI({ dangerouslyAllowBrowser: true, ...options });
-	// 		}
-	// 	}
-	// }
 
 	const handleDestroy = () => {
 		currentThreadRefStore.set(null);
@@ -103,11 +61,6 @@
 		<div class="mt-2 d-flex flex-direction-row justify-content-end">
 			<div>
 				<ThreadModelSelector />
-				<!-- <select class="form-select model-select" bind:value={selectedModelId}>
-					{#each availableModels as { id, label }}
-						<option value={id}>{label}</option>
-					{/each}
-				</select> -->
 			</div>
 		</div>
 	{/if}

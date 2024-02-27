@@ -5,12 +5,12 @@
 		plainStore,
 		messagesStore,
 		streamingMessageStore,
-		errorStore
-	} from '../../stores/thread-stores.js';
-	import { openAiStore } from '../../stores/api-stores.js';
-	import { encryptionKeyStore } from '../../stores/crypto-stores.js';
-	import { encrypt } from '../../crypto.js';
-	import { currentThreadRefStore } from '../../stores/thread-stores.js';
+		errorStore,
+		currentThreadRefStore
+	} from '$lib/stores/thread-stores.js';
+	import { openAiStore } from '$lib/stores/api-stores.js';
+	import { encryptionKeyStore } from '$lib/stores/crypto-stores.js';
+	import { encrypt } from '$lib/utils/crypto.js';
 	import { selectedModelIdStore, selectedModelStore } from '$lib/stores/model-stores.js';
 
 	let systemMessage = 'You are a helpful assistant.';

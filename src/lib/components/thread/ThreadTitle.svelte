@@ -3,7 +3,7 @@
 	import { serverTimestamp, updateDoc } from 'firebase/firestore';
 
 	import { currentThreadRefStore, plainStore } from '../../stores/thread-stores.js';
-	import { encrypt } from '../../crypto.js';
+	import { encrypt } from '../../utils/crypto.js';
 
 	$: threadRef = $currentThreadRefStore;
 

@@ -1,5 +1,5 @@
 <script>
-	import { generateJwkKey } from '../crypto.js';
+	import { generateJwkKey } from '../utils/crypto.js';
 	import EncryptionContextSetter from './EncryptionContextSetter.svelte';
 	import { encryptionKeyStore } from '../stores/crypto-stores.js';
 
