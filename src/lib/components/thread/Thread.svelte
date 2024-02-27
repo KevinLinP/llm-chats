@@ -1,6 +1,4 @@
 <script>
-	import { deleteDoc } from 'firebase/firestore';
-
 	import ThreadTitle from './ThreadTitle.svelte';
 	import {
 		currentThreadRefStore,
@@ -11,14 +9,9 @@
 	} from '$lib/stores/thread-stores.js';
 	import ThreadMessageInput from './ThreadMessageInput.svelte';
 	import ThreadModelSelector from './ThreadModelSelector.svelte';
+	import ThreadDelete from './ThreadDelete.svelte';
 
-	$: currentThreadRef = $currentThreadRefStore;
 	$: thread = $threadStore;
-
-	const handleDestroy = () => {
-		currentThreadRefStore.set(null);
-		deleteDoc(currentThreadRef);
-	};
 </script>
 
 {#if thread}
@@ -27,7 +20,7 @@
 			<ThreadTitle />
 		</div>
 
-		<button class="btn btn-text" on:click={handleDestroy}>delete</button>
+		<ThreadDelete />
 	</div>
 
 	{#if $messagesStore.length}

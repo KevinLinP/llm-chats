@@ -60,10 +60,10 @@ export const getCompletion = async ({ userMessage, systemMessage }) => {
 	// }
 
 	// do this async
-	updateThread({ messages });
+	persistThread({ messages });
 };
 
-const updateThread = async ({ messages }) => {
+const persistThread = async ({ messages }) => {
 	const encryptionKey = get(encryptionKeyStore);
 
 	const { encrypted, iv } = await encrypt({
