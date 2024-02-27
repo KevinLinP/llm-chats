@@ -1,7 +1,6 @@
 <script>
 	import ThreadTitle from './ThreadTitle.svelte';
 	import {
-		currentThreadRefStore,
 		threadStore,
 		messagesStore,
 		streamingMessageStore,
