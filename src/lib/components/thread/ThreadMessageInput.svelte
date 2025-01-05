@@ -24,7 +24,7 @@
 			bind:value={systemMessage}
 			class="form-control minimal-input"
 			rows="1"
-		/>
+		></textarea>
 	</div>
 {/if}
 
@@ -41,7 +41,7 @@
 	}}
 	class="form-control minimal-input"
 	rows="1"
-/>
+></textarea>
 
 <style lang="scss">
 	.minimal-input {

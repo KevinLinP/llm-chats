@@ -6,18 +6,19 @@
 		orderBy,
 		onSnapshot,
 		addDoc,
-		serverTimestamp
+		serverTimestamp,
+		limit
 	} from 'firebase/firestore';
 	import { writable } from 'svelte/store';
 
+	import { db } from '$lib/firestore';
 	import { currentThreadRefStore } from '$lib/stores/thread-stores.js';
 	import { decrypt, encrypt } from '$lib/utils/crypto.js';
 
-	const db = getContext('db');
 	let threads = writable([]);
 	let plainThreads = writable({});
 
-	const q = query(collection(db, 'threads'), orderBy('updated', 'desc'));
+	const q = query(collection(db, 'threads'), orderBy('updated', 'desc'), limit(10));
 	let unsubscribe = null;
 	$: unsubscribe = onSnapshot(q, (querySnapshot) => {
 		$threads = querySnapshot.docs;

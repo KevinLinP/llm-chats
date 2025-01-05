@@ -1,7 +1,7 @@
 <script>
 	import { getContext } from 'svelte';
 
-	const auth = getContext('auth');
+	import { auth } from '$lib/firestore';
 
 	const handleSignOut = () => {
 		auth.signOut();

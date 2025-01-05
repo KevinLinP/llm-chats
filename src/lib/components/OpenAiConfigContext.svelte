@@ -1,13 +1,13 @@
 <script>
 	import { getContext, setContext } from 'svelte';
 	import { doc, getDoc } from 'firebase/firestore';
+
+	import { db, auth } from '$lib/firestore';
 	import { openAiConfigStore } from '../stores/api-stores.js';
 
 	// const openAiConfig = writable(null);
 	setContext('openAiConfig', openAiConfigStore);
 
-	const auth = getContext('auth');
-	const db = getContext('db');
 	const userRef = doc(db, 'users', auth.currentUser.uid);
 	setContext('userRef', userRef);
 
