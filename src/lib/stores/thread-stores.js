@@ -1,15 +1,26 @@
 import { derived, writable } from 'svelte/store';
-import { onSnapshot } from 'firebase/firestore';
+import { onSnapshot, doc } from 'firebase/firestore';
 
+import { db } from '../firestore.js';
 import { decrypt } from '../utils/crypto.js';
 
-export const currentThreadRefStore = writable(null);
+export const threadIdStore = writable(null);
 
-export const threadStore = derived(currentThreadRefStore, ($threadRef, set) => {
+export const currentThreadRefStore = derived(threadIdStore, (threadId, set) => {
+	if (threadId) {
+		const threadRef = doc(db, 'threads', threadId);
+		set(threadRef);
+	} else {
+		set(null);
+	}
+});
+
+export const threadStore = derived(threadIdStore, (threadId, set) => {
 	let unsubscribe = null;
 
-	if ($threadRef) {
-		unsubscribe = onSnapshot($threadRef, (doc) => {
+	if (threadId) {
+		const threadRef = doc(db, 'threads', threadId);
+		unsubscribe = onSnapshot(threadRef, (doc) => {
 			set(doc);
 		});
 	} else {

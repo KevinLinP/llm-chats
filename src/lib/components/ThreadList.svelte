@@ -1,5 +1,5 @@
 <script>
-	import { getContext, onDestroy } from 'svelte';
+	import { onDestroy } from 'svelte';
 	import {
 		collection,
 		query,
@@ -12,7 +12,6 @@
 	import { writable } from 'svelte/store';
 
 	import { db } from '$lib/firestore';
-	import { currentThreadRefStore } from '$lib/stores/thread-stores';
 	import { decrypt, encrypt } from '$lib/utils/crypto';
 	import { getKey } from '$lib/encryption-key';
 
@@ -57,22 +56,17 @@
 			updated: serverTimestamp()
 		});
 
-		setCurrentThreadRef(ref);
-	};
-
-	const setCurrentThreadRef = (ref) => {
-		$currentThreadRefStore = ref;
+		// TODO: bring back
+		// setCurrentThreadRef(ref);
 	};
 </script>
 
 {#if $threads.length}
-	<button class="px-3 py-2" on:click={handleCreateThread}>create thread</button>
+	<button class="px-3 py-2" onclick={handleCreateThread}>create thread</button>
 
 	{#each $threads as thread (thread.id)}
 		<div class="px-3 py-2">
-			<button class="btn btn-text" on:click={setCurrentThreadRef(thread.ref)}>
-				{$plainThreads[thread.id]?.title || 'untitled'}
-			</button>
+			<a href={`/${thread.id}`}>{$plainThreads[thread.id]?.title || 'untitled'}</a>
 		</div>
 	{/each}
 {/if}

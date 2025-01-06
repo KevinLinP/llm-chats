@@ -4,13 +4,19 @@
 		threadStore,
 		messagesStore,
 		streamingMessageStore,
-		errorStore
+		errorStore,
+		threadIdStore
 	} from '$lib/stores/thread-stores.js';
 	import ThreadMessageInput from './ThreadMessageInput.svelte';
 	import ThreadModelSelector from './ThreadModelSelector.svelte';
 	import ThreadDelete from './ThreadDelete.svelte';
 
-	$: thread = $threadStore;
+	let { threadId } = $props();
+	$effect(() => {
+		threadIdStore.set(threadId);
+	});
+
+	let thread = threadStore;
 </script>
 
 {#if thread}
