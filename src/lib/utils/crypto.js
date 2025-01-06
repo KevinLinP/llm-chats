@@ -1,4 +1,5 @@
 import { Bytes } from 'firebase/firestore';
+import { getKey } from '$lib/encryption-key.js';
 
 export const printNewJwkKey = async () => {
 	const key = await window.crypto.subtle.generateKey(
@@ -15,7 +16,9 @@ export const printNewJwkKey = async () => {
 	console.log(JSON.stringify(jwkKey));
 };
 
-export const decrypt = async ({ encryptionKey, thread }) => {
+export const decrypt = async ({ thread }) => {
+	const encryptionKey = getKey();
+
 	const decrypted = await window.crypto.subtle.decrypt(
 		{
 			name: 'AES-GCM',
@@ -28,7 +31,9 @@ export const decrypt = async ({ encryptionKey, thread }) => {
 	return JSON.parse(new TextDecoder().decode(decrypted));
 };
 
-export const encrypt = async ({ encryptionKey, plain }) => {
+export const encrypt = async ({ plain }) => {
+	const encryptionKey = getKey();
+
 	const enc = new TextEncoder();
 	const encoded = enc.encode(JSON.stringify(plain));
 	const iv = window.crypto.getRandomValues(new Uint8Array(12));

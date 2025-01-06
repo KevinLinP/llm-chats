@@ -1,7 +1,6 @@
 import { derived, writable } from 'svelte/store';
 import { onSnapshot } from 'firebase/firestore';
 
-import { encryptionKeyStore } from './crypto-stores.js';
 import { decrypt } from '../utils/crypto.js';
 import { getKey } from '$lib/encryption-key.js';
 
@@ -28,8 +27,7 @@ export const plainStore = derived(
 	[threadStore],
 	async ([thread], set) => {
 		if (thread) {
-			const encryptionKey = getKey();
-			const plain = await decrypt({ encryptionKey, thread });
+			const plain = await decrypt({ thread });
 			set(plain);
 			messagesStore.set(plain.messages || []);
 		} else {

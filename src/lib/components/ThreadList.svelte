@@ -28,11 +28,9 @@
 		if (unsubscribe) unsubscribe();
 	});
 
-	const encryptionKey = getKey();
-
 	const decryptThreads = async (threads) => {
 		const promises = threads.map((thread) => {
-			return decrypt({ encryptionKey, thread }).then((plain) => {
+			return decrypt({ thread }).then((plain) => {
 				return [thread.id, plain];
 			});
 		});
@@ -50,7 +48,7 @@
 
 	const handleCreateThread = async () => {
 		const plain = { title: null };
-		const { encrypted, iv } = await encrypt({ encryptionKey, plain });
+		const { encrypted, iv } = await encrypt({ plain });
 
 		const ref = await addDoc(collection(db, 'threads'), {
 			iv,
