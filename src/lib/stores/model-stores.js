@@ -1,26 +1,25 @@
 import { writable, derived } from 'svelte/store';
 import { plainStore } from './thread-stores.js';
 
-export const availableModels = [
-	{
-		id: 'openai-gpt-4-turbo',
-		label: 'OpenAI GPT-4 Turbo',
-		completionCreateOptions: {
-			model: 'gpt-4-0125-preview'
-		}
-	},
-	{
-		id: 'openai-gpt-3.5-turbo',
-		label: 'OpenAI GPT-3.5 Turbo',
-		completionCreateOptions: {
-			model: 'gpt-3.5-turbo-0125'
-		}
-	},
-	{
-		id: 'local',
-		label: 'local',
-		completionCreateOptions: {}
+const openAiModels = [
+	{ name: 'GPT-4o Mini', id: 'gpt-4o-mini' },
+	{ name: 'GPT-4o', id: 'gpt-4o' },
+	{ name: 'GPT-4 Turbo', id: 'gpt-4-turbo' },
+	{ name: 'GPT-4', id: 'gpt-4' },
+	{ name: 'o1 Mini', id: 'o1-mini' },
+	{ name: 'o1 Preview', id: 'o1-preview' },
+	{ name: 'GPT-3.5 Turbo', id: 'gpt-3.5-turbo' },
+].map((model) => ({
+	id: `openai-${model.id}`,
+	label: `OpenAI ${model.name}`,
+	completionCreateOptions: {
+		model: model.id
 	}
+}));
+
+export const availableModels = [
+	...openAiModels,
+	{ id: 'local', label: 'Local', completionCreateOptions: {} }
 ];
 
 export const selectedModelIdStore = writable(availableModels[0].id);
