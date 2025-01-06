@@ -39,7 +39,7 @@
 			handleSend();
 		}
 	}}
-	class="form-control minimal-input"
+	class="dark:bg-gray-800 border-t-0 border-l-0 border-r-0 w-full"
 	rows="1"
 ></textarea>
 

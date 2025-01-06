@@ -55,7 +55,7 @@
 			titleInput.blur();
 		}
 	}}
-	class="form-control title-input"
+	class="dark:bg-gray-800 border-t-0 border-l-0 border-r-0 w-full"
 	class:blank={!title?.length}
 	placeholder="title"
 />

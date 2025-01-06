@@ -14,8 +14,8 @@
 </script>
 
 {#if thread}
-	<div class="mb-3 d-flex flex-direction-row align-items-end">
-		<div class="flex-grow-1">
+	<div class="flex mb-3">
+		<div class="flex-grow">
 			<ThreadTitle />
 		</div>
 

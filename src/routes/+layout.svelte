@@ -26,9 +26,9 @@
 	};
 </script>
 
-<div class="container mx-auto">
+<div>
 	{#if !signedIn}
-		<button class="btn btn-primary" on:click={handleSignIn}>Sign In</button>
+		<button on:click={handleSignIn}>Sign In</button>
 	{:else}
 		<EncryptionContext>
 			<OpenAiConfigContext>

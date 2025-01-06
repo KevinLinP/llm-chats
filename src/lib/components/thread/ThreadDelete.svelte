@@ -13,4 +13,4 @@
 	};
 </script>
 
-<button class="btn btn-text" on:click={handleDestroy}>delete</button>
+<button class="px-4 py-3" on:click={handleDestroy}>delete</button>
