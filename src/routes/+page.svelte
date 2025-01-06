@@ -3,12 +3,12 @@
 	import ThreadList from '$lib/components/ThreadList.svelte';
 </script>
 
-<div class="row">
-	<div class="col-2">
+<div class="flex gap-4">
+	<div>
 		<ThreadList />
 	</div>
 
-	<div class="col-10">
+	<div>
 		<Thread />
 	</div>
 </div>

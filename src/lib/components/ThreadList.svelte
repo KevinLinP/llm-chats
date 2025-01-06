@@ -67,10 +67,10 @@
 </script>
 
 {#if $threads.length}
-	<button class="mb-2 btn btn-link" on:click={handleCreateThread}>create thread</button>
+	<button class="px-3 py-2" on:click={handleCreateThread}>create thread</button>
 
 	{#each $threads as thread (thread.id)}
-		<div class="mb-2">
+		<div class="px-3 py-2">
 			<button class="btn btn-text" on:click={setCurrentThreadRef(thread.ref)}>
 				{$plainThreads[thread.id]?.title || 'untitled'}
 			</button>

@@ -26,7 +26,7 @@
 	};
 </script>
 
-<div class="container-fluid py-5">
+<div class="container mx-auto">
 	{#if !signedIn}
 		<button class="btn btn-primary" on:click={handleSignIn}>Sign In</button>
 	{:else}

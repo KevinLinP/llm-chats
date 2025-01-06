@@ -8,7 +8,7 @@
 	{/each}
 </select>
 
-<style lang="scss">
+<style>
 	.model-select {
 		border: 0;
 	}
