@@ -12,8 +12,9 @@
 	import { writable } from 'svelte/store';
 
 	import { db } from '$lib/firestore';
-	import { currentThreadRefStore } from '$lib/stores/thread-stores.js';
-	import { decrypt, encrypt } from '$lib/utils/crypto.js';
+	import { currentThreadRefStore } from '$lib/stores/thread-stores';
+	import { decrypt, encrypt } from '$lib/utils/crypto';
+	import { getKey } from '$lib/encryption-key';
 
 	let threads = writable([]);
 	let plainThreads = writable({});
@@ -27,7 +28,7 @@
 		if (unsubscribe) unsubscribe();
 	});
 
-	const encryptionKey = getContext('encryptionKey');
+	const encryptionKey = getKey();
 
 	const decryptThreads = async (threads) => {
 		const promises = threads.map((thread) => {

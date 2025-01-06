@@ -1,6 +1,6 @@
 import { Bytes } from 'firebase/firestore';
 
-export const generateJwkKey = async () => {
+export const printNewJwkKey = async () => {
 	const key = await window.crypto.subtle.generateKey(
 		{
 			name: 'AES-GCM',

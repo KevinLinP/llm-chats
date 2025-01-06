@@ -1,7 +1,6 @@
 <script>
 	import { auth } from '$lib/firestore';
 	import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-	import EncryptionContext from '$lib/components/EncryptionContext.svelte';
 	import OpenAiConfigContext from '$lib/components/OpenAiConfigContext.svelte';
 
 	import "../app.css";
@@ -30,10 +29,8 @@
 	{#if !signedIn}
 		<button on:click={handleSignIn}>Sign In</button>
 	{:else}
-		<EncryptionContext>
-			<OpenAiConfigContext>
-				<slot />
-			</OpenAiConfigContext>
-		</EncryptionContext>
+		<OpenAiConfigContext>
+			<slot />
+		</OpenAiConfigContext>
 	{/if}
 </div>

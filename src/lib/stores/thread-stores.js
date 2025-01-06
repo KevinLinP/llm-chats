@@ -3,6 +3,7 @@ import { onSnapshot } from 'firebase/firestore';
 
 import { encryptionKeyStore } from './crypto-stores.js';
 import { decrypt } from '../utils/crypto.js';
+import { getKey } from '$lib/encryption-key.js';
 
 export const currentThreadRefStore = writable(null);
 
@@ -24,9 +25,10 @@ export const threadStore = derived(currentThreadRefStore, ($threadRef, set) => {
 });
 
 export const plainStore = derived(
-	[threadStore, encryptionKeyStore],
-	async ([thread, encryptionKey], set) => {
+	[threadStore],
+	async ([thread], set) => {
 		if (thread) {
+			const encryptionKey = getKey();
 			const plain = await decrypt({ encryptionKey, thread });
 			set(plain);
 			messagesStore.set(plain.messages || []);
