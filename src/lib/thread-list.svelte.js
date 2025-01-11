@@ -17,10 +17,7 @@ export function createThreadList() {
     query(collection(db, 'threads'), orderBy('updated', 'desc'), limit(10)),
     async (querySnapshot) => {
       const newPlainThreads = await Promise.all(
-        querySnapshot.docs.map(async thread => ({
-          id: thread.id,
-          ...await decrypt({ thread })
-        }))
+        querySnapshot.docs.map(async thread => await decrypt({ thread }))
       );
       
       plainThreads.length = 0;

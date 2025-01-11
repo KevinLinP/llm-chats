@@ -19,7 +19,7 @@ export const printNewJwkKey = async () => {
 export const decrypt = async ({ thread }) => {
 	const encryptionKey = getKey();
 
-	const decrypted = await window.crypto.subtle.decrypt(
+	const arrayBuffer = await window.crypto.subtle.decrypt(
 		{
 			name: 'AES-GCM',
 			iv: new Uint8Array(thread.data().iv.toUint8Array())
@@ -28,7 +28,9 @@ export const decrypt = async ({ thread }) => {
 		new Uint8Array(thread.data().encrypted.toUint8Array())
 	);
 
-	return JSON.parse(new TextDecoder().decode(decrypted));
+	const decrypted = JSON.parse(new TextDecoder().decode(arrayBuffer));
+
+	return {id: thread.id, ...decrypted};
 };
 
 export const encrypt = async ({ plain }) => {
