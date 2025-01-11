@@ -9,7 +9,7 @@ import {
 	currentThreadRefStore
 } from '$lib/stores/thread-stores.js';
 import { openAiStore } from '$lib/stores/api-stores.js';
-import { encryptionKeyStore } from '$lib/stores/crypto-stores.js';
+import { getKey } from '$lib/encryption-key';
 import { encrypt } from '$lib/utils/crypto.js';
 import { selectedModelIdStore, selectedModelStore } from '$lib/stores/model-stores.js';
 
@@ -64,7 +64,7 @@ export const getCompletion = async ({ userMessage, systemMessage }) => {
 };
 
 const persistThread = async ({ messages }) => {
-	const encryptionKey = get(encryptionKeyStore);
+	const encryptionKey = getKey();
 
 	const { encrypted, iv } = await encrypt({
 		encryptionKey,
