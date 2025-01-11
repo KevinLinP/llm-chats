@@ -16,16 +16,15 @@ export function createThreadList() {
   unsubscribe = onSnapshot(
     query(collection(db, 'threads'), orderBy('updated', 'desc'), limit(10)),
     async (querySnapshot) => {
-      const encryptedThreads = querySnapshot.docs;
-      const promises = encryptedThreads.map((thread) => {
-        return decrypt({ thread }).then((plain) => {
-          return { id: thread.id, ...plain };
-        });
-      });
-
-      const plainThreadsArray = await Promise.all(promises);
+      const newPlainThreads = await Promise.all(
+        querySnapshot.docs.map(async thread => ({
+          id: thread.id,
+          ...await decrypt({ thread })
+        }))
+      );
+      
       plainThreads.length = 0;
-      plainThreads.push(...plainThreadsArray);
+      plainThreads.push(...newPlainThreads);
     }
   );
 
