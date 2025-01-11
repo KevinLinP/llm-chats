@@ -1,8 +1,8 @@
 <script>
 	import { deleteDoc } from 'firebase/firestore';
+	import { get } from 'svelte/store';
 
 	import { currentThreadRefStore } from '$lib/stores/thread-stores.js';
-	import { get } from 'svelte/store';
 
 	const handleDestroy = () => {
 		const threadRef = get(currentThreadRefStore);

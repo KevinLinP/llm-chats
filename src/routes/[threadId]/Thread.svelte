@@ -1,22 +1,18 @@
 <script>
-	import ThreadTitle from './ThreadTitle.svelte';
 	import {
-		threadStore,
-		messagesStore,
 		streamingMessageStore,
 		errorStore,
 		threadIdStore
 	} from '$lib/stores/thread-stores.js';
+	import { createThread } from '$lib/thread.svelte.js';
+
+	import ThreadTitle from './ThreadTitle.svelte';
 	import ThreadMessageInput from './ThreadMessageInput.svelte';
 	import ThreadModelSelector from './ThreadModelSelector.svelte';
 	import ThreadDelete from './ThreadDelete.svelte';
 
 	let { threadId } = $props();
-	$effect(() => {
-		threadIdStore.set(threadId);
-	});
-
-	let thread = threadStore;
+	let { thread } = $derived(createThread(threadId));
 </script>
 
 {#if thread}
@@ -28,9 +24,9 @@
 		<ThreadDelete />
 	</div>
 
-	{#if $messagesStore.length}
+	{#if thread.messages?.length}
 		<div class="pe-5">
-			{#each $messagesStore as message, i (i)}
+			{#each thread.messages as message, i (i)}
 				<p class="mb-3">
 					{message.role}
 					<br />
