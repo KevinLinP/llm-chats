@@ -10,7 +10,7 @@ import { db } from '$lib/firestore';
 import { decrypt } from '$lib/utils/crypto';
 
 export function createThreadList() {
-  const plainThreads = $state({});
+  const plainThreads = $state([]);
   let unsubscribe = () => {};
 
   unsubscribe = onSnapshot(
@@ -19,14 +19,13 @@ export function createThreadList() {
       const encryptedThreads = querySnapshot.docs;
       const promises = encryptedThreads.map((thread) => {
         return decrypt({ thread }).then((plain) => {
-          return [thread.id, plain];
+          return { id: thread.id, ...plain };
         });
       });
 
       const plainThreadsArray = await Promise.all(promises);
-      
-      const newPlainThreads = Object.fromEntries(plainThreadsArray);
-      Object.assign(plainThreads, newPlainThreads);
+      plainThreads.length = 0;
+      plainThreads.push(...plainThreadsArray);
     }
   );
 
