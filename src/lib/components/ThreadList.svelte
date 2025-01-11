@@ -13,37 +13,41 @@
 
 	import { db } from '$lib/firestore';
 	import { decrypt, encrypt } from '$lib/utils/crypto';
-	import { getKey } from '$lib/encryption-key';
+	import { createThreadList } from '$lib/thread-list.svelte.js';
 
-	let threads = writable([]);
-	let plainThreads = writable({});
+	const { plainThreads } = createThreadList();
 
-	const q = query(collection(db, 'threads'), orderBy('updated', 'desc'), limit(10));
-	let unsubscribe = null;
-	$: unsubscribe = onSnapshot(q, (querySnapshot) => {
-		$threads = querySnapshot.docs;
-	});
-	onDestroy(() => {
-		if (unsubscribe) unsubscribe();
-	});
+	// const threadList = createThreadList();
 
-	const decryptThreads = async (threads) => {
-		const promises = threads.map((thread) => {
-			return decrypt({ thread }).then((plain) => {
-				return [thread.id, plain];
-			});
-		});
-		const plainThreadData = await Promise.all(promises);
+	// let threads = writable([]);
+	// let plainThreads = writable({});
 
-		const something = {};
-		plainThreadData.forEach((td) => {
-			something[td[0]] = td[1];
-		});
+	// const q = query(collection(db, 'threads'), orderBy('updated', 'desc'), limit(10));
+	// let unsubscribe = null;
+	// $: unsubscribe = onSnapshot(q, (querySnapshot) => {
+	// 	$threads = querySnapshot.docs;
+	// });
+	// onDestroy(() => {
+	// 	if (unsubscribe) unsubscribe();
+	// });
 
-		$plainThreads = something;
-	};
+	// const decryptThreads = async (threads) => {
+	// 	const promises = threads.map((thread) => {
+	// 		return decrypt({ thread }).then((plain) => {
+	// 			return [thread.id, plain];
+	// 		});
+	// 	});
+	// 	const plainThreadData = await Promise.all(promises);
 
-	$: decryptThreads($threads);
+	// 	const something = {};
+	// 	plainThreadData.forEach((td) => {
+	// 		something[td[0]] = td[1];
+	// 	});
+
+	// 	$plainThreads = something;
+	// };
+
+	// $: decryptThreads($threads);
 
 	const handleCreateThread = async () => {
 		const plain = { title: null };
@@ -61,12 +65,14 @@
 	};
 </script>
 
-{#if $threads.length}
+{#if Object.keys(plainThreads).length}
 	<button class="px-3 py-2" onclick={handleCreateThread}>create thread</button>
 
-	{#each $threads as thread (thread.id)}
+	{#each Object.entries(plainThreads) as [id, thread] (id)}
 		<div class="px-3 py-2">
-			<a href={`/${thread.id}`}>{$plainThreads[thread.id]?.title || 'untitled'}</a>
+			<a href={`/${id}`}>{thread?.title || 'untitled'}</a>
 		</div>
 	{/each}
+{:else}
+	<p>no threads</p>
 {/if}
