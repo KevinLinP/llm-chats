@@ -29,7 +29,7 @@
 {#if thread}
 	<div class="flex mb-3">
 		<div class="flex-grow">
-			<ThreadTitle />
+			<ThreadTitle {thread} />
 		</div>
 
 		<ThreadDelete />

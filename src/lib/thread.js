@@ -1,19 +1,29 @@
-import { onSnapshot, doc } from 'firebase/firestore';
+import { onSnapshot, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 
 import { db } from './firestore';
-import { decrypt } from './utils/crypto';
+import { decrypt, encrypt } from './utils/crypto';
 
 export function subscribeThread({threadId, threadUpdated}) {
   const threadRef = doc(db, 'threads', threadId);
 
-	console.log({threadRef});
-
   const unsubscribe = onSnapshot(threadRef, async (doc) => {
-		console.log({doc});
     const decryptedThread = await decrypt({thread: doc});
-		console.log({decryptedThread});
 		threadUpdated(decryptedThread);
   });
 
   return {unsubscribe};
+}
+
+export async function updateThread(thread) {
+  const threadRef = doc(db, 'threads', thread.id);
+
+  const { encrypted, iv } = await encrypt({
+    plain: thread
+  });
+
+  updateDoc(threadRef, {
+    encrypted,
+    iv,
+    updated: serverTimestamp()
+  });
 }

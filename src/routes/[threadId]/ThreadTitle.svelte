@@ -1,83 +1,34 @@
 <script>
-	import { getContext } from 'svelte';
-	import { serverTimestamp, updateDoc } from 'firebase/firestore';
+	import { updateThread } from '$lib/thread.js';
 
-	import { currentThreadRefStore, plainStore } from '$lib/stores/thread-stores.js';
-	import { encrypt } from '$lib/utils/crypto.js';
+	let { thread } = $props();
 
-	$: threadRef = $currentThreadRefStore;
-
-	const encryptionKey = getContext('encryptionKey');
-
-	$: plain = $plainStore;
-
-	let title = '';
-	plainStore.subscribe((value) => {
-		title = value?.title;
-	});
-
-	let titleInput = null;
-
-	$: {
-		if (title) {
-			document.title = `${title} - LLM-Chats`;
+	let titleInput = $state('');
+	$effect(() => {
+		titleInput = thread.title;
+		if (thread.title) {
+			document.title = `${thread.title} - LLM-Chats`;
 		}
+	})
+
+	const saveTitle = () => {
+		updateThread({
+			...thread,
+			title: titleInput
+		});
 	}
-
-	const saveTitle = async () => {
-		const newPlain = {
-			...plain,
-			title
-		};
-
-		const { encrypted, iv } = await encrypt({
-			encryptionKey,
-			plain: newPlain
-		});
-
-		updateDoc(threadRef, {
-			encrypted,
-			iv,
-			updated: serverTimestamp()
-		});
-	};
 </script>
 
 <input
 	type="text"
-	bind:this={titleInput}
-	bind:value={title}
-	on:blur={saveTitle}
-	on:keydown={(e) => {
+	bind:value={titleInput}
+	onblur={saveTitle}
+	onkeydown={(e) => {
 		if (e.key === 'Enter') {
-			e.preventDefault();
 			saveTitle();
-			titleInput.blur();
 		}
 	}}
 	class="dark:bg-gray-800 border-t-0 border-l-0 border-r-0 w-full"
-	class:blank={!title?.length}
+	class:blank={thread.title?.length}
 	placeholder="title"
 />
-
-<style lang="scss">
-	.title-input {
-		border-radius: 0;
-		font-size: 1.5rem;
-		&:not(:focus) {
-			&:not(.blank) {
-				border-top: none;
-				border-left: none;
-				border-right: none;
-				padding-left: 0;
-			}
-		}
-
-		&:focus,
-		&.blank {
-			border-top: none;
-			border-left: none;
-			border-right: none;
-		}
-	}
-</style>
