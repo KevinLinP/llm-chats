@@ -4,13 +4,11 @@
 	import {
 		streamingMessageStore,
 		errorStore,
-		threadIdStore
 	} from '$lib/stores/thread-stores.js';
 	import { subscribeThread } from '$lib/thread.js';
 
 	import ThreadTitle from './ThreadTitle.svelte';
 	import ThreadMessageInput from './ThreadMessageInput.svelte';
-	import ThreadModelSelector from './ThreadModelSelector.svelte';
 	import ThreadDelete from './ThreadDelete.svelte';
 
 	let { threadId } = $props();
@@ -47,6 +45,8 @@
 		</div>
 	{/if}
 
+	<ThreadMessageInput {thread} />
+
 	{#if $streamingMessageStore}
 		<div class="pe-5">
 			<p class="mb-3">
@@ -57,16 +57,5 @@
 			<p class="text-danger">{$errorStore}</p>
 		</div>
 	{:else}
-		<div class="d-flex flex-direction-row align-items-end">
-			<div class="flex-grow-1">
-				<ThreadMessageInput />
-			</div>
-		</div>
-
-		<div class="mt-2 d-flex flex-direction-row justify-content-end">
-			<div>
-				<ThreadModelSelector />
-			</div>
-		</div>
 	{/if}
 {/if}

@@ -17,12 +17,7 @@ export const getCompletion = async ({ userMessage, systemMessage }) => {
 	errorStore.set('');
 
 	const previousMessages = get(messagesStore);
-	let messages = previousMessages.length
-		? [...previousMessages, { role: 'user', content: userMessage }]
-		: [
-				{ role: 'system', content: systemMessage },
-				{ role: 'user', content: userMessage }
-			];
+
 
 	messagesStore.set(messages);
 
