@@ -1,10 +1,12 @@
 <script>
+	import { onDestroy } from 'svelte';
+
 	import {
 		streamingMessageStore,
 		errorStore,
 		threadIdStore
 	} from '$lib/stores/thread-stores.js';
-	import { createThread } from '$lib/thread.svelte.js';
+	import { subscribeThread } from '$lib/thread.js';
 
 	import ThreadTitle from './ThreadTitle.svelte';
 	import ThreadMessageInput from './ThreadMessageInput.svelte';
@@ -12,7 +14,16 @@
 	import ThreadDelete from './ThreadDelete.svelte';
 
 	let { threadId } = $props();
-	let { thread } = $derived(createThread(threadId));
+	let thread = $state({});
+
+	let unsubscribe = $state(() => {});
+	$effect(() => {
+		unsubscribe = subscribeThread({
+			threadId,
+			threadUpdated: (newThread) => thread = newThread
+		});
+	});
+	onDestroy(() => unsubscribe());
 </script>
 
 {#if thread}
