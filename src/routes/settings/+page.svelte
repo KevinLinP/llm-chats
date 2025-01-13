@@ -1,15 +1,15 @@
 <script>
-	import SignoutButton from '$lib/components/SignoutButton.svelte';
-	import OpenAiSettings from '$lib/components/OpenAiSettings.svelte';
-	import EncryptionKeySettings from '$lib/components/EncryptionKeySettings.svelte';
+	import SignoutButton from './SignoutButton.svelte';
+	import OpenAi from './OpenAi.svelte';
+	import EncryptionKey from './EncryptionKey.svelte';
 </script>
 
 <div class="mb-5">
-	<EncryptionKeySettings/>
+	<EncryptionKey/>
 </div>
 
 <div class="mb-5">
-	<OpenAiSettings />
+	<OpenAi />
 </div>
 
 <div>

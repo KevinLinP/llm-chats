@@ -4,7 +4,7 @@ import { get } from 'svelte/store';
 import { getOpenAi } from '$lib/open-ai.js';
 import { availableModels } from '$lib/ai-models';
 import { db } from './firestore';
-import { decrypt, encrypt } from './utils/crypto';
+import { decrypt, encrypt } from './crypto';
 
 export function subscribeThread({threadId, threadUpdated}) {
   const threadRef = doc(db, 'threads', threadId);

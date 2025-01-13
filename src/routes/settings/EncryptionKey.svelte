@@ -1,5 +1,5 @@
 <script>
-	import { getKey, saveKey } from '$lib/encryption-key.js';
+	import { getKey, saveKey } from '$lib/encryption-key';
   const key = getKey();
   let newJwk = $state('');
 </script>

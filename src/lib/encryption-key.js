@@ -1,4 +1,4 @@
-import { printNewJwkKey } from './utils/crypto.js';
+import { printNewJwkKey } from './crypto.js';
 
 const LOCAL_STORAGE_KEY = 'jwkEncryptionKey';
 let key = null;
