@@ -1,6 +1,6 @@
 <script>
 	import { sendMessage } from '$lib/thread';
-	import { availableModels, defaultModelId } from '$lib/ai-models';
+	import { modelGroups, defaultModelId } from '$lib/open-router';
 
 	let { thread } = $props();
 
@@ -69,8 +69,12 @@
 	></textarea>
 
 	<select class="dark:bg-gray-800 border-0" bind:value={selectedModelId}>
-		{#each availableModels as { id, label }}
-			<option value={id}>{label}</option>
+		{#each modelGroups as { name: groupName, models }}
+			<optgroup label={groupName}>
+				{#each models as { id, name}}
+					<option value={id}>{groupName} {name}</option>
+				{/each}
+			</optgroup>
 		{/each}
 	</select>
 {/if}

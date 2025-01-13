@@ -1,7 +1,6 @@
 import { addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, collection } from 'firebase/firestore';
 
-import { getOpenAi } from '$lib/open-ai';
-import { availableModels } from '$lib/ai-models';
+import { getOpenRouter } from '$lib/open-router';
 import { db } from '$lib/firestore';
 import { decrypt, encrypt } from '$lib/crypto';
 
@@ -67,8 +66,8 @@ export async function sendMessage({
   setTempMessages,
   setStreamingAssistantMessage,
 }) {
-  const openAi = await getOpenAi();
-  if (!openAi) return;
+  const openRouter = await getOpenRouter();
+  if (!openRouter) return;
 
   const previousMessages = thread.messages || [];
   const newMessages = previousMessages.length
@@ -80,13 +79,10 @@ export async function sendMessage({
   setTempMessages(newMessages);
   const messages = [...previousMessages, ...newMessages];
 
-
-  const selectedModel = availableModels.find(model => model.id === selectedModelId);
-
-  const completion = await openAi.chat.completions.create({
+  const completion = await openRouter.chat.completions.create({
+    model: selectedModelId,
 		messages,
 		stream: true,
-		...selectedModel.completionCreateOptions
 	});
 
   let assistantMessage = '';
