@@ -1,10 +1,9 @@
 import { onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
-import { get } from 'svelte/store';
 
-import { getOpenAi } from '$lib/open-ai.js';
+import { getOpenAi } from '$lib/open-ai';
 import { availableModels } from '$lib/ai-models';
-import { db } from './firestore';
-import { decrypt, encrypt } from './crypto';
+import { db } from '$lib/firestore';
+import { decrypt, encrypt } from '$lib/crypto';
 
 export function subscribeThread({threadId, threadUpdated}) {
   const threadRef = doc(db, 'threads', threadId);
