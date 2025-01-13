@@ -1,21 +1,12 @@
 import { writable, derived } from 'svelte/store';
-import { selectedModelIdStore } from '$lib/stores/model-stores.js';
 import OpenAI from 'openai';
 
 export const openAiConfigStore = writable(null);
 
 export const openAiStore = derived(
-	[selectedModelIdStore, openAiConfigStore],
-	([selectedModelId, openAiConfig], set) => {
-		const config =
-			selectedModelId === 'local'
-				? {
-						apiKey: 'not needed',
-						baseURL: 'http://localhost:1234/v1/'
-					}
-				: openAiConfig;
-
-		const openAi = new OpenAI({ dangerouslyAllowBrowser: true, ...config });
+	[openAiConfigStore],
+	([openAiConfig], set) => {
+		const openAi = new OpenAI({ dangerouslyAllowBrowser: true, ...openAiConfig });
 
 		set(openAi);
 	}

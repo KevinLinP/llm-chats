@@ -2,7 +2,7 @@ import { onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase
 import { get } from 'svelte/store';
 
 import { openAiStore } from '$lib/stores/api-stores.js';
-import { availableModels } from '$lib/stores/model-stores.js';
+import { availableModels } from '$lib/ai-models';
 import { db } from './firestore';
 import { decrypt, encrypt } from './utils/crypto';
 

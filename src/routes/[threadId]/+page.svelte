@@ -12,7 +12,7 @@
 		<ThreadList />
 	</div>
 
-	<div>
+	<div class="flex-grow">
 		<Thread threadId={threadId} />
 	</div>
 </div>

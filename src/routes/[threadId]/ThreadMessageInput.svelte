@@ -1,15 +1,14 @@
 <script>
-	import { sendMessage } from '$lib/thread.js';
-	import { availableModels } from '$lib/stores/model-stores.js';
+	import { sendMessage } from '$lib/thread';
+	import { availableModels, defaultModelId } from '$lib/ai-models';
 
 	let { thread } = $props();
-	$inspect(thread);
 
 	let systemMessage = $state('You are a helpful assistant.');
 	let userMessage = $state('');
-	let selectedModelId = $state('gpt-4o');
+	let selectedModelId = $state(defaultModelId);
 	$effect(() => {
-		selectedModelId = thread.selectedModelId || 'gpt-4o';
+		selectedModelId = thread.selectedModelId || defaultModelId;
 	});
 
 	let tempMessages = $state([]);
@@ -43,7 +42,7 @@
 		<div>{streamingAssistantMessage}</div>
 	</div>
 {:else}
-	{#if thread.messages?.length == 0}
+	{#if !thread.messages || thread.messages.length == 0}
 		<div class="mb-3">
 			<label for="system-message">system</label>
 			<textarea

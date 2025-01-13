@@ -1,16 +1,12 @@
 <script>
 	import { onDestroy } from 'svelte';
 
-	import {
-		streamingMessageStore,
-		errorStore,
-	} from '$lib/stores/thread-stores.js';
 	import { subscribeThread } from '$lib/thread.js';
 
 	// TODO: remove Thread prefix
 	import ThreadTitle from './ThreadTitle.svelte';
 	import ThreadMessageInput from './ThreadMessageInput.svelte';
-	import ThreadDelete from './ThreadDelete.svelte';
+	import DeleteButton from './DeleteButton.svelte';
 
 	let { threadId } = $props();
 	let thread = $state({});
@@ -31,7 +27,7 @@
 			<ThreadTitle {thread} />
 		</div>
 
-		<ThreadDelete {thread} />
+		<DeleteButton {thread} />
 	</div>
 
 	{#if thread.messages?.length}
@@ -47,16 +43,4 @@
 	{/if}
 
 	<ThreadMessageInput {thread} />
-
-	{#if $streamingMessageStore}
-		<div class="pe-5">
-			<p class="mb-3">
-				assistant
-				<br />
-				{$streamingMessageStore}
-			</p>
-			<p class="text-danger">{$errorStore}</p>
-		</div>
-	{:else}
-	{/if}
 {/if}

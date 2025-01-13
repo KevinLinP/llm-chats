@@ -10,4 +10,4 @@
 	};
 </script>
 
-<button class="px-3 py-3" onclick={handleDelete}>delete</button>
+<button class="px-3 py-3" onclick={handleDelete}>delete</button> 

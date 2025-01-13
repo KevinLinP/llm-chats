@@ -6,6 +6,7 @@
 		serverTimestamp,
 	} from 'firebase/firestore';
 
+	import { goto } from '$app/navigation';
 	import { db } from '$lib/firestore';
 	import { encrypt } from '$lib/utils/crypto';
 	import { createThreadList } from '$lib/thread-list.svelte.js';
@@ -32,11 +33,13 @@
 </script>
 
 {#if plainThreads.length}
-	<button class="px-3 py-2" onclick={handleCreateThread}>create thread</button>
+	<button class="px-3 py-2 text-left" onclick={handleCreateThread}>create thread</button>
+
+	<hr class="my-3 mx-2 border-t border-gray-300 dark:border-gray-700">
 
 	{#each plainThreads as thread (thread.id)}
-		<div class="px-3 py-2">
-			<a href={`/${thread.id}`}>{thread?.title || 'untitled'}</a>
+		<div>
+			<button class="px-3 py-2 text-left" onclick={() => goto(`/${thread.id}`)}>{thread.title || 'untitled'}</button>
 		</div>
 	{/each}
 {/if}
