@@ -1,13 +1,23 @@
 import { db, auth } from '$lib/firestore';
 import { doc, getDoc } from 'firebase/firestore';
 
-export const getUser = async () => {
-  const userRef = doc(db, 'users', auth.currentUser.uid);
-	const user = await getDoc(userRef);
-  if (!user.exists()) return null;
+let userPromise = null;
 
-  return {
-    id: user.id,
-    ...user.data()
+auth.onAuthStateChanged(async (authUser) => {
+  if (!authUser) {
+    userPromise = async () => null;
   }
-};
+
+  const userRef = doc(db, 'users', authUser.uid);
+
+	userPromise = getDoc(userRef).then(doc => {
+    return {
+      id: doc.id,
+      ...doc.data()
+    }
+  });
+});
+
+export const getUser = async () => {
+  return await userPromise;
+}

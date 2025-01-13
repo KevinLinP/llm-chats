@@ -8,7 +8,7 @@
 
 	import { goto } from '$app/navigation';
 	import { db } from '$lib/firestore';
-	import { encrypt } from '$lib/utils/crypto';
+	import { encrypt } from '$lib/crypto';
 	import { createThreadList } from '$lib/thread-list.svelte.js';
 
 	const { plainThreads, unsubscribe } = createThreadList();

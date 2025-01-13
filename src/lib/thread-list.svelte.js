@@ -7,7 +7,7 @@ import {
 } from 'firebase/firestore';
 
 import { db } from '$lib/firestore';
-import { decrypt } from '$lib/utils/crypto';
+import { decrypt } from '$lib/crypto';
 
 export function createThreadList() {
   const plainThreads = $state([]);
