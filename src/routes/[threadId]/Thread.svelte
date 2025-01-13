@@ -1,7 +1,7 @@
 <script>
 	import { onDestroy } from 'svelte';
 
-	import { subscribeThread } from '$lib/thread.js';
+	import { subscribeThread } from '$lib/thread';
 
 	// TODO: remove Thread prefix
 	import ThreadTitle from './ThreadTitle.svelte';

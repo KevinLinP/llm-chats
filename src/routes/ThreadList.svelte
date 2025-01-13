@@ -9,7 +9,7 @@
 	import { goto } from '$app/navigation';
 	import { db } from '$lib/firestore';
 	import { encrypt } from '$lib/crypto';
-	import { createThreadList } from '$lib/thread-list.svelte.js';
+	import { createThreadList } from '$lib/thread-list.svelte';
 
 	const { plainThreads, unsubscribe } = createThreadList();
 	onDestroy(() => {

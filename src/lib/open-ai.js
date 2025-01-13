@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 
-import { getUser } from './user.js';
+import { getUser } from './user';
 
 export const getOpenAi = async () => {
   const user = await getUser();

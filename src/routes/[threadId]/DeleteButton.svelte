@@ -1,6 +1,6 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { deleteThread } from '$lib/thread.js';
+	import { deleteThread } from '$lib/thread';
 
 	let { thread } = $props();
 

@@ -1,5 +1,5 @@
 import { Bytes } from 'firebase/firestore';
-import { getKey } from '$lib/encryption-key.js';
+import { getKey } from '$lib/encryption-key';
 
 export const printNewJwkKey = async () => {
 	const key = await window.crypto.subtle.generateKey(

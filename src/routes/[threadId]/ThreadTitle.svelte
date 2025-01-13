@@ -1,5 +1,5 @@
 <script>
-	import { updateThread } from '$lib/thread.js';
+	import { updateThread } from '$lib/thread';
 
 	let { thread } = $props();
 
