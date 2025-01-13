@@ -1,16 +1,16 @@
 <script>
 	import { sendMessage } from '$lib/thread.js';
-
-	import ThreadModelSelector from './ThreadModelSelector.svelte';
+	import { availableModels } from '$lib/stores/model-stores.js';
 
 	let { thread } = $props();
-	let systemMessage = $state('You are a helpful assistant.');
-	$effect(() => {
-		systemMessage = thread.systemMessage || 'You are a helpful assistant.';
-	});
+	$inspect(thread);
 
+	let systemMessage = $state('You are a helpful assistant.');
 	let userMessage = $state('');
-	let userMessageTextarea = $state(null);
+	let selectedModelId = $state('gpt-4o');
+	$effect(() => {
+		selectedModelId = thread.selectedModelId || 'gpt-4o';
+	});
 
 	let tempMessages = $state([]);
 	let streamingAssistantMessage = $state(null);
@@ -23,6 +23,7 @@
 			thread,
 			userMessage: userMessageCopy,
 			systemMessage,
+			selectedModelId,
 			setStreamingAssistantMessage: (message) => streamingAssistantMessage = message,
 			setTempMessages: (messages) => tempMessages = messages,
 		});
@@ -58,7 +59,6 @@
 	<textarea
 		id="user-message"
 		bind:value={userMessage}
-		bind:this={userMessageTextarea}
 		onkeydown={(e) => {
 			if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
 				e.preventDefault();
@@ -69,5 +69,9 @@
 		rows="1"
 	></textarea>
 
-	<ThreadModelSelector />
+	<select class="dark:bg-gray-800 border-0" bind:value={selectedModelId}>
+		{#each availableModels as { id, label }}
+			<option value={id}>{label}</option>
+		{/each}
+	</select>
 {/if}

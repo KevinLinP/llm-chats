@@ -2,7 +2,7 @@ import { onSnapshot, doc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import { get } from 'svelte/store';
 
 import { openAiStore } from '$lib/stores/api-stores.js';
-import { selectedModelStore } from '$lib/stores/model-stores.js';
+import { availableModels } from '$lib/stores/model-stores.js';
 import { db } from './firestore';
 import { decrypt, encrypt } from './utils/crypto';
 
@@ -35,11 +35,12 @@ export async function sendMessage({
   thread,
   userMessage,
   systemMessage,
+  selectedModelId,
   setTempMessages,
   setStreamingAssistantMessage,
 }) {
   const previousMessages = thread.messages || [];
-  const newMessages= previousMessages.length
+  const newMessages = previousMessages.length
   ? [{ role: 'user', content: userMessage }]
   : [
       { role: 'system', content: systemMessage },
@@ -49,11 +50,12 @@ export async function sendMessage({
   const messages = [...previousMessages, ...newMessages];
 
 	const openAi = get(openAiStore);
+  const selectedModel = availableModels.find(model => model.id === selectedModelId);
 
   const completion = await openAi.chat.completions.create({
 		messages,
 		stream: true,
-		...get(selectedModelStore).completionCreateOptions
+		...selectedModel.completionCreateOptions
 	});
 
   let assistantMessage = '';
@@ -72,7 +74,8 @@ export async function sendMessage({
 
   await updateThread({
     ...thread,
-    messages: [...messages, { role: 'assistant', content: assistantMessage.trim() }]
+    messages: [...messages, { role: 'assistant', content: assistantMessage.trim() }],
+    selectedModelId
   });
 
   setStreamingAssistantMessage(null);
