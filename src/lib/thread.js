@@ -1,7 +1,7 @@
 import { onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { get } from 'svelte/store';
 
-import { openAiStore } from '$lib/stores/api-stores.js';
+import { getOpenAi } from '$lib/open-ai.js';
 import { availableModels } from '$lib/ai-models';
 import { db } from './firestore';
 import { decrypt, encrypt } from './utils/crypto';
@@ -44,6 +44,9 @@ export async function sendMessage({
   setTempMessages,
   setStreamingAssistantMessage,
 }) {
+  const openAi = await getOpenAi();
+  if (!openAi) return;
+
   const previousMessages = thread.messages || [];
   const newMessages = previousMessages.length
   ? [{ role: 'user', content: userMessage }]
@@ -54,7 +57,7 @@ export async function sendMessage({
   setTempMessages(newMessages);
   const messages = [...previousMessages, ...newMessages];
 
-	const openAi = get(openAiStore);
+
   const selectedModel = availableModels.find(model => model.id === selectedModelId);
 
   const completion = await openAi.chat.completions.create({
