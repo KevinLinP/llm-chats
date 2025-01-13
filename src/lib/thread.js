@@ -1,4 +1,4 @@
-import { addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, collection } from 'firebase/firestore';
 
 import { getOpenAi } from '$lib/open-ai';
 import { availableModels } from '$lib/ai-models';

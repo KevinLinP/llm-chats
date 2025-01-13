@@ -9,7 +9,8 @@
 	import { goto } from '$app/navigation';
 	import { db } from '$lib/firestore';
 	import { encrypt } from '$lib/crypto';
-	import { subscribeThreadList } from '$lib/thread-list.svelte';
+	import { subscribeThreadList } from '$lib/thread-list';
+	import { createThread } from '$lib/thread';
 
 	let threadList = $state([]);
 
@@ -20,18 +21,8 @@
 	});
 	onDestroy(() => unsubscribe());
 
-	// TODO: move to thread.js
 	const handleCreateThread = async () => {
-		const plain = { title: null };
-		const { encrypted, iv } = await encrypt({ plain });
-
-		const { threadId } = await addDoc(collection(db, 'threads'), {
-			iv,
-			encrypted,
-			created: serverTimestamp(),
-			updated: serverTimestamp()
-		});
-
+		const { threadId } = await createThread();
 		goto(`/${threadId}`);
 	};
 </script>
