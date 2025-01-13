@@ -9,24 +9,19 @@ import {
 import { db } from '$lib/firestore';
 import { decrypt } from '$lib/crypto';
 
-export function createThreadList() {
-  const plainThreads = $state([]);
-  let unsubscribe = () => {};
+export function subscribeThreadList({threadListUpdated}) {
+  const threadListQuery = query(collection(db, 'threads'), orderBy('updated', 'desc'), limit(10));
 
-  unsubscribe = onSnapshot(
-    query(collection(db, 'threads'), orderBy('updated', 'desc'), limit(10)),
+  const unsubscribe = onSnapshot(
+    threadListQuery,
     async (querySnapshot) => {
-      const newPlainThreads = await Promise.all(
+      const threadList = await Promise.all(
         querySnapshot.docs.map(async thread => await decrypt({ thread }))
       );
-      
-      plainThreads.length = 0;
-      plainThreads.push(...newPlainThreads);
+
+      threadListUpdated(threadList);
     }
   );
 
-  return {
-    plainThreads,
-    unsubscribe
-  }
+  return {unsubscribe};
 }

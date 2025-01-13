@@ -1,9 +1,28 @@
-import { onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 
 import { getOpenAi } from '$lib/open-ai';
 import { availableModels } from '$lib/ai-models';
 import { db } from '$lib/firestore';
 import { decrypt, encrypt } from '$lib/crypto';
+
+export async function createThread() {
+  const plain = { title: null };
+  const { encrypted, iv } = await encrypt({ plain });
+
+  const ref = await addDoc(
+    collection(db, 'threads'),
+    {
+      iv,
+      encrypted,
+      created: serverTimestamp(),
+      updated: serverTimestamp()
+    }
+  );
+
+  return {
+    threadId: ref.id,
+  }
+}
 
 export function subscribeThread({threadId, threadUpdated}) {
   const threadRef = doc(db, 'threads', threadId);
