@@ -1,16 +1,13 @@
 <script>
-	import { deleteDoc } from 'firebase/firestore';
-	import { get } from 'svelte/store';
+	import { goto } from '$app/navigation';
+	import { deleteThread } from '$lib/thread.js';
 
-	import { currentThreadRefStore } from '$lib/stores/thread-stores.js';
+	let { thread } = $props();
 
-	const handleDestroy = () => {
-		const threadRef = get(currentThreadRefStore);
-
-		currentThreadRefStore.set(null);
-
-		deleteDoc(threadRef);
+	const handleDelete = () => {
+		goto('/');
+		deleteThread(thread);
 	};
 </script>
 
-<button class="px-4 py-3" on:click={handleDestroy}>delete</button>
+<button class="px-3 py-3" onclick={handleDelete}>delete</button>

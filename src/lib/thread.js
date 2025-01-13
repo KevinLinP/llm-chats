@@ -1,4 +1,4 @@
-import { onSnapshot, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { get } from 'svelte/store';
 
 import { openAiStore } from '$lib/stores/api-stores.js';
@@ -29,6 +29,11 @@ export async function updateThread(thread) {
     iv,
     updated: serverTimestamp()
   });
+}
+
+export async function deleteThread(thread) {
+  const threadRef = doc(db, 'threads', thread.id);
+  await deleteDoc(threadRef);
 }
 
 export async function sendMessage({

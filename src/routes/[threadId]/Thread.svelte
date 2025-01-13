@@ -7,6 +7,7 @@
 	} from '$lib/stores/thread-stores.js';
 	import { subscribeThread } from '$lib/thread.js';
 
+	// TODO: remove Thread prefix
 	import ThreadTitle from './ThreadTitle.svelte';
 	import ThreadMessageInput from './ThreadMessageInput.svelte';
 	import ThreadDelete from './ThreadDelete.svelte';
@@ -30,7 +31,7 @@
 			<ThreadTitle {thread} />
 		</div>
 
-		<ThreadDelete />
+		<ThreadDelete {thread} />
 	</div>
 
 	{#if thread.messages?.length}
