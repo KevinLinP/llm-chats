@@ -28,6 +28,11 @@ export function subscribeThread({threadId, threadUpdated}) {
   const threadRef = doc(db, 'threads', threadId);
 
   const unsubscribe = onSnapshot(threadRef, async (doc) => {
+    if (!doc.exists) {
+      threadUpdated(null);
+      return;
+    }
+
     const decryptedThread = await decrypt({thread: doc});
 		threadUpdated(decryptedThread);
   });

@@ -11,14 +11,14 @@
 	let { threadId } = $props();
 	let thread = $state({});
 
-	let unsubscribe = $state(() => {});
+	let unsubscribe = $state(null);
 	$effect(() => {
 		unsubscribe = subscribeThread({
 			threadId,
 			threadUpdated: (newThread) => thread = newThread
-		});
+		}).unsubscribe;
 	});
-	onDestroy(() => unsubscribe());
+	onDestroy(() => unsubscribe && unsubscribe());
 </script>
 
 {#if thread}
