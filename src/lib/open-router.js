@@ -33,6 +33,12 @@ export const modelGroups = [
     ]
   },
   {
+    name: 'DeepSeek',
+    models: [
+      { id: 'deepseek/deepseek-r1', name: 'R1' },
+    ]
+  },
+  {
     name: 'Google',
     models: [
       { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5' },
@@ -51,7 +57,7 @@ export const modelGroups = [
   {
     name: 'Mistral',
     models: [
-      { id: 'mistralai/mistral-large', name: 'Mistral Large' },
+      { id: 'mistralai/mistral-large', name: 'Large' },
       { id: 'cognitivecomputations/dolphin-mixtral-8x22b', name: 'Dolphin Mixtral 8x22B' },
     ]
   }
