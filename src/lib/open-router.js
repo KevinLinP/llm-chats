@@ -35,6 +35,7 @@ export const modelGroups = [
   {
     name: 'DeepSeek',
     models: [
+      { id: 'deepseek/deepseek-r1:nitro', name: 'R1 (nitro)' },
       { id: 'deepseek/deepseek-r1', name: 'R1' },
     ]
   },
