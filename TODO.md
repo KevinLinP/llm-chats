@@ -1,0 +1,4 @@
+- [ ] fix system message input bug
+- [ ] migrate timestamp fields to createdAt / updatedAt
+- [ ] store raw response from OpenRouter
+- [ ] display costs
