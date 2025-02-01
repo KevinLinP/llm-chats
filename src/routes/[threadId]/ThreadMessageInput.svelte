@@ -14,11 +14,11 @@
 	let tempMessages = $state([]);
 	let streamingAssistantMessage = $state(null);
 
-	function handleSend() {
+	async function handleSend() {
 		const userMessageCopy = userMessage;
 		userMessage = '';
 
-		sendMessage({
+		await sendMessage({
 			thread,
 			userMessage: userMessageCopy,
 			systemMessage,
@@ -36,13 +36,13 @@
 	</div>
 {/each}
 
-{#if streamingAssistantMessage}
+{#if tempMessages.length > 0}
 	<div class="mb-5">
 		<div>assistant</div>
 		<div>{streamingAssistantMessage}</div>
 	</div>
 {:else}
-	{#if !thread.messages || thread.messages.length == 0}
+	{#if tempMessages.length == 0 && (!thread.messages || thread.messages.length == 0)}
 		<div class="mb-3">
 			<label for="system-message">system</label>
 			<textarea

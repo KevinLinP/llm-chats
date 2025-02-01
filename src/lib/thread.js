@@ -106,5 +106,5 @@ export async function sendMessage({
   });
 
   setStreamingAssistantMessage(null);
-  setTempMessages(null);
+  setTempMessages([]);
 }
