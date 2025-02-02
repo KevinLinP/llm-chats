@@ -33,11 +33,10 @@
 	{#if thread.messages?.length}
 		<div class="pe-5">
 			{#each thread.messages as message, i (i)}
-				<p class="mb-3">
-					{message.role}
-					<br />
-					{message.content}
-				</p>
+				<div class="mb-3">
+					<p>{message.role}</p>
+					<pre class="whitespace-pre-wrap font-sans">{message.content}</pre>
+				</div>
 			{/each}
 		</div>
 	{/if}
