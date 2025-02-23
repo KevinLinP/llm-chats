@@ -39,7 +39,7 @@
 {#if tempMessages.length > 0}
 	<div class="mb-5">
 		<div>assistant</div>
-		<div>{streamingAssistantMessage}</div>
+		<pre class="whitespace-pre-wrap font-sans">{streamingAssistantMessage}</pre>
 	</div>
 {:else}
 	{#if tempMessages.length == 0 && (!thread.messages || thread.messages.length == 0)}
