@@ -17,12 +17,13 @@ export const modelGroups = [
   {
     name: 'OpenAI',
     models: [
-      { id: 'openai/gpt-4', name: 'GPT-4' },
-      { id: 'openai/gpt-4-turbo', name: 'GPT-4 Turbo' },
-      { id: 'openai/o1', name: 'o1' },
-      { id: 'openai/o1-mini', name: 'o1 Mini' },
       { id: 'openai/gpt-4o', name: 'GPT-4o' },
       { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini' },
+      { id: 'openai/o1', name: 'o1' },
+      { id: 'openai/o1-mini', name: 'o1 Mini' },
+      { id: 'openai/gpt-4.5-preview', name: 'GPT-4.5 (Preview)' },
+      // { id: 'openai/gpt-4', name: 'GPT-4' },
+      // { id: 'openai/gpt-4-turbo', name: 'GPT-4 Turbo' },
     ]
   },
   {
@@ -65,4 +66,4 @@ export const modelGroups = [
 ]
 
 
-export const defaultModelId = 'openai/gpt-4o-mini';
+export const defaultModelId = 'openai/gpt-4o';
