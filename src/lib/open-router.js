@@ -29,7 +29,8 @@ export const modelGroups = [
   {
     name: 'Anthropic',
     models: [
-      { id: 'anthropic/claude-3.5-sonnet:beta', name: 'Claude 3.5 Sonnet' },
+      { id: 'anthropic/claude-3.7-sonnet:beta', name: 'Claude 3.7 Sonnet' },
+      { id: 'anthropic/claude-3.7-sonnet:thinking', name: 'Claude 3.7 Sonnet (thinking)' },
       { id: 'anthropic/claude-3.5-haiku:beta', name: 'Claude 3.5 Haiku' },
     ]
   },
