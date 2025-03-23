@@ -1,4 +1,4 @@
-import { addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, collection } from 'firebase/firestore';
+import { addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
 
 import { getOpenRouter } from '$lib/open-router';
 import { db } from '$lib/firestore';
@@ -8,8 +8,11 @@ export async function createThread() {
   const plain = { title: null };
   const { encrypted, iv } = await encrypt({ plain });
 
+  const collectionRef = collection(db, 'threads');
+  await assertUniqueIV({collectionRef, iv});
+
   const ref = await addDoc(
-    collection(db, 'threads'),
+    collectionRef,
     {
       iv,
       encrypted,
@@ -131,4 +134,13 @@ const buildChatCompletion = ({lastChunk, assistantMessage}) => {
   choice.text = text;
 
   return chatCompletion;
+}
+
+const assertUniqueIV = async ({collectionRef, iv}) => {
+  const q = query(collectionRef, where('iv', '==', iv));
+  const querySnapshot = await getDocs(q);
+
+  if (!querySnapshot.empty) {
+    throw new Error('IV collision detected. Please try again.');
+  }
 }
