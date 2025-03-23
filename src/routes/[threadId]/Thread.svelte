@@ -52,7 +52,7 @@
 				{:else}
 					<div class="mb-3">
 						<p>{message.role}</p>
-						<pre class="whitespace-pre-wrap font-sans {message.role === 'user' ? 'text-gray-400' : ''}">{message.content}</pre>
+						<pre class="whitespace-pre-wrap font-sans">{message.content}</pre>
 					</div>
 				{/if}
 			{/each}
