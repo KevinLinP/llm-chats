@@ -7,7 +7,7 @@
 	import ThreadTitle from './ThreadTitle.svelte';
 	import ThreadMessageInput from './ThreadMessageInput.svelte';
 	import DeleteButton from './DeleteButton.svelte';
-	import { debug } from 'openai/core';
+	import { modelNamesById } from '$lib/open-router';
 
 	let { threadId } = $props();
 	let thread = $state({});
@@ -39,7 +39,7 @@
 				{#if message.choices}
 					<div class="mb-3">
 						<div class="flex">
-							<p class="flex-grow">{message.model}</p>
+							<p class="flex-grow">{modelNamesById[message.modelId]}</p>
 							<p class="text-sm text-gray-500">
 								{message.usage.prompt_tokens}
 								:
@@ -50,9 +50,9 @@
 						<pre class="whitespace-pre-wrap font-sans">{message.choices[0].text.content}</pre>
 					</div>
 				{:else}
-					<div class="mb-3 {message.role === 'user' ? 'text-gray-400' : ''}">
+					<div class="mb-3">
 						<p>{message.role}</p>
-						<pre class="whitespace-pre-wrap font-sans">{message.content}</pre>
+						<pre class="whitespace-pre-wrap font-sans {message.role === 'user' ? 'text-gray-400' : ''}">{message.content}</pre>
 					</div>
 				{/if}
 			{/each}

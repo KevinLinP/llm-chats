@@ -110,7 +110,7 @@ export async function sendMessage({
     lastChunk = chunk;
 	}
 
-  const chatCompletion = buildChatCompletion({lastChunk, assistantMessage});
+  const chatCompletion = buildChatCompletion({lastChunk, assistantMessage, modelId: selectedModelId});
 
   await updateThread({
     ...thread,
@@ -122,14 +122,14 @@ export async function sendMessage({
   setTempMessages([]);
 }
 
-const buildChatCompletion = ({lastChunk, assistantMessage}) => {
+const buildChatCompletion = ({lastChunk, assistantMessage, modelId}) => {
   const chatCompletion = structuredClone(lastChunk);
-  const choice = chatCompletion.choices[0];
+  chatCompletion.modelId = modelId;
 
-  const text = choice.delta;
-  text.content = assistantMessage;
+  const choice = chatCompletion.choices[0];
+  choice.text = choice.delta;
   delete choice.delta;
-  choice.text = text;
+  choice.text.content = assistantMessage;
 
   return chatCompletion;
 }

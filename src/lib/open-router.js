@@ -66,5 +66,11 @@ export const modelGroups = [
   }
 ]
 
+export const modelNamesById = modelGroups.reduce((acc, group) => {
+  group.models.forEach(model => {
+    acc[model.id] = `${group.name} ${model.name}`;
+  });
+  return acc;
+}, {});
 
 export const defaultModelId = 'openai/gpt-4o';
