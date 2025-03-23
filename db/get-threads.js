@@ -1,6 +1,6 @@
 import { db } from './lib/db.js';
 import { decrypt } from './lib/crypto.js';
-const LIMIT = 3;
+const LIMIT = 1;
 
 const snapshot = await db.collection('threads').orderBy('createdAt', 'desc').limit(LIMIT).get();
 

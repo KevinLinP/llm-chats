@@ -53,3 +53,26 @@ export const decrypt = async ({ thread }) => {
         ...decryptedData
     };
 };
+
+/**
+ * Encrypts data using AES-GCM
+ * @param {Object} data - The data to encrypt
+ * @returns {Promise<Object>} Object containing iv and encrypted data
+ */
+export const encrypt = async (data) => {
+    const keyBuffer = readEncryptionKey();
+    const iv = crypto.randomBytes(12);
+    const cipher = crypto.createCipheriv('aes-256-gcm', keyBuffer, iv);
+    
+    let encrypted = cipher.update(JSON.stringify(data), 'utf8');
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    
+    // Get and concatenate auth tag
+    const authTag = cipher.getAuthTag();
+    const encryptedWithAuthTag = Buffer.concat([encrypted, authTag]);
+    
+    return {
+        iv: iv,
+        encrypted: encryptedWithAuthTag
+    };
+};
