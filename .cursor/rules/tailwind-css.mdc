@@ -1,0 +1,6 @@
+---
+description: TailwindCSS 3
+globs: *.svelte, *.css
+alwaysApply: false
+---
+This project uses Tailwind CSS version 3
