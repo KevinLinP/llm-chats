@@ -1,6 +1,6 @@
 <script>
 	import { sendMessage } from '$lib/thread';
-	import { modelGroups, defaultModelId } from '$lib/open-router';
+	import { modelGroups, defaultModelId, modelNamesById } from '$lib/open-router';
 
 	let { thread } = $props();
 
@@ -38,7 +38,7 @@
 
 {#if tempMessages.length > 0}
 	<div class="mb-5">
-		<div>assistant</div>
+		<div>{modelNamesById[selectedModelId]}</div>
 		<pre class="whitespace-pre-wrap font-sans">{streamingAssistantMessage}</pre>
 	</div>
 {:else}
