@@ -110,13 +110,11 @@ export async function sendMessage({
     lastChunk = chunk;
 	}
 
-  const previousChatCompletions = thread.chatCompletions || [];
   const chatCompletion = buildChatCompletion({lastChunk, assistantMessage});
 
   await updateThread({
     ...thread,
-    chatCompletions: [...previousChatCompletions, chatCompletion],
-    messages: [...messages, { role: 'assistant', content: assistantMessage.trim() }],
+    messages: [...messages, chatCompletion],
     selectedModelId
   });
 

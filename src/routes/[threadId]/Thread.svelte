@@ -33,23 +33,20 @@
 		<DeleteButton {thread} />
 	</div>
 
-	{#if thread.chatCompletions?.length}
+	{#if thread?.messages?.length}
 		<div class="pe-5">
-			{#each thread.chatCompletions as completion }
-				<pre class="whitespace-pre-wrap font-sans">{completion.choices[0].text.content}</pre>
-			{/each}
-		</div>
-	{:else}
-		{#if thread?.messages?.length}
-			<div class="pe-5">
-				{#each thread.messages as message, i (i)}
+			{#each thread.messages as message}
+				{#if message.choices}
+					<p>{message.model}</p>
+					<pre class="whitespace-pre-wrap font-sans">{message.choices[0].text.content}</pre>
+				{:else}
 					<div class="mb-3">
 						<p>{message.role}</p>
 						<pre class="whitespace-pre-wrap font-sans {message.role === 'user' ? 'text-gray-400' : ''}">{message.content}</pre>
 					</div>
-				{/each}
-			</div>
-		{/if}
+				{/if}
+			{/each}
+		</div>
 	{/if}
 
 	<ThreadMessageInput {thread} />
