@@ -1,6 +1,6 @@
 - [x] fix system message input bug
 - [x] store raw response from OpenRouter
 - [x] display token usage
-- [ ] migrate timestamp fields to createdAt / updatedAt
+- [x] migrate timestamp fields to createdAt / updatedAt
 - [ ] migrate title to new field
 - [ ] render responses as markdown
