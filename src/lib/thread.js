@@ -13,8 +13,8 @@ export async function createThread() {
     {
       iv,
       encrypted,
-      created: serverTimestamp(),
-      updated: serverTimestamp()
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     }
   );
 
