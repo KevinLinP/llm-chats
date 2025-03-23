@@ -37,12 +37,22 @@
 		<div class="pe-5">
 			{#each thread.messages as message}
 				{#if message.choices}
-					<p>{message.model}</p>
-					<pre class="whitespace-pre-wrap font-sans">{message.choices[0].text.content}</pre>
-				{:else}
 					<div class="mb-3">
+						<div class="flex">
+							<p class="flex-grow">{message.model}</p>
+							<p class="text-sm text-gray-500">
+								{message.usage.prompt_tokens}
+								:
+								{message.usage.completion_tokens}
+							</p>
+						</div>
+
+						<pre class="whitespace-pre-wrap font-sans">{message.choices[0].text.content}</pre>
+					</div>
+				{:else}
+					<div class="mb-3 {message.role === 'user' ? 'text-gray-400' : ''}">
 						<p>{message.role}</p>
-						<pre class="whitespace-pre-wrap font-sans {message.role === 'user' ? 'text-gray-400' : ''}">{message.content}</pre>
+						<pre class="whitespace-pre-wrap font-sans">{message.content}</pre>
 					</div>
 				{/if}
 			{/each}
