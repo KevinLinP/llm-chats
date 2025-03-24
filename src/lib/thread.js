@@ -73,14 +73,15 @@ export async function sendMessage({
   const openRouter = await getOpenRouter();
   if (!openRouter) return;
 
-  const previousMessages = thread.messages ? thread.messages.map(message => {
+  const previousMessages = thread.messages || [];
+  const unwrappedPreviousMessages = previousMessages.map(message => {
     if (message.choices) {
       // unwrap raw completion
       return message.choices[0].text;
     } else {
       return message;
     }
-  }) : [];
+  });
 
   const newMessages = previousMessages.length
   ? [{ role: 'user', content: userMessage }]
@@ -90,11 +91,9 @@ export async function sendMessage({
     ];
   setTempMessages(newMessages);
 
-  const messages = [...previousMessages, ...newMessages];
-
   const completion = await openRouter.chat.completions.create({
     model: selectedModelId,
-		messages,
+		messages: [...unwrappedPreviousMessages, ...newMessages],
 		stream: true,
 	});
 
@@ -123,7 +122,7 @@ export async function sendMessage({
 
   await updateThread({
     ...thread,
-    messages: [...messages, chatCompletion],
+    messages: [...previousMessages, ...newMessages, chatCompletion],
     selectedModelId
   });
 
