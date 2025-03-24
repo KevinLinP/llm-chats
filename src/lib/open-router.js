@@ -17,13 +17,14 @@ export const modelGroups = [
   {
     name: 'OpenAI',
     models: [
+      { id: 'openai/chatgpt-4o-latest', name: 'ChatGPT-4o' },
       { id: 'openai/gpt-4o', name: 'GPT-4o' },
       { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini' },
       { id: 'openai/o1', name: 'o1' },
       { id: 'openai/o1-mini', name: 'o1 Mini' },
+      { id: 'openai/o3-mini', name: 'o3 Mini' },
+      { id: 'openai/o3-mini-high', name: 'o3 Mini High' },
       { id: 'openai/gpt-4.5-preview', name: 'GPT-4.5 (Preview)' },
-      // { id: 'openai/gpt-4', name: 'GPT-4' },
-      // { id: 'openai/gpt-4-turbo', name: 'GPT-4 Turbo' },
     ]
   },
   {
@@ -44,9 +45,9 @@ export const modelGroups = [
   {
     name: 'Google',
     models: [
+      { id: 'google/gemini-2.0-flash-001', name: 'Gemini Flash 2.0' },
+      { id: 'google/gemini-2.0-pro-exp-02-05:free', name: 'Gemini Pro 2.0 Experimental (free)' },
       { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5' },
-      { id: 'google/gemini-2.0-flash-exp:free', name: 'Gemini 2.0 Flash (free)' },
-      { id: 'google/gemini-2.0-flash-thinking-exp:free', name: 'Gemini 2.0 Flash Thinking (free)' },
     ]
   },
   {
@@ -73,4 +74,4 @@ export const modelNamesById = modelGroups.reduce((acc, group) => {
   return acc;
 }, {});
 
-export const defaultModelId = 'openai/gpt-4o';
+export const defaultModelId = 'openai/chatgpt-4o-latest';
