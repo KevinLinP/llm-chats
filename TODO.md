@@ -2,6 +2,5 @@
 - [x] store raw response from OpenRouter
 - [x] display token usage
 - [x] migrate timestamp fields to createdAt / updatedAt
+- [ ] build the entire choice object from the chunk objects
 - [ ] render responses as markdown
-
-- [ ] ~~migrate title to new field~~ client library doesn't support db projection
