@@ -45,6 +45,7 @@ export const modelGroups = [
   {
     name: 'Google',
     models: [
+      { id: 'google/gemini-2.5-pro-exp-03-25:free', name: 'Gemini Pro 2.5 Experimental (free)' },
       { id: 'google/gemini-2.0-flash-001', name: 'Gemini Flash 2.0' },
       { id: 'google/gemini-2.0-pro-exp-02-05:free', name: 'Gemini Pro 2.0 Experimental (free)' },
       { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5' },
