@@ -7,6 +7,7 @@
 	import ThreadTitle from './ThreadTitle.svelte';
 	import ThreadMessageInput from './ThreadMessageInput.svelte';
 	import DeleteButton from './DeleteButton.svelte';
+	import MarkdownRenderer from './MarkdownRenderer.svelte';
 	import { modelNamesById } from '$lib/open-router';
 
 	let { threadId } = $props();
@@ -47,12 +48,12 @@
 							</p>
 						</div>
 
-						<pre class="whitespace-pre-wrap font-sans">{message.choices[0].text.content}</pre>
+						<MarkdownRenderer content={message.choices[0].text.content} />
 					</div>
 				{:else}
 					<div class="mb-3">
 						<p>{message.role}</p>
-						<pre class="whitespace-pre-wrap font-sans">{message.content}</pre>
+						<MarkdownRenderer content={message.content} />
 					</div>
 				{/if}
 			{/each}
