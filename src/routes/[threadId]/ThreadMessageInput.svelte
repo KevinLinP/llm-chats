@@ -1,6 +1,7 @@
 <script>
 	import { sendMessage } from '$lib/thread';
 	import { modelGroups, defaultModelId, modelNamesById } from '$lib/open-router';
+	import MarkdownRenderer from './MarkdownRenderer.svelte';
 
 	let { thread } = $props();
 
@@ -32,14 +33,14 @@
 {#each tempMessages as message, i (i)}
 	<div class="mb-5">
 		<div>{message.role}</div>
-		<div>{message.content}</div>
+		<MarkdownRenderer content={message.content} />
 	</div>
 {/each}
 
 {#if tempMessages.length > 0}
 	<div class="mb-5">
 		<div>{modelNamesById[selectedModelId]}</div>
-		<pre class="whitespace-pre-wrap font-sans">{streamingAssistantMessage}</pre>
+		<MarkdownRenderer content={streamingAssistantMessage || ''} />
 	</div>
 {:else}
 	{#if tempMessages.length == 0 && (!thread.messages || thread.messages.length == 0)}
