@@ -111,4 +111,8 @@
 		background-color: rgba(0, 0, 0, 0.05);
 		font-weight: bold;
 	}
+	
+	.markdown-content :global(strong) {
+		font-weight: 600; /* Semi-bold, less than default 700 but still noticeable */
+	}
 </style>
