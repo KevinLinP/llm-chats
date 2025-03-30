@@ -5,6 +5,11 @@
 
 	let { thread } = $props();
 
+	const predefinedSystemMessages = [
+		'You are a helpful assistant.',
+		'You provide long summaries of YouTube video transcripts.'
+	];
+
 	let systemMessage = $state('You are a helpful assistant.');
 	let userMessage = $state('');
 	let selectedModelId = $state(defaultModelId);
@@ -14,6 +19,10 @@
 
 	let tempMessages = $state([]);
 	let streamingAssistantMessage = $state(null);
+
+	function selectSystemMessage(message) {
+		systemMessage = message;
+	}
 
 	async function handleSend() {
 		const userMessageCopy = userMessage;
@@ -52,6 +61,17 @@
 				class="dark:bg-gray-800 border-t-0 border-l-0 border-r-0 w-full"
 				rows="1"
 			></textarea>
+			<div class="flex flex-wrap gap-2 mt-2">
+				{#each predefinedSystemMessages as message}
+					<button 
+						type="button"
+						class="px-2 py-1 text-xs rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+						onclick={() => selectSystemMessage(message)}
+					>
+						{message}
+					</button>
+				{/each}
+			</div>
 		</div>
 	{/if}
 
