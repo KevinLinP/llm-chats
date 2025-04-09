@@ -1,6 +1,6 @@
 import { getUser } from './user';
 
-export async function getYoutubeTranscript(videoUrlOrId) {
+export async function get_youtube_transcript(video_url_or_id) {
   const { youtubeTranscriptUrl, klptosAuthToken } = await getUser();
 
   const response = await fetch(youtubeTranscriptUrl, {
@@ -8,7 +8,7 @@ export async function getYoutubeTranscript(videoUrlOrId) {
     headers: {
       'Auth-Token': klptosAuthToken,
     },
-    body: videoUrlOrId
+    body: video_url_or_id
   });
 
   if (!response.ok) {

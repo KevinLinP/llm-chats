@@ -96,17 +96,17 @@ export async function sendMessage({
     {
       type: 'function',
       function: {
-        name: 'getYoutubeTranscript',
+        name: 'get_youtube_transcript',
         description: 'Get the transcript of a YouTube video',
         parameters: {
           type: 'object',
           properties: {
-            videoUrlOrId: {
+            video_url_or_id: {
               type: 'string',
               description: 'YouTube video URL or ID'
             }
           },
-          required: ['videoUrlOrId']
+          required: ['video_url_or_id']
         }
       }
     }
@@ -203,10 +203,10 @@ export async function sendMessage({
   // Process any tool calls if needed
   if (accumulatedToolCalls.length > 0) {
     for (const toolCall of accumulatedToolCalls) {
-      if (toolCall.function.name === 'getYoutubeTranscript') {
+      if (toolCall.function.name === 'get_youtube_transcript') {
         try {
           const args = JSON.parse(toolCall.function.arguments);
-          const transcript = await getYoutubeTranscript(args.videoUrlOrId);
+          const transcript = await getYoutubeTranscript(args.video_url_or_id);
           
           // Add the function response to messages
           newMessages.push({

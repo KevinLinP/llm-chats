@@ -7,7 +7,7 @@
 
 	const predefinedSystemMessages = [
 		'You are a helpful assistant.',
-		'You provide long summaries of YouTube video transcripts.'
+		'You are given a YouTube URL. Use the get_youtube_transcript function to fetch the transcript. Then give a long summary of the transcript.'
 	];
 
 	let systemMessage = $state('You are a helpful assistant.');
