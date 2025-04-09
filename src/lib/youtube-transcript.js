@@ -1,9 +1,19 @@
-import { YoutubeTranscript } from 'youtube-transcript';
+import { getUser } from './user';
 
 export async function getYoutubeTranscript(videoUrlOrId) {
-  const transcript = await YoutubeTranscript.fetchTranscript(videoUrlOrId);
-  const text = transcript.map(({ text }) => text).join(' ');
-  const decoder = new DOMParser().parseFromString('<!doctype html><body>' + text, 'text/html').body.textContent;
+  const { youtubeTranscriptUrl, klptosAuthToken } = await getUser();
 
-  return decoder;
+  const response = await fetch(youtubeTranscriptUrl, {
+    method: 'POST',
+    headers: {
+      'Auth-Token': klptosAuthToken,
+    },
+    body: videoUrlOrId
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch transcript');
+  }
+
+  return await response.text();
 }
