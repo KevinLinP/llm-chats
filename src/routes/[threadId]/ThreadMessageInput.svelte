@@ -6,8 +6,12 @@
 	let { thread } = $props();
 
 	const predefinedSystemMessages = [
-		'You are a helpful assistant.',
-		'You are given a YouTube URL. Use the get_youtube_transcript function to fetch the transcript. Then give a long summary of the transcript.'
+		{text: 'You are a helpful assistant.'},
+		{
+			label: 'YouTube transcript',
+			text: 'You are given a YouTube URL. Use the get_youtube_transcript function to fetch the transcript. Then give a long summary of the transcript.',
+			modelId: 'openai/gpt-4o'
+		}
 	];
 
 	let systemMessage = $state('You are a helpful assistant.');
@@ -21,7 +25,11 @@
 	let streamingAssistantMessage = $state(null);
 
 	function selectSystemMessage(message) {
-		systemMessage = message;
+		systemMessage = message.text;
+
+		if (message.modelId) {
+			selectedModelId = message.modelId;
+		}
 	}
 
 	async function handleSend() {
@@ -68,7 +76,7 @@
 						class="px-2 py-1 text-xs rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
 						onclick={() => selectSystemMessage(message)}
 					>
-						{message}
+						{message.label || message.text}
 					</button>
 				{/each}
 			</div>
