@@ -1,6 +1,6 @@
 import { addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
 
-import { getOpenRouter } from '$lib/open-router';
+import { getOpenRouter, modelsById } from '$lib/open-router';
 import { db } from '$lib/firestore';
 import { decrypt, encrypt } from '$lib/crypto';
 import { getYoutubeTranscript } from '$lib/youtube-transcript';
@@ -92,109 +92,97 @@ export async function sendMessage({
     ];
   setTempMessages(newMessages);
 
-  const tools = [
-    {
-      type: 'function',
-      function: {
-        name: 'get_youtube_transcript',
-        description: 'Get the transcript of a YouTube video',
-        parameters: {
-          type: 'object',
-          properties: {
-            video_url_or_id: {
-              type: 'string',
-              description: 'YouTube video URL or ID'
-            }
-          },
-          required: ['video_url_or_id']
-        }
-      }
-    }
-  ];
-
-  const completion = await openRouter.chat.completions.create({
+  const completionParams = {
     model: selectedModelId,
 		messages: [...unwrappedPreviousMessages, ...newMessages],
 		stream: true,
-		tools,
-	});
+	};
 
+  if (modelsById[selectedModelId].functionCalling !== false) {
+    completionParams.tools = [
+      {
+        type: 'function',
+        function: {
+          name: 'get_youtube_transcript',
+          description: 'Get the transcript of a YouTube video',
+          parameters: {
+            type: 'object',
+            properties: {
+              video_url_or_id: {
+                type: 'string',
+                description: 'YouTube video URL or ID'
+              }
+            },
+            required: ['video_url_or_id']
+          }
+        }
+      }
+    ];
+  }
+
+  const completion = await openRouter.chat.completions.create(completionParams);
 
   let assistantMessage = '';
   let lastChunk = null;
   let accumulatedToolCalls = [];
 
-  while (true) {
-    for await (const chunk of completion) {
-      console.log({chunk});
-      const choice = chunk.choices[0];
-      const chunkContent = choice.delta.content;
-      const deltaToolCalls = choice.delta.tool_calls;
+  for await (const chunk of completion) {
+    lastChunk = chunk;
+    const choice = chunk.choices[0];
+    const chunkContent = choice.delta.content;
 
-      if (chunkContent) {
-        assistantMessage = assistantMessage + chunkContent;
-        setStreamingAssistantMessage(assistantMessage);
-      }
+    if (chunkContent) {
+      assistantMessage = assistantMessage + chunkContent;
+      setStreamingAssistantMessage(assistantMessage);
+    }
 
-      if (choice.finish_reason && choice.finish_reason != 'stop') {
-        assistantMessage = assistantMessage + choice.finish_reason;
-        setStreamingAssistantMessage(assistantMessage);
-      }
+    if (choice.finish_reason && choice.finish_reason != 'stop') {
+      assistantMessage = assistantMessage + choice.finish_reason;
+      setStreamingAssistantMessage(assistantMessage);
+    }
 
-      if (deltaToolCalls) {
-        for (const toolCall of deltaToolCalls) {
-          // Initialize new tool calls in the array
-          if (toolCall.index !== undefined) {
-            if (!accumulatedToolCalls[toolCall.index]) {
-              accumulatedToolCalls[toolCall.index] = {
-                id: toolCall.id || '',
-                type: 'function',
-                function: {
-                  name: '',
-                  arguments: ''
-                }
-              };
+    const deltaToolCalls = choice.delta.tool_calls;
+    if (!deltaToolCalls) continue;
+
+    for (const toolCall of deltaToolCalls) {
+      // Initialize new tool calls in the array
+      if (toolCall.index !== undefined) {
+        if (!accumulatedToolCalls[toolCall.index]) {
+          accumulatedToolCalls[toolCall.index] = {
+            id: toolCall.id || '',
+            type: 'function',
+            function: {
+              name: '',
+              arguments: ''
             }
-            
-            // Update the tool call with new data
-            if (toolCall.id) {
-              accumulatedToolCalls[toolCall.index].id = toolCall.id;
-            }
-            
-            if (toolCall.function) {
-              if (toolCall.function.name) {
-                accumulatedToolCalls[toolCall.index].function.name = toolCall.function.name;
-              }
-              
-              if (toolCall.function.arguments) {
-                accumulatedToolCalls[toolCall.index].function.arguments += toolCall.function.arguments;
-              }
-            }
-          }
+          };
         }
         
-        // If we have tool calls, update the streaming message to show them
-        if (accumulatedToolCalls.length > 0) {
-          const toolCallsText = accumulatedToolCalls
-            .filter(t => t && t.function.name)
-            .map(t => `[Tool Call: ${t.function.name}(${t.function.arguments || ''})]`)
-            .join('\n');
+        // Update the tool call with new data
+        if (toolCall.id) {
+          accumulatedToolCalls[toolCall.index].id = toolCall.id;
+        }
+        
+        if (toolCall.function) {
+          if (toolCall.function.name) {
+            accumulatedToolCalls[toolCall.index].function.name = toolCall.function.name;
+          }
           
-          setStreamingAssistantMessage(assistantMessage + '\n\n' + toolCallsText);
+          if (toolCall.function.arguments) {
+            accumulatedToolCalls[toolCall.index].function.arguments += toolCall.function.arguments;
+          }
         }
       }
-
-      lastChunk = chunk;
       
-      // Break if we're done
-      if (choice.finish_reason) {
-        break;
+      // If we have tool calls, update the streaming message to show them
+      if (accumulatedToolCalls.length > 0) {
+        const toolCallsText = accumulatedToolCalls
+          .filter(t => t && t.function.name)
+          .map(t => `[Tool Call: ${t.function.name}(${t.function.arguments || ''})]`)
+          .join('\n');
+        
+        setStreamingAssistantMessage(assistantMessage + '\n\n' + toolCallsText);
       }
-    }
-    
-    // If we got a finish_reason, break out of the outer loop too
-    if (lastChunk.choices[0].finish_reason) {
-      break;
     }
   }
 
@@ -250,6 +238,7 @@ export async function sendMessage({
     }
   }
 
+  console.debug({assistantMessage, lastChunk});
   const chatCompletion = buildChatCompletion({lastChunk, assistantMessage, modelId: selectedModelId});
   
   // Include tool calls in the final completion if any

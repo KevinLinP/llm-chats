@@ -17,7 +17,7 @@ export const modelGroups = [
   {
     name: 'OpenAI',
     models: [
-      { id: 'openai/chatgpt-4o-latest', name: 'ChatGPT-4o' },
+      { id: 'openai/chatgpt-4o-latest', name: 'ChatGPT-4o', functionCalling: false },
       { id: 'openai/gpt-4o', name: 'GPT-4o' },
       { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini' },
       { id: 'openai/o1', name: 'o1' },
@@ -54,19 +54,26 @@ export const modelGroups = [
   {
     name: 'Meta',
     models: [
-      { id: 'meta-llama/llama-3.1-405b-instruct', name: 'Llama 3.1 405B Instruct' },
-      { id: 'meta-llama/llama-3.3-70b-instruct', name: 'Llama 3.3 70B Instruct' },
-      { id: 'nvidia/llama-3.1-nemotron-70b-instruct', name: 'Llama 3.1 Nemotron 70B Instruct' },
+      { id: 'meta-llama/llama-3.1-405b-instruct', name: 'Llama 3.1 405B Instruct', functionCalling: false },
+      { id: 'meta-llama/llama-3.3-70b-instruct', name: 'Llama 3.3 70B Instruct', functionCalling: false },
+      { id: 'nvidia/llama-3.1-nemotron-70b-instruct', name: 'Llama 3.1 Nemotron 70B Instruct', functionCalling: false },
     ]
   },
   {
     name: 'Mistral',
     models: [
       { id: 'mistralai/mistral-large', name: 'Large' },
-      { id: 'cognitivecomputations/dolphin-mixtral-8x22b', name: 'Dolphin Mixtral 8x22B' },
+      { id: 'cognitivecomputations/dolphin-mixtral-8x22b', name: 'Dolphin Mixtral 8x22B', functionCalling: false },
     ]
   }
 ]
+
+export const modelsById = modelGroups.reduce((acc, group) => {
+  group.models.forEach(model => {
+    acc[model.id] = model;
+  });
+  return acc;
+}, {});
 
 export const modelNamesById = modelGroups.reduce((acc, group) => {
   group.models.forEach(model => {
