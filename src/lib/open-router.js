@@ -18,13 +18,29 @@ export const modelGroups = [
     name: 'OpenAI',
     models: [
       { id: 'openai/chatgpt-4o-latest', name: 'ChatGPT-4o', functionCalling: false },
+      { id: 'openai/gpt-4.1', name: 'GPT-4.1' },
+      { id: 'openai/gpt-4.1-mini', name: 'GPT-4.1 Mini' },
+      { id: 'openai/gpt-4.1-mini', name: 'GPT-4.1 Mini' },
       { id: 'openai/gpt-4o', name: 'GPT-4o' },
       { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini' },
+      { id: 'openai/gpt-4o-search-preview', name: 'GPT-4o Search Preview', functionCalling: false },
+      { id: 'openai/gpt-4o-mini-search-preview', name: 'GPT-4o-mini Search Preview', functionCalling: false },
       { id: 'openai/o1', name: 'o1' },
       { id: 'openai/o1-mini', name: 'o1 Mini' },
       { id: 'openai/o3-mini', name: 'o3 Mini' },
       { id: 'openai/o3-mini-high', name: 'o3 Mini High' },
       { id: 'openai/gpt-4.5-preview', name: 'GPT-4.5 (Preview)' },
+    ]
+  },
+  {
+    name: 'Perplexity',
+    models: [
+      { id: 'perplexity/sonar', name: 'Sonar', functionCalling: false },
+      { id: 'perplexity/sonar-pro', name: 'Sonar Pro', functionCalling: false },
+      { id: 'perplexity/sonar-reasoning', name: 'Sonar Reasoning', functionCalling: false },
+      { id: 'perplexity/sonar-reasoning-pro', name: 'Sonar Reasoning Pro', functionCalling: false },
+      { id: 'perplexity/sonar-deep-research', name: 'Sonar Deep Research', functionCalling: false },
+      { id: 'perplexity/r1-1776', name: 'R1 1776', functionCalling: false },
     ]
   },
   {

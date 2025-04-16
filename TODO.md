@@ -2,5 +2,6 @@
 - [x] store raw response from OpenRouter
 - [x] display token usage
 - [x] migrate timestamp fields to createdAt / updatedAt
+- [x] render responses as markdown
+- [ ] handle web search annotations
 - [ ] build the entire choice object from the chunk objects
-- [ ] render responses as markdown
