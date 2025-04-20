@@ -8,7 +8,7 @@
 	import ThreadMessageInput from './ThreadMessageInput.svelte';
 	import DeleteButton from './DeleteButton.svelte';
 	import MarkdownRenderer from './MarkdownRenderer.svelte';
-	import { displayMessages, apiMessages } from '$lib/messages';
+	import { displayMessages } from '$lib/messages';
 
 	let { threadId } = $props();
 	let thread = $state({});

@@ -1,5 +1,6 @@
 import { modelNamesById } from '$lib/open-router';
 import _ from 'lodash';
+import { extractToolCalls } from '$lib/send-message';
 
 export const apiMessages = (messages) => {
   return messages.map(message => {
@@ -57,6 +58,12 @@ export const displayMessages = (messages) => {
           const number = match.slice(1, -1);
           return `<a href="${citations[number]}" target="_blank" class="text-sm px-0.5 mx-0.5 rounded-md bg-gray-600" style="color: #F0F0F0; text-decoration: none;">${number}</a>`;
         });
+      }
+
+      const toolCalls = extractToolCalls({ chunks: message.chunks });
+
+      if (toolCalls.length > 0) {
+        content = '```\n' + JSON.stringify(toolCalls[0].function) + '\n```';
       }
 
       return {
