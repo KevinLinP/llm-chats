@@ -53,6 +53,16 @@
 				</div>
 
 				<MarkdownRenderer content={message.content} />
+
+				{#if message.citations}
+					<ul class="list-none text-gray-500">
+						{#each Object.entries(message.citations) as [number, url]}
+						<li>
+							{number}. <a href={url} target="_blank">{url}</a>
+						</li>
+					{/each}
+					</ul>
+				{/if}
 			</div>
 		{/each}
 	</div>

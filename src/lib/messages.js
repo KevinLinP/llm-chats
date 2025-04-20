@@ -21,10 +21,17 @@ export const apiMessages = (messages) => {
 export const displayMessages = (messages) => {
   return messages.map(message => {
     if (message.chunks) {
+      const firstChunk = message.chunks[0];
       const lastChunk = message.chunks.at(-1);
+      const citations = firstChunk.citations ? 
+        firstChunk.citations.reduce((acc, url, index) => {
+          acc[(index + 1).toString()] = url;
+          return acc;
+        }, {}) : {};
 
       return {
         author: modelNamesById[lastChunk.model],
+        citations,
         content: message.chunks.reduce((acc, chunk) => {
           return acc + chunk.choices[0].delta.content;
         }, ''),
