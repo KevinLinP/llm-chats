@@ -23,18 +23,27 @@ export const displayMessages = (messages) => {
     if (message.chunks) {
       const firstChunk = message.chunks[0];
       const lastChunk = message.chunks.at(-1);
+      let content = message.chunks.reduce((acc, chunk) => {
+        return acc + chunk.choices[0].delta.content;
+      }, '')
+
       const citations = firstChunk.citations ? 
         firstChunk.citations.reduce((acc, url, index) => {
           acc[(index + 1).toString()] = url;
           return acc;
-        }, {}) : {};
+        }, {}) : null;
+
+      if (citations) {
+        content = content.replace(/(\[\d+\])/g, (match) => {
+          const number = match.slice(1, -1);
+          return `<a href="${citations[number]}" target="_blank" class="text-sm px-0.5 mx-0.5 rounded-md bg-gray-600" style="color: #F0F0F0; text-decoration: none;">${number}</a>`;
+        });
+      }
 
       return {
         author: modelNamesById[lastChunk.model],
         citations,
-        content: message.chunks.reduce((acc, chunk) => {
-          return acc + chunk.choices[0].delta.content;
-        }, ''),
+        content,
         usage: lastChunk.usage
       }
     } else if (message.choices) {

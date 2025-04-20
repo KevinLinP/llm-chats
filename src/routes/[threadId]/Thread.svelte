@@ -55,10 +55,10 @@
 				<MarkdownRenderer content={message.content} />
 
 				{#if message.citations}
-					<ul class="list-none text-gray-500">
+					<ul class="list-none">
 						{#each Object.entries(message.citations) as [number, url]}
 						<li>
-							{number}. <a href={url} target="_blank">{url}</a>
+							<span class="text-gray-300">{number}.</span> <a href={url} class="text-gray-400" target="_blank">{url}</a>
 						</li>
 					{/each}
 					</ul>
