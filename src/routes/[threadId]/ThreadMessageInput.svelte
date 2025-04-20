@@ -2,6 +2,7 @@
 	import { sendMessage } from '$lib/send-message';
 	import { modelGroups, defaultModelId, modelNamesById } from '$lib/open-router';
 	import MarkdownRenderer from './MarkdownRenderer.svelte';
+	import { displayMessages } from '$lib/messages';
 
 	let { thread } = $props();
 
@@ -45,22 +46,24 @@
 			setTempMessages: (messages) => tempMessages = messages,
 		});
 	}
+
+	const displayTempMessages = $derived(displayMessages(tempMessages));
 </script>
 
-{#each tempMessages as message, i (i)}
+{#each displayTempMessages as message, i (i)}
 	<div class="mb-5">
 		<div>{message.role}</div>
 		<MarkdownRenderer content={message.content} />
 	</div>
 {/each}
 
-{#if tempMessages.length > 0}
+{#if displayTempMessages.length > 0}
 	<div class="mb-5">
 		<div>{modelNamesById[selectedModelId]}</div>
 		<MarkdownRenderer content={streamingAssistantMessage || ''} />
 	</div>
 {:else}
-	{#if tempMessages.length == 0 && (!thread.messages || thread.messages.length == 0)}
+	{#if displayTempMessages.length == 0 && (!thread.messages || thread.messages.length == 0)}
 		<div class="mb-3">
 			<label for="system-message">system</label>
 			<textarea

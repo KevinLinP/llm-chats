@@ -14,12 +14,12 @@ const tools = [
       parameters: {
         type: 'object',
         properties: {
-          video_url_or_id: {
+          video_url: {
             type: 'string',
-            description: 'YouTube video URL or ID'
+            description: 'YouTube video URL'
           }
         },
-        required: ['video_url_or_id']
+        required: ['video_url']
       }
     }
   }
@@ -80,14 +80,17 @@ export async function sendMessage({
       throw new Error(`Unknown tool call: ${toolCall.function.name}`);
     }
 
-    const args = JSON.parse(toolCall.function.arguments);
-    const result = await getYoutubeTranscript(args.video_url_or_id);
-
-    newMessages.push({
+    const toolMessage = {
       role: 'tool',
       tool_call_id: toolCall.id,
-      content: result
-    });
+      content: 'Getting transcript...'
+    }
+    newMessages.push(toolMessage);
+    setTempMessages(newMessages);
+
+    const args = JSON.parse(toolCall.function.arguments);
+    toolMessage.content = await getYoutubeTranscript(args.video_url);
+
     setTempMessages(newMessages);
   }
 
