@@ -56,7 +56,11 @@
 					<p class="text-sm text-gray-500 my-3">{message.reasoning}</p>
 				{/if}
 
-				<MarkdownRenderer content={message.content} />
+				{#if message.type === "tool"}
+					<code class="text-xs text-gray-400 my-3">{JSON.stringify(message.content)}</code>
+				{:else}
+					<MarkdownRenderer content={message.content} />
+				{/if}
 
 				{#if message.toolCalls}
 					<code class="text-sm text-gray-400 my-3">{JSON.stringify(message.toolCalls)}</code>

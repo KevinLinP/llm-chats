@@ -80,6 +80,7 @@ export const displayMessages = (messages) => {
       return {
         author: toolCallsById[message.tool_call_id] ? toolCallsById[message.tool_call_id].function.name : "tool",
         content: message.content,
+        type: "tool"
       }
     } else if (message.choices) {
       return {
