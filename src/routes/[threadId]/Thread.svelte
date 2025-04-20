@@ -52,6 +52,10 @@
 					{/if}
 				</div>
 
+				{#if message.reasoning}
+					<p class="text-sm text-gray-500 my-3">{message.reasoning}</p>
+				{/if}
+
 				<MarkdownRenderer content={message.content} />
 
 				{#if message.citations}

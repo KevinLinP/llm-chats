@@ -87,6 +87,7 @@ export async function sendMessage({
     }
     newMessages.push(toolMessage);
     setTempMessages(newMessages);
+    setStreamingAssistantMessage('');
 
     const args = JSON.parse(toolCall.function.arguments);
     toolMessage.content = await getYoutubeTranscript(args.video_url);

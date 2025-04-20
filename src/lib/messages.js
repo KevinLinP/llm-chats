@@ -10,9 +10,9 @@ export const apiMessages = (messages) => {
 
       remainingChunks.forEach(chunk => {
         const delta = chunk.choices[0].delta;
-        console.log({delta});
 
         if (delta.content) apiMessage.content += delta.content;
+        if (delta.thinking) apiMessage.thinking += delta.thinking;
 
         if (!delta.tool_calls) return;
 
@@ -20,8 +20,6 @@ export const apiMessages = (messages) => {
           toolCall.function.arguments += delta.tool_calls[i].function.arguments;
         });
       });
-
-      console.log({apiMessage});
 
       return apiMessage;
     } else if (message.choices) {
@@ -37,17 +35,16 @@ export const displayMessages = (messages) => {
 
   return messages.map(message => {
     if (message.chunks) {
-      const firstChunk = message.chunks[0];
-      const lastChunk = message.chunks.at(-1);
-      let content = message.chunks.reduce((acc, chunk) => {
-        const content = chunk.choices[0].delta.content;
+      const [firstChunk, ...remainingChunks] = message.chunks;
+      const lastChunk = remainingChunks.at(-1);
 
-        if (content) {
-          return acc + content;
-        } else {
-          return acc;
-        }
-      }, '')
+      const mergedMessage = _.cloneDeep(firstChunk.choices[0].delta);
+
+      remainingChunks.forEach(chunk => {
+        const delta = chunk.choices[0].delta;
+        if (delta.content) mergedMessage.content += delta.content;
+        if (delta.reasoning) mergedMessage.reasoning += delta.reasoning;
+      });
 
       const citations = firstChunk.citations ? 
         firstChunk.citations.reduce((acc, url, index) => {
@@ -56,32 +53,32 @@ export const displayMessages = (messages) => {
         }, {}) : null;
 
       if (citations) {
-        content = content.replace(/(\[\d+\])/g, (match) => {
+        mergedMessage.content = mergedMessage.content.replace(/(\[\d+\])/g, (match) => {
           const number = match.slice(1, -1);
           return `<a href="${citations[number]}" target="_blank" class="text-sm px-0.5 mx-0.5 rounded-md bg-gray-600" style="color: #F0F0F0; text-decoration: none;">${number}</a>`;
         });
       }
 
       const toolCalls = extractToolCalls({ chunks: message.chunks });
+      let displayToolCalls = null;
       if (toolCalls.length > 0) {
         toolCallsById[toolCalls[0].id] = toolCalls[0];
-        const displayFunction = _.cloneDeep(toolCalls[0].function);
-        displayFunction.arguments = JSON.parse(displayFunction.arguments);
-
-        content = '```\n' + JSON.stringify(displayFunction) + '\n```';
+        displayToolCalls = _.cloneDeep(toolCalls[0].function);
+        displayToolCalls.arguments = JSON.parse(displayToolCalls.arguments);
       }
 
       return {
         author: modelNamesById[lastChunk.model],
+        // TODO: use message annotations
         citations,
-        content,
+        content: mergedMessage.content,
+        reasoning: mergedMessage.reasoning,
+        toolCalls: displayToolCalls,
         usage: lastChunk.usage
       }
     } else if (message.role === 'tool') {
-      console.log('displaying tool call', {toolCallsById, message})
-
       return {
-        author: toolCallsById[message.tool_call_id].function.name,
+        author: toolCallsById[message.tool_call_id] ? toolCallsById[message.tool_call_id].function.name : "tool",
         content: message.content,
       }
     } else if (message.choices) {
