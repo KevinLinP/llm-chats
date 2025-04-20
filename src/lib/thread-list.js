@@ -10,7 +10,7 @@ import { db } from '$lib/firestore';
 import { decrypt } from '$lib/crypto';
 
 export function subscribeThreadList({threadListUpdated}) {
-  const threadListQuery = query(collection(db, 'threads'), orderBy('updatedAt', 'desc'), limit(10));
+  const threadListQuery = query(collection(db, 'threads'), orderBy('updatedAt', 'desc'), limit(20));
 
   const unsubscribe = onSnapshot(
     threadListQuery,

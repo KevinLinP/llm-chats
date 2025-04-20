@@ -1,14 +1,7 @@
 <script>
 	import { onDestroy } from 'svelte';
-	import {
-		collection,
-		addDoc,
-		serverTimestamp,
-	} from 'firebase/firestore';
 
 	import { goto } from '$app/navigation';
-	import { db } from '$lib/firestore';
-	import { encrypt } from '$lib/crypto';
 	import { subscribeThreadList } from '$lib/thread-list';
 	import { createThread } from '$lib/thread';
 
