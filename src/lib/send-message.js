@@ -1,6 +1,7 @@
 import { getOpenRouter, modelsById } from '$lib/open-router';
 import { getYoutubeTranscript } from '$lib/youtube-transcript';
-import { updateThread, unwrapMessages } from '$lib/thread';
+import { updateThread } from '$lib/thread';
+import { apiMessages } from '$lib/messages';
 
 const tools = [
   {
@@ -45,7 +46,7 @@ export async function sendMessage({
 
   const completionParams = {
     model: selectedModelId,
-    messages: [...unwrapMessages(previousMessages), ...tempMessages],
+    messages: [...apiMessages(previousMessages), ...tempMessages],
     stream: true,
   };
   if (modelsById[selectedModelId].functionCalling !== false) {

@@ -61,24 +61,6 @@ export async function deleteThread(thread) {
   await deleteDoc(threadRef);
 }
 
-export const unwrapMessages = (messages) => {
-  return messages.map(message => {
-    if (message.chunks) {
-      return {
-        role: message.chunks[0].choices[0].delta.role,
-        content: message.chunks.reduce((acc, chunk) => {
-          return acc + chunk.choices[0].delta.content;
-        }, '')
-      }
-    } else if (message.choices) {
-      // unwrap raw completion
-      return message.choices[0].text;
-    } else {
-      return message;
-    }
-  });
-};
-
 const assertUniqueIV = async ({collectionRef, iv}) => {
   const q = query(collectionRef, where('iv', '==', iv));
   const querySnapshot = await getDocs(q);

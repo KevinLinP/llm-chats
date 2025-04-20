@@ -8,8 +8,7 @@
 	import ThreadMessageInput from './ThreadMessageInput.svelte';
 	import DeleteButton from './DeleteButton.svelte';
 	import MarkdownRenderer from './MarkdownRenderer.svelte';
-	import { modelNamesById } from '$lib/open-router';
-	import { unwrapMessages } from '$lib/thread';
+	import { displayMessages } from '$lib/messages';
 
 	let { threadId } = $props();
 	let thread = $state({});
@@ -23,8 +22,8 @@
 	});
 	onDestroy(() => unsubscribe && unsubscribe());
 
-	const unwrappedMessages = $derived(unwrapMessages(thread.messages || []));
-	$inspect(unwrappedMessages);
+	const messages = $derived(displayMessages(thread.messages || []));
+	$inspect(messages);
 
 	$inspect(thread);
 </script>
@@ -39,26 +38,22 @@
 	</div>
 
 	<div class="pe-5">
-		{#each unwrappedMessages as message}
-			{#if message.choices}
-				<div class="mb-3">
-					<div class="flex">
-						<p class="flex-grow">{modelNamesById[message.modelId]}</p>
+		{#each messages as message}
+			<div class="mb-3">
+				<div class="flex">
+					<p class="flex-grow">{message.author}</p>
+
+					{#if message.usage}
 						<p class="text-sm text-gray-500">
 							{message.usage.prompt_tokens}
 							:
 							{message.usage.completion_tokens}
 						</p>
-					</div>
+					{/if}
+				</div>
 
-					<MarkdownRenderer content={message.choices[0].text.content} />
-				</div>
-			{:else}
-				<div class="mb-3">
-					<p>{message.role}</p>
-					<MarkdownRenderer content={message.content} />
-				</div>
-			{/if}
+				<MarkdownRenderer content={message.content} />
+			</div>
 		{/each}
 	</div>
 
