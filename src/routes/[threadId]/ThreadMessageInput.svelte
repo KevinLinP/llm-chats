@@ -1,5 +1,5 @@
 <script>
-	import { sendMessage } from '$lib/thread';
+	import { sendMessage } from '$lib/send-message';
 	import { modelGroups, defaultModelId, modelNamesById } from '$lib/open-router';
 	import MarkdownRenderer from './MarkdownRenderer.svelte';
 
