@@ -58,6 +58,10 @@
 
 				<MarkdownRenderer content={message.content} />
 
+				{#if message.toolCalls}
+					<code class="text-sm text-gray-400 my-3">{JSON.stringify(message.toolCalls)}</code>
+				{/if}
+
 				{#if message.citations}
 					<ul class="list-none">
 						{#each Object.entries(message.citations) as [number, url]}
