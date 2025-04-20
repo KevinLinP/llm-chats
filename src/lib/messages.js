@@ -33,6 +33,8 @@ export const apiMessages = (messages) => {
 };
 
 export const displayMessages = (messages) => {
+  const toolCallsById = {};
+
   return messages.map(message => {
     if (message.chunks) {
       const firstChunk = message.chunks[0];
@@ -62,6 +64,7 @@ export const displayMessages = (messages) => {
 
       const toolCalls = extractToolCalls({ chunks: message.chunks });
       if (toolCalls.length > 0) {
+        toolCallsById[toolCalls[0].id] = toolCalls[0];
         const displayFunction = _.cloneDeep(toolCalls[0].function);
         displayFunction.arguments = JSON.parse(displayFunction.arguments);
 
@@ -73,6 +76,13 @@ export const displayMessages = (messages) => {
         citations,
         content,
         usage: lastChunk.usage
+      }
+    } else if (message.role === 'tool') {
+      console.log('displaying tool call', {toolCallsById, message})
+
+      return {
+        author: toolCallsById[message.tool_call_id].function.name,
+        content: message.content,
       }
     } else if (message.choices) {
       return {
