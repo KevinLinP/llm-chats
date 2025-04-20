@@ -61,9 +61,11 @@ export const displayMessages = (messages) => {
       }
 
       const toolCalls = extractToolCalls({ chunks: message.chunks });
-
       if (toolCalls.length > 0) {
-        content = '```\n' + JSON.stringify(toolCalls[0].function) + '\n```';
+        const displayFunction = _.cloneDeep(toolCalls[0].function);
+        displayFunction.arguments = JSON.parse(displayFunction.arguments);
+
+        content = '```\n' + JSON.stringify(displayFunction) + '\n```';
       }
 
       return {
