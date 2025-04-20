@@ -22,7 +22,7 @@ export const modelGroups = [
       { id: 'openai/chatgpt-4o-latest', name: 'ChatGPT-4o', functionCalling: false },
       { id: 'openai/gpt-4.1', name: 'GPT-4.1' },
       { id: 'openai/gpt-4.1-mini', name: 'GPT-4.1 Mini' },
-      { id: 'openai/gpt-4.1-mini', name: 'GPT-4.1 Mini' },
+      { id: 'openai/gpt-4.1-nano', name: 'GPT-4.1 Nano' },
       { id: 'openai/gpt-4o', name: 'GPT-4o' },
       { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini' },
       { id: 'openai/gpt-4o-search-preview', name: 'GPT-4o Search Preview', functionCalling: false },

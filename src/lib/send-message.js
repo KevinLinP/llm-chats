@@ -36,34 +36,65 @@ export async function sendMessage({
 
   const previousMessages = thread.messages || [];
 
-  const tempMessages = [];
+  const newMessages = [];
   if (!previousMessages.length) {
-    tempMessages.push({ role: 'system', content: systemMessage });
+    newMessages.push({ role: 'system', content: systemMessage });
   };
-  tempMessages.push({ role: 'user', content: userMessage });
-  setTempMessages(tempMessages);
+  newMessages.push({ role: 'user', content: userMessage });
+  setTempMessages(newMessages);
 
-  const completionParams = {
-    model: selectedModelId,
-    messages: [...apiMessages(previousMessages), ...tempMessages],
-    stream: true,
-  };
-  if (modelsById[selectedModelId].functionCalling !== false) {
-    completionParams.tools = tools;
-  }
-  const completion = await openRouter.chat.completions.create(completionParams);
+  while (true) {
+    const completionParams = {
+      model: selectedModelId,
+      messages: apiMessages([...previousMessages, ...newMessages]),
+      stream: true,
+    };
+    if (modelsById[selectedModelId].functionCalling !== false) {
+      completionParams.tools = tools;
+    }
 
-  const chunks = [];
-  let streamingMessage = '';
+    let completion;
+    try {
+      completion = await openRouter.chat.completions.create(completionParams);
+    } catch (error) {
+      console.error({error});
+      assistantMessage += `\n\nOpenRouter error: ${error.message}`;
+      setStreamingAssistantMessage(assistantMessage);
+    }
 
-  for await (const chunk of completion) {
-    chunks.push(chunk);
-    const choice = chunk.choices[0];
-    const chunkContent = choice.delta.content;
-    if (!chunkContent) continue;
+    let streamingMessage = '';
 
-    streamingMessage = streamingMessage + chunkContent;
-    setStreamingAssistantMessage(streamingMessage);
+    const chunks = [];
+
+    for await (const chunk of completion) {
+      chunks.push(chunk);
+      const choice = chunk.choices[0];
+      const chunkContent = choice.delta.content;
+      if (!chunkContent) continue;
+
+      streamingMessage = streamingMessage + chunkContent;
+      setStreamingAssistantMessage(streamingMessage);
+    }
+
+    newMessages.push({chunks});
+    console.log({chunks});
+
+    const toolCalls = extractToolCalls({chunks});
+    if (toolCalls.length === 0) break;
+
+    const toolCall = toolCalls[0];
+    if (toolCall.function.name !== 'get_youtube_transcript') {
+      throw new Error(`Unknown tool call: ${toolCall.function.name}`);
+    }
+
+    const args = JSON.parse(toolCall.function.arguments);
+    const result = await getYoutubeTranscript(args.video_url_or_id);
+
+    newMessages.push({
+      role: 'tool',
+      tool_call_id: toolCall.id,
+      content: JSON.stringify(result)
+    });
   }
 
   setStreamingAssistantMessage(null);
@@ -71,10 +102,27 @@ export async function sendMessage({
 
   await updateThread({
     ...thread,
-    messages: [...previousMessages, ...tempMessages, {chunks}],
+    messages: [...previousMessages, ...newMessages],
     selectedModelId
   });
 };
+
+const extractToolCalls = ({chunks}) => {
+  const [firstChunk, ...remainingChunks] = chunks;
+  const toolCalls = firstChunk.choices[0].delta.tool_calls;
+  if (!toolCalls) return [];
+
+  remainingChunks.forEach(chunk => {
+    const chunkToolCalls = chunk.choices[0].delta.tool_calls;
+    if (!chunkToolCalls) return;
+
+    chunkToolCalls.forEach((toolCall, i) => {
+      toolCalls[i].function.arguments = toolCalls[i].function.arguments + toolCall.function.arguments
+    });
+  });
+
+  return toolCalls;
+}
 
 async function sendMessageDeprecated({
   thread,

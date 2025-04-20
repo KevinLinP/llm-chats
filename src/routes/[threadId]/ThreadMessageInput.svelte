@@ -10,7 +10,7 @@
 		{
 			label: 'YouTube transcript',
 			text: 'You are given a YouTube URL. Use the get_youtube_transcript function to fetch the transcript. Then give a long summary of the transcript.',
-			modelId: 'openai/gpt-4o'
+			modelId: 'openai/gpt-4.1'
 		}
 	];
 

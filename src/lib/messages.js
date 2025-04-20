@@ -1,16 +1,29 @@
 import { modelNamesById } from '$lib/open-router';
+import _ from 'lodash';
 
 export const apiMessages = (messages) => {
   return messages.map(message => {
     if (message.chunks) {
-      return {
-        role: message.chunks[0].choices[0].delta.role,
-        content: message.chunks.reduce((acc, chunk) => {
-          return acc + chunk.choices[0].delta.content;
-        }, '')
-      }
+      const [firstChunk, ...remainingChunks] = message.chunks;
+      const apiMessage = _.cloneDeep(firstChunk.choices[0].delta);
+
+      remainingChunks.forEach(chunk => {
+        const delta = chunk.choices[0].delta;
+        console.log({delta});
+
+        if (delta.content) apiMessage.content += delta.content;
+
+        if (!delta.tool_calls) return;
+
+        apiMessage.tool_calls.forEach((toolCall, i) => {
+          toolCall.function.arguments += delta.tool_calls[i].function.arguments;
+        });
+      });
+
+      console.log({apiMessage});
+
+      return apiMessage;
     } else if (message.choices) {
-      // unwrap raw completion
       return message.choices[0].text;
     } else {
       return message;
@@ -24,7 +37,13 @@ export const displayMessages = (messages) => {
       const firstChunk = message.chunks[0];
       const lastChunk = message.chunks.at(-1);
       let content = message.chunks.reduce((acc, chunk) => {
-        return acc + chunk.choices[0].delta.content;
+        const content = chunk.choices[0].delta.content;
+
+        if (content) {
+          return acc + content;
+        } else {
+          return acc;
+        }
       }, '')
 
       const citations = firstChunk.citations ? 

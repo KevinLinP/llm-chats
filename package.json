@@ -39,6 +39,7 @@
 	"dependencies": {
 		"@sveltejs/adapter-cloudflare": "^3.0.1",
 		"firebase": "^11.1.0",
+		"lodash": "^4.17.21",
 		"marked": "^15.0.7",
 		"openai": "^4.24.1"
 	}

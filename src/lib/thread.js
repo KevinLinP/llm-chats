@@ -2,6 +2,7 @@ import { addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, collect
 
 import { db } from '$lib/firestore';
 import { decrypt, encrypt } from '$lib/crypto';
+import { apiMessages } from '$lib/messages';
 
 export async function createThread() {
   const plain = { title: null };
