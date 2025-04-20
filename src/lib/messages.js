@@ -21,12 +21,14 @@ export const apiMessages = (messages) => {
 export const displayMessages = (messages) => {
   return messages.map(message => {
     if (message.chunks) {
+      const lastChunk = message.chunks.at(-1);
+
       return {
-        author: modelNamesById[message.modelId],
+        author: modelNamesById[lastChunk.model],
         content: message.chunks.reduce((acc, chunk) => {
           return acc + chunk.choices[0].delta.content;
         }, ''),
-        usage: message.chunks.at(-1).usage
+        usage: lastChunk.usage
       }
     } else if (message.choices) {
       return {
