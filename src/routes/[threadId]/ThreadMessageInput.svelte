@@ -52,7 +52,7 @@
 
 {#each displayTempMessages as message, i (i)}
 	<div class="mb-5">
-		<div>{message.role}</div>
+		<div>{message.author}</div>
 		<MarkdownRenderer content={message.content} />
 	</div>
 {/each}
