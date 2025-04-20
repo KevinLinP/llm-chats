@@ -110,6 +110,7 @@ export const extractToolCalls = ({chunks}) => {
   const toolCalls = _.cloneDeep(firstChunk.choices[0].delta.tool_calls);
   if (!toolCalls) return [];
 
+  // TODO: dedup
   remainingChunks.forEach(chunk => {
     const chunkToolCalls = chunk.choices[0].delta.tool_calls;
     if (!chunkToolCalls) return;

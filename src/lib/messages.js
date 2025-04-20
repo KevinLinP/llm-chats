@@ -8,6 +8,7 @@ export const apiMessages = (messages) => {
       const [firstChunk, ...remainingChunks] = message.chunks;
       const apiMessage = _.cloneDeep(firstChunk.choices[0].delta);
 
+      // TODO: dedup
       remainingChunks.forEach(chunk => {
         const delta = chunk.choices[0].delta;
 
@@ -39,7 +40,10 @@ export const displayMessages = (messages) => {
       const lastChunk = remainingChunks.at(-1);
 
       const mergedMessage = _.cloneDeep(firstChunk.choices[0].delta);
+      mergedMessage.content = mergedMessage.content || "";
+      mergedMessage.reasoning = mergedMessage.reasoning || "";
 
+      // TODO: dedup
       remainingChunks.forEach(chunk => {
         const delta = chunk.choices[0].delta;
         if (delta.content) mergedMessage.content += delta.content;
@@ -68,7 +72,7 @@ export const displayMessages = (messages) => {
       }
 
       return {
-        author: modelNamesById[lastChunk.model],
+        author: modelNamesById[firstChunk.model] || firstChunk.model,
         // TODO: use message annotations
         citations,
         content: mergedMessage.content,

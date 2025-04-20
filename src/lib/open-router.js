@@ -17,56 +17,45 @@ export const defaultModelId = 'perplexity/sonar-pro';
 
 export const modelGroups = [
   {
-    name: 'OpenAI',
-    models: [
-      { id: 'openai/chatgpt-4o-latest', name: 'ChatGPT-4o', functionCalling: false },
-      { id: 'openai/gpt-4.1', name: 'GPT-4.1' },
-      { id: 'openai/gpt-4.1-mini', name: 'GPT-4.1 Mini' },
-      { id: 'openai/gpt-4.1-nano', name: 'GPT-4.1 Nano' },
-      { id: 'openai/gpt-4o', name: 'GPT-4o' },
-      { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini' },
-      { id: 'openai/gpt-4o-search-preview', name: 'GPT-4o Search Preview', functionCalling: false },
-      { id: 'openai/gpt-4o-mini-search-preview', name: 'GPT-4o-mini Search Preview', functionCalling: false },
-      { id: 'openai/o1', name: 'o1' },
-      { id: 'openai/o1-mini', name: 'o1 Mini' },
-      { id: 'openai/o3-mini', name: 'o3 Mini' },
-      { id: 'openai/o3-mini-high', name: 'o3 Mini High' },
-      { id: 'openai/gpt-4.5-preview', name: 'GPT-4.5 (Preview)' },
-    ]
-  },
-  {
     name: 'Perplexity',
     models: [
       { id: 'perplexity/sonar', name: 'Sonar', functionCalling: false },
       { id: 'perplexity/sonar-pro', name: 'Sonar Pro', functionCalling: false },
       { id: 'perplexity/sonar-reasoning', name: 'Sonar Reasoning', functionCalling: false },
       { id: 'perplexity/sonar-reasoning-pro', name: 'Sonar Reasoning Pro', functionCalling: false },
-      { id: 'perplexity/sonar-deep-research', name: 'Sonar Deep Research', functionCalling: false },
       { id: 'perplexity/r1-1776', name: 'R1 1776', functionCalling: false },
+    ]
+  },
+  {
+    name: 'OpenAI',
+    models: [
+      { id: 'openai/chatgpt-4o-latest', name: 'ChatGPT-4o', functionCalling: false },
+      { id: 'openai/gpt-4.1', name: 'GPT-4.1' },
+      { id: 'openai/gpt-4.1-mini', name: 'GPT-4.1 Mini' },
+      { id: 'openai/gpt-4.1-nano', name: 'GPT-4.1 Nano' },
+      { id: 'openai/o3', name: 'o3' },
+      { id: 'openai/o3-mini', name: 'o3 Mini' },
+      { id: 'openai/o3-mini-high', name: 'o3 Mini High' },
+      { id: 'openai/o4-mini', name: 'o4 Mini' },
+      { id: 'openai/o4-mini-high', name: 'o4 Mini High' },
+      { id: 'openai/gpt-4o-search-preview', name: 'GPT-4o Search Preview', functionCalling: false },
+      { id: 'openai/gpt-4o-mini-search-preview', name: 'GPT-4o-mini Search Preview', functionCalling: false },
+      { id: 'openai/gpt-4.5-preview', name: 'GPT-4.5 (Preview)' },
     ]
   },
   {
     name: 'Anthropic',
     models: [
-      { id: 'anthropic/claude-3.7-sonnet:beta', name: 'Claude 3.7 Sonnet' },
+      { id: 'anthropic/claude-3.7-sonnet', name: 'Claude 3.7 Sonnet' },
       { id: 'anthropic/claude-3.7-sonnet:thinking', name: 'Claude 3.7 Sonnet (thinking)' },
-      { id: 'anthropic/claude-3.5-haiku:beta', name: 'Claude 3.5 Haiku' },
-    ]
-  },
-  {
-    name: 'DeepSeek',
-    models: [
-      { id: 'deepseek/deepseek-r1:nitro', name: 'R1 (nitro)' },
-      { id: 'deepseek/deepseek-r1', name: 'R1' },
+      { id: 'anthropic/claude-3.5-haiku', name: 'Claude 3.5 Haiku' },
     ]
   },
   {
     name: 'Google',
     models: [
-      { id: 'google/gemini-2.5-pro-exp-03-25:free', name: 'Gemini Pro 2.5 Experimental (free)' },
-      { id: 'google/gemini-2.0-flash-001', name: 'Gemini Flash 2.0' },
-      { id: 'google/gemini-2.0-pro-exp-02-05:free', name: 'Gemini Pro 2.0 Experimental (free)' },
-      { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5' },
+      { id: 'google/gemini-2.5-pro-preview-03-25', name: 'Gemini 2.5 Pro Preview' },
+      { id: 'google/gemini-2.5-flash-preview', name: 'Gemini 2.5 Flash Preview' },
     ]
   },
   {
