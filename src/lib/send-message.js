@@ -23,8 +23,6 @@ const tools = [
   }
 ];
 
-
-
 export async function sendMessage({
   thread,
   userMessage,
@@ -43,6 +41,7 @@ export async function sendMessage({
     tempMessages.push({ role: 'system', content: systemMessage });
   };
   tempMessages.push({ role: 'user', content: userMessage });
+  setTempMessages(tempMessages);
 
   const completionParams = {
     model: selectedModelId,
@@ -67,13 +66,14 @@ export async function sendMessage({
     setStreamingAssistantMessage(streamingMessage);
   }
 
+  setStreamingAssistantMessage(null);
+  setTempMessages([]);
+
   await updateThread({
     ...thread,
     messages: [...previousMessages, ...tempMessages, {chunks}],
     selectedModelId
   });
-  setStreamingAssistantMessage(null);
-  setTempMessages([]);
 };
 
 async function sendMessageDeprecated({

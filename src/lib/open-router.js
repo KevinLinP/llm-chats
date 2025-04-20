@@ -13,6 +13,8 @@ export const getOpenRouter = async () => {
   });
 };
 
+export const defaultModelId = 'perplexity/sonar-pro';
+
 export const modelGroups = [
   {
     name: 'OpenAI',
@@ -82,7 +84,7 @@ export const modelGroups = [
       { id: 'cognitivecomputations/dolphin-mixtral-8x22b', name: 'Dolphin Mixtral 8x22B', functionCalling: false },
     ]
   }
-]
+];
 
 export const modelsById = modelGroups.reduce((acc, group) => {
   group.models.forEach(model => {
@@ -97,5 +99,3 @@ export const modelNamesById = modelGroups.reduce((acc, group) => {
   });
   return acc;
 }, {});
-
-export const defaultModelId = 'openai/chatgpt-4o-latest';
