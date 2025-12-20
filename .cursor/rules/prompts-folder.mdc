@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+
+I like to keep record our converstations in the codebase. I will usually start a converstation in a Markdown file in a `prompts` folder. Please copy your responses into the Markdown file, prefixing your section with `agent: `. If I respond directly in the conversation window, please also copy what I say into the Markdown file, prefixing my section with `user: `.
