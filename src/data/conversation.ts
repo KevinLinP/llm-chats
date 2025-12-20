@@ -3,7 +3,7 @@ import { getConversation as getEncryptedConversation, type EncryptedConversation
 type Conversation = {
 	id: string;
 	title: string;
-  text: string;
+  text: string[];
 	createdAt: Date;
 	updatedAt: Date;
 };
@@ -38,13 +38,12 @@ export const getConversation = async ({id, jwkEncryptionKey}: {id: string, jwkEn
   );
 
   // use the `iv` field and the jwkEncryptionKey to decrypt the title and text
-  const [title, textParts] = await Promise.all([
+  const [title, text] = await Promise.all([
     decryptField({ encryptedData: encryptedConversation.titleEncrypted, iv: encryptedConversation.iv as BufferSource, encryptionKey }),
     Promise.all(encryptedConversation.textEncrypted.map(encryptedData => 
       decryptField({ encryptedData, iv: encryptedConversation.iv as BufferSource, encryptionKey })
     ))
   ]);
-  const text = textParts.join('');
 
   // return the conversation
   return {

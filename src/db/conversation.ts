@@ -1,6 +1,6 @@
 import { db } from './index';
 import { conversations } from './schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 export type EncryptedConversation = {
 	id: string;
@@ -35,6 +35,40 @@ export const getConversation = async (id: string): Promise<EncryptedConversation
     textEncrypted: textEncryptedArray.map(buffer => new Uint8Array(buffer)),
     createdAt: conversation.createdAt,
     updatedAt: conversation.updatedAt
+  };
+}
+
+export const createConversation = async ({
+  conversation,
+  timezone
+}: {
+  conversation: Omit<EncryptedConversation, 'id' | 'createdAt' | 'updatedAt'>;
+  timezone: string;
+}): Promise<{id: string}> => {
+  // Convert Uint8Array to Buffer for database storage
+  const ivBuffer = Buffer.from(conversation.iv);
+  const titleBuffer = Buffer.from(conversation.titleEncrypted);
+  const textEncryptedBuffers = conversation.textEncrypted.map(arr => Buffer.from(arr));
+
+  // Use server-side timestamps with specified timezone
+  // PostgreSQL requires timezone to be a quoted string literal
+  // Note: timezone should be a valid PostgreSQL timezone name (e.g., 'UTC', 'America/New_York')
+  // Using template literal interpolation - timezone is validated to be a standard name
+  const timestampExpr = sql`NOW() AT TIME ZONE '${timezone}'`;
+
+  const [inserted] = await db
+    .insert(conversations)
+    .values({
+      iv: ivBuffer,
+      titleEncrypted: titleBuffer,
+      textEncrypted: textEncryptedBuffers,
+      createdAt: timestampExpr,
+      updatedAt: timestampExpr
+    })
+    .returning();
+
+  return {
+    id: inserted.id
   };
 }
 
