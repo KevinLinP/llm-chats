@@ -10,6 +10,4 @@
   * TypeScript
   * Svelte 5
   * Web Crypto API
-  * PostgreSQL
-  * Drizzle ORM
 * The app's UI is always in 'dark mode'
