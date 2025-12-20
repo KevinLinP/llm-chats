@@ -10,5 +10,5 @@
   * TypeScript
   * Bun.js
   * Svelte 5
-  * Web Crypto API
 * The app's UI is always in 'dark mode'
+* I don't like positional parameters. If there is more than one parameter, always take an object and deconstruct it.
