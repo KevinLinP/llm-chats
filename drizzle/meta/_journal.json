@@ -15,6 +15,13 @@
       "when": 1766257902588,
       "tag": "0001_perfect_living_lightning",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1766261971417,
+      "tag": "0002_redundant_energizer",
+      "breakpoints": true
     }
   ]
 }

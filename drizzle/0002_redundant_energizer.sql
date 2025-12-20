@@ -1,0 +1,1 @@
+ALTER TABLE "conversations" RENAME COLUMN "textEncrypted" TO "partsEncrypted";

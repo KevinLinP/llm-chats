@@ -6,7 +6,7 @@ export type EncryptedConversation = {
 	id: string;
 	iv: Uint8Array;
 	titleEncrypted: Uint8Array;
-	textEncrypted: Uint8Array[];
+	partsEncrypted: Uint8Array[];
 	createdAt: Date;
 	updatedAt: Date;
 };
@@ -28,13 +28,13 @@ export const getConversation = async (id: string): Promise<EncryptedConversation
   // Convert Buffer to Uint8Array (postgres-js returns bytea as Buffer)
   const ivBuffer = conversation.iv as unknown as ArrayBuffer;
   const titleBuffer = conversation.titleEncrypted as unknown as ArrayBuffer;
-  const textEncryptedArray = conversation.textEncrypted as unknown as ArrayBuffer[];
+  const partsEncryptedArray = conversation.partsEncrypted as unknown as ArrayBuffer[];
   
   return {
     id: conversation.id,
     iv: new Uint8Array(ivBuffer),
     titleEncrypted: new Uint8Array(titleBuffer),
-    textEncrypted: textEncryptedArray.map(buffer => new Uint8Array(buffer)),
+    partsEncrypted: partsEncryptedArray.map(buffer => new Uint8Array(buffer)),
     createdAt: conversation.createdAt,
     updatedAt: conversation.updatedAt
   };
@@ -52,7 +52,7 @@ export const createConversation = async ({
   // Convert Uint8Array to Buffer for database storage
   const ivBuffer = Buffer.from(conversation.iv);
   const titleBuffer = Buffer.from(conversation.titleEncrypted);
-  const textEncryptedBuffers = conversation.textEncrypted.map(arr => Buffer.from(arr));
+  const partsEncryptedBuffers = conversation.partsEncrypted.map(arr => Buffer.from(arr));
 
   // Use server-side timestamps with specified timezone
   // PostgreSQL requires timezone to be a quoted string literal
@@ -65,7 +65,7 @@ export const createConversation = async ({
     .values({
       iv: ivBuffer,
       titleEncrypted: titleBuffer,
-      textEncrypted: textEncryptedBuffers,
+      partsEncrypted: partsEncryptedBuffers,
       createdAt: timestampExpr,
       updatedAt: timestampExpr
     })
