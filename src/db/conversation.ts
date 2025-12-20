@@ -1,5 +1,7 @@
-import { db } from './index';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 import { conversations } from './schema';
+import * as schema from './schema';
 import { eq, sql } from 'drizzle-orm';
 
 export type EncryptedConversation = {
@@ -11,64 +13,83 @@ export type EncryptedConversation = {
 	updatedAt: Date;
 };
 
-export const getConversation = async (id: string): Promise<EncryptedConversation | null> => {
-  // fetch the conversation from the database
-  const [conversation] = await db
-    .select()
-    .from(conversations)
-    .where(eq(conversations.id, id))
-    .limit(1);
+export const getConversation = async (databaseUrl: string, id: string): Promise<EncryptedConversation | null> => {
+  // Create database connection
+  const client = postgres(databaseUrl);
+  const db = drizzle(client, { schema });
 
-  if (!conversation) {
-    return null;
+  try {
+    // fetch the conversation from the database
+    const [conversation] = await db
+      .select()
+      .from(conversations)
+      .where(eq(conversations.id, id))
+      .limit(1);
+
+    if (!conversation) {
+      return null;
+    }
+
+    // Convert Buffer to Uint8Array (postgres-js returns bytea as Buffer)
+    const ivBuffer = conversation.iv as unknown as ArrayBuffer;
+    const titleBuffer = conversation.titleEncrypted as unknown as ArrayBuffer;
+    const textEncryptedArray = conversation.textEncrypted as unknown as ArrayBuffer[];
+    
+    return {
+      id: conversation.id,
+      iv: new Uint8Array(ivBuffer),
+      titleEncrypted: new Uint8Array(titleBuffer),
+      textEncrypted: textEncryptedArray.map(buffer => new Uint8Array(buffer)),
+      createdAt: conversation.createdAt,
+      updatedAt: conversation.updatedAt
+    };
+  } finally {
+    await client.end();
   }
-
-  // Convert Buffer to Uint8Array (postgres-js returns bytea as Buffer)
-  const ivBuffer = conversation.iv as unknown as ArrayBuffer;
-  const titleBuffer = conversation.titleEncrypted as unknown as ArrayBuffer;
-  const textEncryptedArray = conversation.textEncrypted as unknown as ArrayBuffer[];
-  
-  return {
-    id: conversation.id,
-    iv: new Uint8Array(ivBuffer),
-    titleEncrypted: new Uint8Array(titleBuffer),
-    textEncrypted: textEncryptedArray.map(buffer => new Uint8Array(buffer)),
-    createdAt: conversation.createdAt,
-    updatedAt: conversation.updatedAt
-  };
 }
 
-export const createConversation = async ({
-  conversation,
-  timezone
-}: {
-  conversation: Omit<EncryptedConversation, 'id' | 'createdAt' | 'updatedAt'>;
-  timezone: string;
-}): Promise<{id: string}> => {
-  // Convert Uint8Array to Buffer for database storage
-  const ivBuffer = Buffer.from(conversation.iv);
-  const titleBuffer = Buffer.from(conversation.titleEncrypted);
-  const textEncryptedBuffers = conversation.textEncrypted.map(arr => Buffer.from(arr));
+export const createConversation = async (
+  databaseUrl: string,
+  {
+    conversation,
+    timezone
+  }: {
+    conversation: Omit<EncryptedConversation, 'id' | 'createdAt' | 'updatedAt'>;
+    timezone: string;
+  }
+): Promise<{id: string}> => {
+  // Create database connection
+  const client = postgres(databaseUrl);
+  const db = drizzle(client, { schema });
 
-  // Use server-side timestamps with specified timezone
-  // PostgreSQL requires timezone to be a quoted string literal
-  // Note: timezone should be a valid PostgreSQL timezone name (e.g., 'UTC', 'America/New_York')
-  // Using template literal interpolation - timezone is validated to be a standard name
-  const timestampExpr = sql`NOW() AT TIME ZONE '${timezone}'`;
+  try {
+    // Convert Uint8Array to Buffer for database storage
+    const ivBuffer = Buffer.from(conversation.iv);
+    const titleBuffer = Buffer.from(conversation.titleEncrypted);
+    const textEncryptedBuffers = conversation.textEncrypted.map(arr => Buffer.from(arr));
 
-  const [inserted] = await db
-    .insert(conversations)
-    .values({
-      iv: ivBuffer,
-      titleEncrypted: titleBuffer,
-      textEncrypted: textEncryptedBuffers,
-      createdAt: timestampExpr,
-      updatedAt: timestampExpr
-    })
-    .returning();
+    // Use server-side timestamps with specified timezone
+    // PostgreSQL requires timezone to be a quoted string literal
+    // Note: timezone should be a valid PostgreSQL timezone name (e.g., 'UTC', 'America/New_York')
+    // Using template literal interpolation - timezone is validated to be a standard name
+    const timestampExpr = sql`NOW() AT TIME ZONE '${timezone}'`;
 
-  return {
-    id: inserted.id
-  };
+    const [inserted] = await db
+      .insert(conversations)
+      .values({
+        iv: ivBuffer,
+        titleEncrypted: titleBuffer,
+        textEncrypted: textEncryptedBuffers,
+        createdAt: timestampExpr,
+        updatedAt: timestampExpr
+      })
+      .returning();
+
+    return {
+      id: inserted.id
+    };
+  } finally {
+    await client.end();
+  }
 }
 
