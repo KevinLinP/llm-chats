@@ -1,6 +1,8 @@
-import { pgTable, serial, integer, uuid, bytea, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, serial, integer, uuid, timestamp, customType } from 'drizzle-orm/pg-core';
 
-export const user = pgTable('user', { id: serial('id').primaryKey(), age: integer('age') });
+const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
+	dataType: () => 'bytea'
+});
 
 export const conversations = pgTable('conversations', {
 	id: uuid('id').defaultRandom().primaryKey(),

@@ -8,6 +8,7 @@
 * Conversations need to be E2E encrypted. The user will supply a decryption key to be persisted only in the browser.
 * Tech Stack
   * TypeScript
+  * Bun.js
   * Svelte 5
   * Web Crypto API
 * The app's UI is always in 'dark mode'
