@@ -1,4 +1,5 @@
-import { getConversation as getEncryptedConversation, type EncryptedConversation } from '../db/conversation';
+import { getConversation as getEncryptedConversation, type EncryptedConversation } from '../db/conversation-store';
+import { getEncryptionKey } from './encryptionKey';
 
 type Conversation = {
 	id: string;
@@ -21,23 +22,17 @@ const decryptField = async ({ encryptedData, iv, encryptionKey }: { encryptedDat
   return new TextDecoder().decode(decrypted);
 };
 
-export const getConversation = async ({id, jwkEncryptionKey}: {id: string, jwkEncryptionKey: JsonWebKey}): Promise<Conversation | null> => {
+export const getConversation = async ({id}: {id: string}): Promise<Conversation | null> => {
   const encryptedConversation = await getEncryptedConversation(id);
 
   if (!encryptedConversation) {
     return null;
   }
 
-  // import the JWK key
-  const encryptionKey = await crypto.subtle.importKey(
-    'jwk',
-    jwkEncryptionKey,
-    { name: 'AES-GCM' },
-    false,
-    ['decrypt']
-  );
+  // get the cached encryption key
+  const encryptionKey = getEncryptionKey();
 
-  // use the `iv` field and the jwkEncryptionKey to decrypt the title and parts
+  // use the `iv` field and the encryption key to decrypt the title and parts
   const [title, parts] = await Promise.all([
     decryptField({ encryptedData: encryptedConversation.titleEncrypted, iv: encryptedConversation.iv as BufferSource, encryptionKey }),
     Promise.all(encryptedConversation.partsEncrypted.map(encryptedData => 
