@@ -1,11 +1,11 @@
 import { getConversation as getEncryptedConversation, type EncryptedConversation } from '../db/conversation-store';
-import { getEncryptionKey } from './encryptionKey';
+import { getEncryptionKey } from './encryption-key';
 
 export type Message = {
 	sender: string;
 	text: string;
 	// Optional metadata following schema.org/Message patterns
-	model?: string; // LLM model name (e.g., "gpt-4", "claude-3-opus")
+	modelId?: string; // LLM model identifier (e.g., "gpt-4", "claude-3-opus")
 	tokenUsage?: {
 		input?: number; // Input tokens
 		reasoning?: number; // Reasoning tokens (if applicable, e.g., o1 models)

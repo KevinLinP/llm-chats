@@ -1,0 +1,1 @@
+Rename encryption-key.ts and Message.modelId

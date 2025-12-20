@@ -2,7 +2,7 @@ user: For the Message type, I'm trying to follow https://schema.org/Message. I'd
 
 agent: I've added optional metadata fields to the `Message` type that align with schema.org/Message patterns while being practical for your LLM use case:
 
-1. **`model?: string`** - Optional property to store the LLM model name (e.g., "gpt-4", "claude-3-opus", "o1-preview")
+1. **`modelId?: string`** - Optional property to store the LLM model identifier (e.g., "gpt-4", "claude-3-opus", "o1-preview")
 
 2. **`tokenUsage?: { input?: number; reasoning?: number; output?: number }`** - Optional object to store token counts:
    - `input` - Input tokens (what the model consumed from the conversation)
@@ -24,3 +24,7 @@ agent: I recommend using "reasoning tokens" as it's more standard in official AP
 user: Yes.
 
 agent: Updated `tokenUsage.thinking` to `tokenUsage.reasoning` in both the type definition and documentation.
+
+user: Rename Message.model to modelId.
+
+agent: Updated `Message.model` to `Message.modelId` in both the type definition and documentation.
