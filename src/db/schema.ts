@@ -10,6 +10,6 @@ export const conversations = pgTable('conversations', {
 	createdAt: timestamp('createdAt', { withTimezone: true }).notNull(),
 	updatedAt: timestamp('updatedAt', { withTimezone: true }).notNull(),
 	titleEncrypted: bytea('titleEncrypted').notNull(),
-	textEncrypted: bytea('textEncrypted').notNull()
+	textEncrypted: bytea('textEncrypted').array().notNull()
 });
 
