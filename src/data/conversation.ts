@@ -1,10 +1,15 @@
 import { getConversation as getEncryptedConversation, type EncryptedConversation } from '../db/conversation-store';
 import { getEncryptionKey } from './encryptionKey';
 
-type Conversation = {
+export type Message = {
+	sender: string;
+	text: string;
+};
+
+export type Conversation = {
 	id: string;
 	title: string;
-  parts: string[];
+  parts: Message[];
 	createdAt: Date;
 	updatedAt: Date;
 };
@@ -33,12 +38,15 @@ export const getConversation = async ({id}: {id: string}): Promise<Conversation 
   const encryptionKey = getEncryptionKey();
 
   // use the `iv` field and the encryption key to decrypt the title and parts
-  const [title, parts] = await Promise.all([
+  const [title, partsStrings] = await Promise.all([
     decryptField({ encryptedData: encryptedConversation.titleEncrypted, iv: encryptedConversation.iv as BufferSource, encryptionKey }),
     Promise.all(encryptedConversation.partsEncrypted.map(encryptedData => 
       decryptField({ encryptedData, iv: encryptedConversation.iv as BufferSource, encryptionKey })
     ))
   ]);
+
+  // Parse each decrypted string as JSON to get Message objects
+  const parts: Message[] = partsStrings.map(partString => JSON.parse(partString));
 
   // return the conversation
   return {
