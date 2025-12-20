@@ -42,3 +42,12 @@ This follows SvelteKit conventions where:
 - The route file (`+page.svelte`) handles the routing, while the component contains the actual page logic
 
 Would you like me to create a starter component file for you?
+
+user: Please move the src/lib and src/routes folder to a new src/ui folder. Then update the svelte config to look for routes in the new place.
+
+agent: Moved `src/lib` and `src/routes` to `src/ui/lib` and `src/ui/routes` respectively. Updated `svelte.config.js` to configure both the routes location and the `$lib` alias:
+
+- Set `kit.files.routes` to `'src/ui/routes'`
+- Set `kit.files.lib` to `'src/ui/lib'` (so the `$lib` alias continues to work)
+
+The existing `$lib` imports in your route files will continue to work without any changes since the alias now points to the new location.

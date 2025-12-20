@@ -7,7 +7,13 @@ const config = {
 	// for more information about preprocessors
 	preprocess: vitePreprocess(),
 
-	kit: { adapter: adapter() }
+	kit: {
+		adapter: adapter(),
+		files: {
+			routes: 'src/ui/routes',
+			lib: 'src/ui/lib'
+		}
+	}
 };
 
 export default config;
