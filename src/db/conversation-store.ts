@@ -6,13 +6,9 @@ export type EncryptedConversation = {
 	id: string;
 	titleIv: Uint8Array;
 	titleEncrypted: Uint8Array;
-	messagesEncrypted: Uint8Array[];
-	messagesIv: Uint8Array[];
 	createdAt: Date;
 	updatedAt: Date;
 };
-
-export type PartialEncryptedConversation = Omit<EncryptedConversation, 'messagesEncrypted' | 'messagesIv'>;
 
 export const fetchEncryptedConversation = async (id: string): Promise<EncryptedConversation | null> => {
   const db = getDb();
@@ -35,19 +31,11 @@ export const fetchEncryptedConversation = async (id: string): Promise<EncryptedC
   const titleEncrypted = conversation.titleEncrypted instanceof Uint8Array
     ? conversation.titleEncrypted
     : new Uint8Array(conversation.titleEncrypted as ArrayBuffer);
-  const messagesEncrypted = conversation.messagesEncrypted.map(item =>
-    item instanceof Uint8Array ? item : new Uint8Array(item as ArrayBuffer)
-  );
-  const messagesIv = conversation.messagesIv.map(item =>
-    item instanceof Uint8Array ? item : new Uint8Array(item as ArrayBuffer)
-  );
   
   return {
     id: conversation.id,
     titleIv,
     titleEncrypted,
-    messagesEncrypted,
-    messagesIv,
     createdAt: conversation.createdAt,
     updatedAt: conversation.updatedAt
   };
@@ -69,25 +57,11 @@ export const insertEncryptedConversation = async ({
   const escapedTimezone = timezone.replace(/'/g, "''");
   const timestampExpr = sql.raw(`NOW() AT TIME ZONE '${escapedTimezone}'`);
 
-  // Convert bytea arrays to PostgreSQL array format using sql template
-  // PostgreSQL bytea arrays need to be cast properly
-  // Uint8Array works directly with Neon HTTP driver
-  const messagesEncryptedArray = sql`ARRAY[${sql.join(
-    conversation.messagesEncrypted.map(arr => sql`${arr}::bytea`),
-    sql`, `
-  )}]::bytea[]`;
-  const messagesIvArray = sql`ARRAY[${sql.join(
-    conversation.messagesIv.map(arr => sql`${arr}::bytea`),
-    sql`, `
-  )}]::bytea[]`;
-
   const [inserted] = await db
     .insert(conversations)
     .values({
       titleIv: conversation.titleIv,
       titleEncrypted: conversation.titleEncrypted,
-      messagesEncrypted: messagesEncryptedArray,
-      messagesIv: messagesIvArray,
       createdAt: timestampExpr,
       updatedAt: timestampExpr
     })
@@ -98,7 +72,7 @@ export const insertEncryptedConversation = async ({
   };
 }
 
-export const listEncryptedConversations = async (): Promise<PartialEncryptedConversation[]> => {
+export const listEncryptedConversations = async (): Promise<EncryptedConversation[]> => {
   const db = getDb();
 
   const results = await db
@@ -114,7 +88,7 @@ export const listEncryptedConversations = async (): Promise<PartialEncryptedConv
     .limit(50);
 
   // Convert to Uint8Array (Neon HTTP driver may return ArrayBuffer or Uint8Array)
-  return results.map(conversation => ({
+  return results.map((conversation: typeof results[0]) => ({
     id: conversation.id,
     titleIv: conversation.titleIv instanceof Uint8Array 
       ? conversation.titleIv 

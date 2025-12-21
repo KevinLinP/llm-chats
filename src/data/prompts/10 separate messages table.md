@@ -30,3 +30,53 @@ agent: I've added the `messages` table to the schema with all the required colum
 I've also created a unique index on `(conversationId, index)` to ensure message ordering is unique within each conversation.
 
 The schema is ready. You can generate a migration using Drizzle Kit when you're ready to apply it to the database.
+
+user: I have also removed the conversations.messages* columns, and then ran the migration. Update conversation-store.ts, and fill out a new message-store.ts. That needs the listMessages({conversationId: string}), and insertMessage(<object parameter here>)
+
+agent: I've created `message-store.ts` and updated `conversation-store.ts` and `conversation.ts` to work with the separate messages table.
+
+**Created `message-store.ts`:**
+- `listMessages({conversationId: string})` - Fetches all encrypted messages for a conversation, ordered by index
+- `insertMessage({conversationId, message, timezone})` - Inserts a new encrypted message, auto-calculating the index (max index + 1)
+  - The `message` parameter accepts encrypted fields: `senderEncrypted`, `senderIv`, `textEncrypted`, `textIv`, and optionally `modelIdEncrypted`, `modelIdIv`, `tokenUsageEncrypted`, `tokenUsageIv`
+- `EncryptedMessage` type for the encrypted message structure
+
+**Updated `conversation-store.ts`:**
+- Removed `messagesEncrypted` and `messagesIv` from `EncryptedConversation` type
+- Removed `PartialEncryptedConversation` type (no longer needed)
+- Updated `fetchEncryptedConversation` to only fetch conversation fields (no messages)
+- Updated `insertEncryptedConversation` to only insert conversation fields (no messages)
+- Updated `listEncryptedConversations` return type to `EncryptedConversation[]`
+
+**Updated `conversation.ts`:**
+- `getConversation` now fetches messages separately using `listMessages` and decrypts each message field individually
+- `createConversation` now creates the conversation first, then encrypts and inserts messages separately using `insertMessage`
+- Added `encryptMessage` helper function to encrypt all message fields before insertion
+
+The implementation follows the same pattern as `conversation-store.ts` - encryption/decryption happens in the data layer (`conversation.ts`), while the store layer (`message-store.ts`) handles raw encrypted data.
+
+user: Remove the concept of a conversation's messages from conversation.ts, and start a data/message.ts that provides decrypted versions of message-store's methods.
+
+agent: I've removed all message handling from `conversation.ts` and created `data/message.ts` with decrypted wrappers for message-store methods.
+
+**Created `data/message.ts`:**
+- `Message` type (moved from `conversation.ts`)
+- `MessageWithMetadata` type that extends `Message` with database metadata (id, conversationId, index, createdAt, updatedAt)
+- `listMessages({conversationId: string})` - Returns decrypted `MessageWithMetadata[]` for a conversation
+- `insertMessage({conversationId, message, timezone})` - Accepts a plaintext `Message`, handles encryption internally, and inserts it
+- Helper functions `decryptField` and `encryptField` for encryption/decryption operations
+
+**Updated `conversation.ts`:**
+- Removed `Message` type (now in `message.ts`)
+- Removed `parts: Message[]` field from `Conversation` type
+- Removed message fetching from `getConversation` - now only returns conversation metadata (id, title, createdAt, updatedAt)
+- Removed message creation from `createConversation` - now only accepts `title` and `timezone` parameters
+- Removed `encryptMessage` helper function
+- Removed imports from `message-store`
+
+**Updated `conversation.test.ts`:**
+- Updated to import `Message` from `message.ts` instead of `conversation.ts`
+- Updated to create conversation and messages separately
+- Updated to verify messages using `listMessages` from `message.ts`
+
+The separation is now complete - `conversation.ts` handles only conversation metadata, while `message.ts` handles all message operations with encryption/decryption.

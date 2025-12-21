@@ -3,7 +3,8 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { setDb } from '../db/db';
 import { setupEncryptionKey } from './encryption-key';
-import { createConversation, getConversation, type Message } from './conversation';
+import { createConversation, getConversation } from './conversation';
+import { insertMessage, listMessages, type Message } from './message';
 import { getDb } from '../db/db';
 import { conversations } from '../db/schema';
 import * as schema from '../db/schema';
@@ -65,22 +66,40 @@ describe('conversation', () => {
 		// Create a conversation
 		const { id } = await createConversation({
 			title: 'Test Conversation',
-			systemMessage,
-			userMessage,
 			timezone: 'UTC'
 		});
 
-		// Retrieve it
+		// Create messages separately
+		await insertMessage({
+			conversationId: id,
+			message: systemMessage,
+			timezone: 'UTC'
+		});
+
+		await insertMessage({
+			conversationId: id,
+			message: userMessage,
+			timezone: 'UTC'
+		});
+
+		// Retrieve conversation
 		const retrieved = await getConversation({ id });
 
 		expect(retrieved).not.toBeNull();
 		expect(retrieved?.id).toBe(id);
 		expect(retrieved?.title).toBe('Test Conversation');
-		expect(retrieved?.parts).toHaveLength(2);
-		expect(retrieved?.parts[0]).toEqual(systemMessage);
-		expect(retrieved?.parts[1]).toEqual(userMessage);
 		expect(retrieved?.createdAt).toBeInstanceOf(Date);
 		expect(retrieved?.updatedAt).toBeInstanceOf(Date);
+
+		// Retrieve messages separately
+		const messages = await listMessages({ conversationId: id });
+		expect(messages).toHaveLength(2);
+		expect(messages[0].sender).toBe(systemMessage.sender);
+		expect(messages[0].text).toBe(systemMessage.text);
+		expect(messages[1].sender).toBe(userMessage.sender);
+		expect(messages[1].text).toBe(userMessage.text);
+		expect(messages[1].modelId).toBe(userMessage.modelId);
+		expect(messages[1].tokenUsage).toEqual(userMessage.tokenUsage);
 	});
 });
 
