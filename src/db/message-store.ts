@@ -1,5 +1,5 @@
 import { messages } from './schema';
-import { eq, desc, max, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { getDb } from './db';
 
 export type EncryptedMessage = {
@@ -28,7 +28,7 @@ export const listMessages = async ({ conversationId }: { conversationId: string 
 		.orderBy(messages.index);
 
 	// Convert to Uint8Array (Neon HTTP driver may return ArrayBuffer or Uint8Array)
-	return results.map(message => ({
+	return results.map((message: typeof results[0]) => ({
 		id: message.id,
 		conversationId: message.conversationId,
 		index: message.index,
@@ -71,10 +71,12 @@ export const listMessages = async ({ conversationId }: { conversationId: string 
 
 export const insertMessage = async ({
 	conversationId,
+	index,
 	message,
 	timezone
 }: {
 	conversationId: string;
+	index: number;
 	message: {
 		senderEncrypted: Uint8Array;
 		senderIv: Uint8Array;
@@ -89,16 +91,6 @@ export const insertMessage = async ({
 }): Promise<{ id: string; index: number }> => {
 	const db = getDb();
 
-	// Get the maximum index for this conversation to calculate the next index
-	const [maxIndexResult] = await db
-		.select({ maxIndex: max(messages.index) })
-		.from(messages)
-		.where(eq(messages.conversationId, conversationId));
-
-	const nextIndex = maxIndexResult?.maxIndex !== null && maxIndexResult?.maxIndex !== undefined
-		? maxIndexResult.maxIndex + 1
-		: 0;
-
 	// Use server-side timestamps with specified timezone
 	const escapedTimezone = timezone.replace(/'/g, "''");
 	const timestampExpr = sql.raw(`NOW() AT TIME ZONE '${escapedTimezone}'`);
@@ -107,7 +99,7 @@ export const insertMessage = async ({
 		.insert(messages)
 		.values({
 			conversationId,
-			index: nextIndex,
+			index,
 			senderEncrypted: message.senderEncrypted,
 			senderIv: message.senderIv,
 			textEncrypted: message.textEncrypted,

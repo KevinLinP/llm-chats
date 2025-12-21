@@ -80,3 +80,46 @@ agent: I've removed all message handling from `conversation.ts` and created `dat
 - Updated to verify messages using `listMessages` from `message.ts`
 
 The separation is now complete - `conversation.ts` handles only conversation metadata, while `message.ts` handles all message operations with encryption/decryption.
+
+user: Update the ui/ layer. Load the messages only for the visible conversation. Simplify the conversation-store. Don't start a message-store yet.
+
+agent: I've updated the UI layer to load messages separately and simplified the conversation store.
+
+**Simplified `conversation-store.svelte.ts`:**
+- Removed `fullConversations` Map and `fullConversationsVersion` - conversations no longer contain messages
+- Removed `loadFullConversation`, `getFullConversation`, `isLoadingConversation`, and `getConversationError` methods
+- Removed `loadingConversations` Set and `conversationErrors` Map from the store state
+- Store now only manages conversation summaries (list and loading state)
+
+**Updated `Conversation.svelte`:**
+- Removed dependency on `fullConversations` from the store
+- Added separate state for conversation metadata (`conversation`) and messages (`messages`)
+- Added separate loading states (`loadingConversation`, `loadingMessages`) and error states (`conversationError`, `messagesError`)
+- Uses `getConversation` from `data/conversation.ts` to load conversation metadata
+- Uses `listMessages` from `data/message.ts` to load messages only when a conversation is visible (when `id` is set)
+- Updated the form submission to create conversation first, then insert messages separately using `insertMessage`
+- Messages are loaded in parallel with conversation metadata when a conversation ID is present
+
+The UI now loads messages only for the visible conversation, and the conversation store is simplified to only handle conversation summaries.
+
+user: Remove calculation of messages.index from message-store.ts. Instead, always have the ui layer determine it, and supply it.
+
+agent: I've removed the index calculation from `message-store.ts` and updated all callers to supply the index.
+
+**Updated `message-store.ts`:**
+- Removed `max` import from drizzle-orm (no longer needed)
+- Removed the max index query that calculated the next index
+- `insertMessage` now requires `index` as a required parameter
+- The index is now passed directly to the database insert
+
+**Updated `data/message.ts`:**
+- `insertMessage` now requires `index` as a required parameter
+- Passes the index through to `insertEncryptedMessage`
+
+**Updated `Conversation.svelte`:**
+- Updated form submission to supply explicit indices (0 for system message, 1 for user message)
+
+**Updated `conversation.test.ts`:**
+- Updated test to supply explicit indices (0 for first message, 1 for second message)
+
+The UI layer is now responsible for determining and supplying the message index when inserting messages.

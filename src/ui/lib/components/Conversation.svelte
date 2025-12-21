@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { createConversation } from '../../../data/conversation';
+	import { createConversation, getConversation } from '../../../data/conversation';
+	import { listMessages, insertMessage, type MessageWithMetadata } from '../../../data/message';
 	import { conversationStore } from '../stores/conversation.svelte';
 
 	let { id }: { id?: string } = $props();
@@ -11,27 +12,66 @@
 	// Get summary immediately from store (if available)
 	const summary = $derived(id ? conversationStore.getSummary(id) : null);
 	
-	// Get full conversation from store (if already loaded)
-	// Track version to ensure reactivity when Map is mutated
-	const conversation = $derived.by(() => {
-		if (!id) return null;
-		// Access version to create reactive dependency
-		void conversationStore.fullConversationsVersion;
-		return conversationStore.fullConversations.get(id) ?? null;
-	});
-	
-	// Get loading and error state from store
-	const isLoadingFullConversation = $derived(id ? conversationStore.isLoadingConversation(id) : false);
-	const error = $derived(id ? conversationStore.getConversationError(id) : null);
+	// Load conversation metadata and messages separately
+	let conversation = $state<{ id: string; title: string; createdAt: Date; updatedAt: Date } | null>(null);
+	let messages = $state<MessageWithMetadata[]>([]);
+	let loadingConversation = $state(false);
+	let loadingMessages = $state(false);
+	let conversationError = $state<string | null>(null);
+	let messagesError = $state<string | null>(null);
 
 	$effect(() => {
 		if (id) {
-			// If we don't have the full conversation yet, load it
-			if (!conversationStore.fullConversations.has(id) && !conversationStore.isLoadingConversation(id)) {
-				conversationStore.loadFullConversation(id).catch(() => {
-					// Error is already handled in the store
-				});
+			// Load conversation metadata
+			loadingConversation = true;
+			conversationError = null;
+			
+			const databaseUrl = localStorage.getItem('databaseUrl');
+			if (!databaseUrl) {
+				conversationError = 'Database not configured';
+				loadingConversation = false;
+				return;
 			}
+
+			// Wait one tick to ensure setupDb in +layout.svelte's onMount has run
+			Promise.resolve().then(async () => {
+				try {
+					const conv = await getConversation({ id });
+					if (conv) {
+						conversation = conv;
+					} else {
+						conversationError = 'Conversation not found';
+					}
+				} catch (error) {
+					console.error('Failed to load conversation:', error);
+					conversationError = error instanceof Error ? error.message : 'Failed to load conversation';
+				} finally {
+					loadingConversation = false;
+				}
+			});
+
+			// Load messages for this conversation
+			loadingMessages = true;
+			messagesError = null;
+			
+			Promise.resolve().then(async () => {
+				try {
+					const msgs = await listMessages({ conversationId: id });
+					messages = msgs;
+				} catch (error) {
+					console.error('Failed to load messages:', error);
+					messagesError = error instanceof Error ? error.message : 'Failed to load messages';
+				} finally {
+					loadingMessages = false;
+				}
+			});
+		} else {
+			conversation = null;
+			messages = [];
+			loadingConversation = false;
+			loadingMessages = false;
+			conversationError = null;
+			messagesError = null;
 		}
 	});
 
@@ -43,18 +83,36 @@
 		if (title.trim().length > 0 && systemMessageText.trim().length > 0 && userMessageText.trim().length > 0) {
 			const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 			
-			await createConversation({
+			// Create the conversation first
+			const { id: conversationId } = await createConversation({
 				title: title.trim(),
-				systemMessage: {
-					sender: 'system',
-					text: systemMessageText.trim()
-				},
-				userMessage: {
-					sender: 'user',
-					text: userMessageText.trim()
-				},
 				timezone
 			});
+			
+			// Then insert the messages with indices
+			await Promise.all([
+				insertMessage({
+					conversationId,
+					index: 0,
+					message: {
+						sender: 'system',
+						text: systemMessageText.trim()
+					},
+					timezone
+				}),
+				insertMessage({
+					conversationId,
+					index: 1,
+					message: {
+						sender: 'user',
+						text: userMessageText.trim()
+					},
+					timezone
+				})
+			]);
+			
+			// Navigate to the new conversation
+			window.location.href = `/${conversationId}`;
 		}
 	};
 </script>
@@ -62,34 +120,40 @@
 <main class="flex-1 overflow-y-auto h-full bg-gray-950 flex flex-col">
 	<div class="max-w-4xl mx-auto p-6 flex-1 flex flex-col">
 		{#if id}
-			{#if error}
+			{#if conversationError || messagesError}
 				<div class="flex-1 flex items-center justify-center">
-					<div class="text-red-400">{error}</div>
+					<div class="text-red-400">{conversationError || messagesError}</div>
 				</div>
 			{:else if conversation}
 				<div class="flex-1 flex flex-col">
 					<h1 class="text-2xl font-bold text-gray-100 mb-6">{conversation.title}</h1>
-					<div class="space-y-4 flex-1 overflow-y-auto">
-						{#each conversation.parts as part (part)}
-							<div class="bg-gray-800 rounded-lg p-4">
-								<div class="text-sm font-medium text-gray-400 mb-2 uppercase">
-									{part.sender}
+					{#if loadingMessages}
+						<div class="flex-1 flex items-center justify-center">
+							<div class="text-gray-400">Loading messages...</div>
+						</div>
+					{:else}
+						<div class="space-y-4 flex-1 overflow-y-auto">
+							{#each messages as message (message.id)}
+								<div class="bg-gray-800 rounded-lg p-4">
+									<div class="text-sm font-medium text-gray-400 mb-2 uppercase">
+										{message.sender}
+									</div>
+									<div class="text-gray-100 whitespace-pre-wrap">{message.text}</div>
 								</div>
-								<div class="text-gray-100 whitespace-pre-wrap">{part.text}</div>
-							</div>
-						{/each}
-					</div>
+							{/each}
+						</div>
+					{/if}
 				</div>
 			{:else if summary}
 				<div class="flex-1 flex flex-col">
 					<h1 class="text-2xl font-bold text-gray-100 mb-6">{summary.title}</h1>
-					{#if isLoadingFullConversation}
+					{#if loadingConversation || loadingMessages}
 						<div class="flex-1 flex items-center justify-center">
 							<div class="text-gray-400">Loading conversation...</div>
 						</div>
 					{/if}
 				</div>
-			{:else if isLoadingFullConversation}
+			{:else if loadingConversation || loadingMessages}
 				<div class="flex-1 flex items-center justify-center">
 					<div class="text-gray-400">Loading conversation...</div>
 				</div>

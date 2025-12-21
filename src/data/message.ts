@@ -77,10 +77,12 @@ export const listMessages = async ({ conversationId }: { conversationId: string 
 
 export const insertMessage = async ({
 	conversationId,
+	index,
 	message,
 	timezone
 }: {
 	conversationId: string;
+	index: number;
 	message: Message;
 	timezone: string;
 }): Promise<{ id: string; index: number }> => {
@@ -102,6 +104,7 @@ export const insertMessage = async ({
 	// insert the encrypted message
 	return await insertEncryptedMessage({
 		conversationId,
+		index,
 		message: {
 			senderEncrypted: senderEncrypted.encryptedData,
 			senderIv: senderEncrypted.iv,

@@ -72,12 +72,14 @@ describe('conversation', () => {
 		// Create messages separately
 		await insertMessage({
 			conversationId: id,
+			index: 0,
 			message: systemMessage,
 			timezone: 'UTC'
 		});
 
 		await insertMessage({
 			conversationId: id,
+			index: 1,
 			message: userMessage,
 			timezone: 'UTC'
 		});
