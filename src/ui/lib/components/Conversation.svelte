@@ -1,51 +1,37 @@
 <script lang="ts">
-	import { createConversation, getConversation, type Conversation as ConversationType } from '../../../data/conversation';
+	import { createConversation } from '../../../data/conversation';
+	import { conversationStore } from '../stores/conversation.svelte';
 
 	let { id }: { id?: string } = $props();
 
 	let title = $state('');
 	let systemMessageText = $state('');
 	let userMessageText = $state('');
-	let conversation = $state<ConversationType | null>(null);
-	let loading = $state(false);
-	let error = $state<string | null>(null);
+
+	// Get summary immediately from store (if available)
+	const summary = $derived(id ? conversationStore.getSummary(id) : null);
+	
+	// Get full conversation from store (if already loaded)
+	// Track version to ensure reactivity when Map is mutated
+	const conversation = $derived.by(() => {
+		if (!id) return null;
+		// Access version to create reactive dependency
+		void conversationStore.fullConversationsVersion;
+		return conversationStore.fullConversations.get(id) ?? null;
+	});
+	
+	// Get loading and error state from store
+	const isLoadingFullConversation = $derived(id ? conversationStore.isLoadingConversation(id) : false);
+	const error = $derived(id ? conversationStore.getConversationError(id) : null);
 
 	$effect(() => {
 		if (id) {
-			loading = true;
-			error = null;
-			conversation = null;
-			
-			(async () => {
-				try {
-					// Ensure database is set up before loading conversation
-					const databaseUrl = localStorage.getItem('databaseUrl');
-					if (!databaseUrl) {
-						error = 'Database not configured';
-						loading = false;
-						return;
-					}
-
-					// Wait one tick to ensure setupDb in +layout.svelte's onMount has run
-					await new Promise((resolve) => setTimeout(resolve, 0));
-
-					const fetchedConversation = await getConversation({ id });
-					if (fetchedConversation) {
-						conversation = fetchedConversation;
-					} else {
-						error = 'Conversation not found';
-					}
-				} catch (err) {
-					console.error('Failed to load conversation:', err);
-					error = err instanceof Error ? err.message : 'Failed to load conversation';
-				} finally {
-					loading = false;
-				}
-			})();
-		} else {
-			conversation = null;
-			loading = false;
-			error = null;
+			// If we don't have the full conversation yet, load it
+			if (!conversationStore.fullConversations.has(id) && !conversationStore.isLoadingConversation(id)) {
+				conversationStore.loadFullConversation(id).catch(() => {
+					// Error is already handled in the store
+				});
+			}
 		}
 	});
 
@@ -76,11 +62,7 @@
 <main class="flex-1 overflow-y-auto h-full bg-gray-950 flex flex-col">
 	<div class="max-w-4xl mx-auto p-6 flex-1 flex flex-col">
 		{#if id}
-			{#if loading}
-				<div class="flex-1 flex items-center justify-center">
-					<div class="text-gray-400">Loading conversation...</div>
-				</div>
-			{:else if error}
+			{#if error}
 				<div class="flex-1 flex items-center justify-center">
 					<div class="text-red-400">{error}</div>
 				</div>
@@ -97,6 +79,19 @@
 							</div>
 						{/each}
 					</div>
+				</div>
+			{:else if summary}
+				<div class="flex-1 flex flex-col">
+					<h1 class="text-2xl font-bold text-gray-100 mb-6">{summary.title}</h1>
+					{#if isLoadingFullConversation}
+						<div class="flex-1 flex items-center justify-center">
+							<div class="text-gray-400">Loading conversation...</div>
+						</div>
+					{/if}
+				</div>
+			{:else if isLoadingFullConversation}
+				<div class="flex-1 flex items-center justify-center">
+					<div class="text-gray-400">Loading conversation...</div>
 				</div>
 			{/if}
 		{:else}
