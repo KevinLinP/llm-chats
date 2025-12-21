@@ -1,4 +1,4 @@
-import { getConversation as getEncryptedConversation, type EncryptedConversation } from '../db/conversation-store';
+import { getConversation as getEncryptedConversation, createConversation as createEncryptedConversation, type EncryptedConversation } from '../db/conversation-store';
 import { getEncryptionKey } from './encryption-key';
 
 export type Message = {
@@ -34,6 +34,27 @@ const decryptField = async ({ encryptedData, iv, encryptionKey }: { encryptedDat
   return new TextDecoder().decode(decrypted);
 };
 
+// helper function to encrypt a field
+const encryptField = async ({ plaintext, encryptionKey }: { plaintext: string; encryptionKey: CryptoKey }): Promise<{ encryptedData: Uint8Array; iv: Uint8Array }> => {
+  // Generate a random IV (12 bytes for AES-GCM)
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  
+  const plaintextBytes = new TextEncoder().encode(plaintext);
+  const encrypted = await crypto.subtle.encrypt(
+    {
+      name: 'AES-GCM',
+      iv
+    },
+    encryptionKey,
+    plaintextBytes
+  );
+  
+  return {
+    encryptedData: new Uint8Array(encrypted),
+    iv
+  };
+};
+
 export const getConversation = async ({id}: {id: string}): Promise<Conversation | null> => {
   const encryptedConversation = await getEncryptedConversation(id);
 
@@ -64,4 +85,39 @@ export const getConversation = async ({id}: {id: string}): Promise<Conversation 
     createdAt: encryptedConversation.createdAt,
     updatedAt: encryptedConversation.updatedAt
   };
+}
+
+export const createConversation = async ({
+  title,
+  systemMessage,
+  userMessage,
+  timezone
+}: {
+  title: string;
+  systemMessage: Message;
+  userMessage: Message;
+  timezone: string;
+}): Promise<{id: string}> => {
+  // get the cached encryption key
+  const encryptionKey = getEncryptionKey();
+
+  // encrypt the title and messages
+  const [titleEncrypted, systemMessageEncrypted, userMessageEncrypted] = await Promise.all([
+    encryptField({ plaintext: title, encryptionKey }),
+    encryptField({ plaintext: JSON.stringify(systemMessage), encryptionKey }),
+    encryptField({ plaintext: JSON.stringify(userMessage), encryptionKey })
+  ]);
+
+  // create the encrypted conversation in the database
+  const { id } = await createEncryptedConversation({
+    conversation: {
+      titleIv: titleEncrypted.iv,
+      titleEncrypted: titleEncrypted.encryptedData,
+      messagesEncrypted: [systemMessageEncrypted.encryptedData, userMessageEncrypted.encryptedData],
+      messagesIv: [systemMessageEncrypted.iv, userMessageEncrypted.iv]
+    },
+    timezone
+  });
+
+  return { id };
 }
