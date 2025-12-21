@@ -25,3 +25,37 @@ All five UI tweaks have been implemented:
 5. **Enter key support added**: Added a `keydown` event handler to the textarea in `MessageInput.svelte` that submits the form when Enter is pressed (without Shift), allowing Shift+Enter for new lines.
 
 All changes passed linting with no errors.
+
+user: Conversation.svelte is a large file now. Suggest some refactoring to organize it into smaller files
+
+agent: Refactored Conversation.svelte into smaller, focused components and composables:
+
+1. **Created ConversationTitle.svelte**: Extracted the editable title functionality with click-to-edit, save on blur/Enter, cancel on Escape, and loading state during updates.
+
+2. **Created ConversationDeleteButton.svelte**: Extracted the delete button with confirmation dialog and loading state.
+
+3. **Created useConversationLoader.ts composable**: Extracted all data loading logic including:
+   - Loading conversation metadata and messages
+   - Error handling
+   - Auto-triggering agent response for new conversations
+   - Methods to reload conversation and messages
+
+4. **Created useMessageSender.ts composable**: Extracted message sending and streaming logic including:
+   - Streaming state management
+   - Sending user messages
+   - Triggering agent responses
+   - Message list updates
+
+5. **Refactored Conversation.svelte**: Reduced from 350 lines to ~173 lines by:
+   - Using the new components for title and delete button
+   - Using composables for data loading and message sending
+   - Keeping only the main orchestration logic and form submission
+
+The refactoring maintains all existing functionality while improving:
+- **Separation of concerns**: Each component/composable has a single responsibility
+- **Reusability**: Components can be reused elsewhere
+- **Testability**: Smaller units are easier to test
+- **Maintainability**: Changes are isolated to specific files
+- **Readability**: Main component is now a clear composition of smaller pieces
+
+All changes passed linting with no errors.
