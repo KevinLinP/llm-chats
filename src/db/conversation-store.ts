@@ -61,16 +61,28 @@ export const insertEncryptedConversation = async ({
   // Use server-side timestamps with specified timezone
   // PostgreSQL requires timezone to be a quoted string literal
   // Note: timezone should be a valid PostgreSQL timezone name (e.g., 'UTC', 'America/New_York')
-  // Using template literal interpolation - timezone is validated to be a standard name
-  const timestampExpr = sql`NOW() AT TIME ZONE '${timezone}'`;
+  // Escape single quotes in timezone to prevent SQL injection
+  const escapedTimezone = timezone.replace(/'/g, "''");
+  const timestampExpr = sql.raw(`NOW() AT TIME ZONE '${escapedTimezone}'`);
+
+  // Convert bytea arrays to PostgreSQL array format using sql template
+  // PostgreSQL bytea arrays need to be cast properly
+  const messagesEncryptedArray = sql`ARRAY[${sql.join(
+    messagesEncryptedBuffers.map(buf => sql`${buf}::bytea`),
+    sql`, `
+  )}]::bytea[]`;
+  const messagesIvArray = sql`ARRAY[${sql.join(
+    messagesIvBuffers.map(buf => sql`${buf}::bytea`),
+    sql`, `
+  )}]::bytea[]`;
 
   const [inserted] = await db
     .insert(conversations)
     .values({
       titleIv: titleIvBuffer,
       titleEncrypted: titleBuffer,
-      messagesEncrypted: messagesEncryptedBuffers,
-      messagesIv: messagesIvBuffers,
+      messagesEncrypted: messagesEncryptedArray,
+      messagesIv: messagesIvArray,
       createdAt: timestampExpr,
       updatedAt: timestampExpr
     })
