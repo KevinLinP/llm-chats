@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, uuid, timestamp, customType } from 'drizzle-orm/pg-core';
+import { pgTable, serial, integer, uuid, timestamp, customType, index } from 'drizzle-orm/pg-core';
 
 const bytea = customType<{ data: Uint8Array; driverData: Uint8Array }>({
 	dataType: () => 'bytea'
@@ -12,5 +12,8 @@ export const conversations = pgTable('conversations', {
 	titleEncrypted: bytea('titleEncrypted').notNull(),
 	messagesEncrypted: bytea('messagesEncrypted').array().notNull(),
 	messagesIv: bytea('messagesIv').array().notNull()
-});
+}, (table) => ({
+	createdAtIdx: index('conversations_createdAt_idx').on(table.createdAt),
+	updatedAtIdx: index('conversations_updatedAt_idx').on(table.updatedAt)
+}));
 
