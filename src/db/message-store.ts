@@ -9,8 +9,10 @@ export type EncryptedMessage = {
 	index: number;
 	senderEncrypted: Uint8Array;
 	senderIv: Uint8Array;
-	textEncrypted: Uint8Array;
-	textIv: Uint8Array;
+	textEncrypted: Uint8Array | null;
+	textIv: Uint8Array | null;
+	chunksEncrypted: Uint8Array | null;
+	chunksIv: Uint8Array | null;
 	modelIdEncrypted: Uint8Array | null;
 	modelIdIv: Uint8Array | null;
 	tokenUsageEncrypted: Uint8Array | null;
@@ -37,8 +39,10 @@ export const listMessages = async ({ conversationId }: { conversationId: string 
 		index: message.index,
 		senderEncrypted: toUint8Array(message.senderEncrypted),
 		senderIv: toUint8Array(message.senderIv),
-		textEncrypted: toUint8Array(message.textEncrypted),
-		textIv: toUint8Array(message.textIv),
+		textEncrypted: toUint8ArrayOrNull(message.textEncrypted),
+		textIv: toUint8ArrayOrNull(message.textIv),
+		chunksEncrypted: toUint8ArrayOrNull(message.chunksEncrypted),
+		chunksIv: toUint8ArrayOrNull(message.chunksIv),
 		modelIdEncrypted: toUint8ArrayOrNull(message.modelIdEncrypted),
 		modelIdIv: toUint8ArrayOrNull(message.modelIdIv),
 		tokenUsageEncrypted: toUint8ArrayOrNull(message.tokenUsageEncrypted),
@@ -61,8 +65,10 @@ export const insertMessage = async ({
 	message: {
 		senderEncrypted: Uint8Array;
 		senderIv: Uint8Array;
-		textEncrypted: Uint8Array;
-		textIv: Uint8Array;
+		textEncrypted?: Uint8Array | null;
+		textIv?: Uint8Array | null;
+		chunksEncrypted?: Uint8Array | null;
+		chunksIv?: Uint8Array | null;
 		modelIdEncrypted?: Uint8Array;
 		modelIdIv?: Uint8Array;
 		tokenUsageEncrypted?: Uint8Array;
@@ -85,8 +91,10 @@ export const insertMessage = async ({
 			index,
 			senderEncrypted: message.senderEncrypted,
 			senderIv: message.senderIv,
-			textEncrypted: message.textEncrypted,
-			textIv: message.textIv,
+			textEncrypted: message.textEncrypted ?? null,
+			textIv: message.textIv ?? null,
+			chunksEncrypted: message.chunksEncrypted ?? null,
+			chunksIv: message.chunksIv ?? null,
 			modelIdEncrypted: message.modelIdEncrypted ?? null,
 			modelIdIv: message.modelIdIv ?? null,
 			tokenUsageEncrypted: message.tokenUsageEncrypted ?? null,

@@ -50,6 +50,13 @@
       "when": 1766349819344,
       "tag": "0006_fearless_spacker_dave",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1766353927706,
+      "tag": "0007_lean_silver_fox",
+      "breakpoints": true
     }
   ]
 }

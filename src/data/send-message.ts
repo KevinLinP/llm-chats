@@ -36,46 +36,16 @@ export const sendMessage = async ({
 
 	// Stream chunks and accumulate content
 	let streamingText = '';
-	let modelIdFromStream: string | undefined;
-	let tokenUsage: { input?: number; reasoning?: number; output?: number } | undefined;
-	let citations: Record<string, string> | undefined;
-	let firstChunk: ChatCompletionChunk | null = null;
-  const chunks: ChatCompletionChunk[] = [];
+	const chunks: ChatCompletionChunk[] = [];
 
 	for await (const chunk of completion) {
 		const choice = chunk.choices[0];
 		if (!choice) continue;
+
+		// Collect all chunks
 		chunks.push(chunk);
 
-		// Track first chunk for citations extraction
-		if (!firstChunk) {
-			firstChunk = chunk;
-			// Extract citations from first chunk (Perplexity Sonar models)
-			if ((chunk as any).citations && Array.isArray((chunk as any).citations)) {
-				citations = (chunk as any).citations.reduce((acc: Record<string, string>, url: string, index: number) => {
-					acc[(index + 1).toString()] = url;
-					return acc;
-				}, {});
-			}
-		}
-
-		// Extract model ID from first chunk if available
-		if (chunk.model && !modelIdFromStream) {
-			modelIdFromStream = chunk.model;
-		}
-
-		// Extract token usage from final chunk
-		if (chunk.usage) {
-			tokenUsage = {
-				input: chunk.usage.prompt_tokens,
-				reasoning: chunk.usage.completion_tokens_details?.reasoning_tokens,
-				output: chunk.usage.completion_tokens_details?.accepted_prediction_tokens ||
-					chunk.usage.completion_tokens_details?.rejected_prediction_tokens ||
-					chunk.usage.completion_tokens
-			};
-		}
-
-		// Extract content delta
+		// Extract content delta for streaming UI updates
 		const chunkContent = choice.delta?.content;
 		if (chunkContent) {
 			streamingText += chunkContent;
@@ -91,10 +61,8 @@ export const sendMessage = async ({
 		index: nextIndex,
 		message: {
 			sender: 'assistant',
-			text: streamingText,
-			...(modelIdFromStream && { modelId: modelIdFromStream }),
-			...(tokenUsage && { tokenUsage }),
-			...(citations && { citations })
+			text: '', // Not used when chunks are present
+			chunks // Pass chunks array - text, modelId, tokenUsage, citations will be extracted from chunks
 		},
 		timezone
 	});
