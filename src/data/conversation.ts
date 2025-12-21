@@ -1,4 +1,4 @@
-import { fetchEncryptedConversation, insertEncryptedConversation, listEncryptedConversations, type EncryptedConversation } from '../db/conversation-store';
+import { fetchEncryptedConversation, insertEncryptedConversation, listEncryptedConversations, updateEncryptedConversation, deleteEncryptedConversation, type EncryptedConversation } from '../db/conversation-store';
 import { getEncryptionKey } from './encryption-key';
 import { decryptField, encryptField } from './crypto';
 
@@ -84,4 +84,34 @@ export const listConversations = async (): Promise<Conversation[]> => {
     createdAt: encryptedConversation.createdAt,
     updatedAt: encryptedConversation.updatedAt
   }));
+}
+
+export const updateConversation = async ({
+	id,
+	title,
+	timezone
+}: {
+	id: string;
+	title: string;
+	timezone: string;
+}): Promise<void> => {
+	// get the cached encryption key
+	const encryptionKey = getEncryptionKey();
+
+	// encrypt the title
+	const titleEncrypted = await encryptField({ plaintext: title, encryptionKey });
+
+	// update the encrypted conversation in the database
+	await updateEncryptedConversation({
+		id,
+		conversation: {
+			titleIv: titleEncrypted.iv,
+			titleEncrypted: titleEncrypted.encryptedData
+		},
+		timezone
+	});
+}
+
+export const deleteConversation = async ({ id }: { id: string }): Promise<void> => {
+	await deleteEncryptedConversation(id);
 }

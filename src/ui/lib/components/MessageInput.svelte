@@ -39,7 +39,7 @@
 		></textarea>
 	</div>
 
-	<div class="flex items-center gap-4">
+	<div class="flex items-end gap-4">
 		<div class="flex-1">
 			<label for="model-select" class="block text-sm font-medium text-gray-300 mb-2">
 				Model
@@ -60,15 +60,13 @@
 			</select>
 		</div>
 
-		<div class="flex items-end">
-			<button
-				type="submit"
-				disabled={streaming || userMessage.trim().length === 0}
-				class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-			>
-				Send
-			</button>
-		</div>
+		<button
+			type="submit"
+			disabled={streaming || userMessage.trim().length === 0}
+			class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+		>
+			Send
+		</button>
 	</div>
 </form>
 

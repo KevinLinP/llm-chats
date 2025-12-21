@@ -92,6 +92,11 @@ export const conversationStore = {
 		}
 		// Sort by updatedAt descending
 		store.conversations.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+	},
+	
+	// Remove a conversation from the store
+	removeConversation(id: string) {
+		store.conversations = store.conversations.filter(c => c.id !== id);
 	}
 };
 

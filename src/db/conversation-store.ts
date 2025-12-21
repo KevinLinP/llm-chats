@@ -94,3 +94,43 @@ export const listEncryptedConversations = async (): Promise<EncryptedConversatio
   }));
 }
 
+export const updateEncryptedConversation = async ({
+	id,
+	conversation,
+	timezone
+}: {
+	id: string;
+	conversation: Omit<EncryptedConversation, 'id' | 'createdAt' | 'updatedAt'>;
+	timezone: string;
+}): Promise<{id: string}> => {
+	const db = getDb();
+
+	// Use server-side timestamps with specified timezone
+	// PostgreSQL requires timezone to be a quoted string literal
+	// Escape single quotes in timezone to prevent SQL injection
+	const escapedTimezone = timezone.replace(/'/g, "''");
+	const timestampExpr = sql.raw(`NOW() AT TIME ZONE '${escapedTimezone}'`);
+
+	const [updated] = await db
+		.update(conversations)
+		.set({
+			titleIv: conversation.titleIv,
+			titleEncrypted: conversation.titleEncrypted,
+			updatedAt: timestampExpr
+		})
+		.where(eq(conversations.id, id))
+		.returning();
+
+	return {
+		id: updated.id
+	};
+}
+
+export const deleteEncryptedConversation = async (id: string): Promise<void> => {
+	const db = getDb();
+
+	await db
+		.delete(conversations)
+		.where(eq(conversations.id, id));
+}
+
