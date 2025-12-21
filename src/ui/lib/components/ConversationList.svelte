@@ -1,10 +1,13 @@
 <script lang="ts">
-	// TODO: Load conversation history from database
-	// For now, using placeholder data
-	let conversations = $state([
-		{ id: '1', title: 'First Conversation', updatedAt: new Date() },
-		{ id: '2', title: 'Second Conversation', updatedAt: new Date() },
-	]);
+	import { listConversations } from '../../../data/conversation';
+
+	let conversations = $state<Awaited<ReturnType<typeof listConversations>>>([]);
+
+	$effect(() => {
+		listConversations().then((result) => {
+			conversations = result;
+		});
+	});
 </script>
 
 <aside class="w-64 border-r border-gray-700 bg-gray-900 overflow-y-auto h-full">

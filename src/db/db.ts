@@ -2,13 +2,8 @@ import { drizzle as drizzleNeon } from 'drizzle-orm/neon-http';
 import { drizzle as drizzlePostgres } from 'drizzle-orm/postgres-js';
 import * as schema from './schema';
 
-// Union type for supported drizzle database drivers
-type NeonDatabase = ReturnType<typeof drizzleNeon>;
-type PostgresDatabase = ReturnType<typeof drizzlePostgres>;
-type Database = NeonDatabase | PostgresDatabase;
-
 // Cache for single drizzle instance
-let cachedDb: Database | null = null;
+let cachedDb: any = null;
 let cachedDatabaseUrl: string | null = null;
 
 export const setupDb = (databaseUrl: string) => {
@@ -38,7 +33,7 @@ export const getDb = () => {
 	return cachedDb;
 };
 
-export const setDb = (db: Database) => {
+export const setDb = (db: any) => {
 	cachedDb = db;
 	cachedDatabaseUrl = 'test'; // Mark as test database
 };

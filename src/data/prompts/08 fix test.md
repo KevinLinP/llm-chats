@@ -40,3 +40,20 @@ agent: Updated the types to use a proper union type instead of `any`. The code n
 - Updates `cachedDb` and `setDb` to use the `Database` union type
 
 This maintains type safety while allowing both database drivers. The `setupDb` function now explicitly uses `drizzleNeon` for production, while `setDb` can accept either type for testing.
+
+user: Please switch it back to the any type for me to test something ...
+
+agent: Switched the types back to `any` in `db.ts`. Removed the union type definitions (`NeonDatabase`, `PostgresDatabase`, `Database`) and updated both `cachedDb` and the `setDb` parameter to use `any` type instead.
+
+user: I'm getting the following in the browser. From node_modules/postgres/src/bytes.js,
+
+```
+Uncaught (in promise) ReferenceError: Buffer is not defined
+    <anonymous> bytes.js:2
+```
+
+agent: Fixed the browser error by removing the unused `drizzlePostgres` import from `db.ts`. The issue was that importing `drizzle-orm/postgres-js` at the top level caused Vite to bundle `postgres.js` for the browser, which uses Node.js-specific APIs like `Buffer` that don't exist in the browser.
+
+Since `drizzlePostgres` was never actually used in `db.ts` (only `drizzleNeon` is used for production), and the test file already imports `drizzle` from `drizzle-orm/postgres-js` directly, removing the unused import prevents `postgres.js` from being bundled for the browser while keeping the test functionality intact.
+
+user: Try putting back the Database union type

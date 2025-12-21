@@ -1,4 +1,4 @@
-import { fetchEncryptedConversation, insertEncryptedConversation, type EncryptedConversation } from '../db/conversation-store';
+import { fetchEncryptedConversation, insertEncryptedConversation, listEncryptedConversations, type EncryptedConversation } from '../db/conversation-store';
 import { getEncryptionKey } from './encryption-key';
 
 export type Message = {
@@ -17,6 +17,13 @@ export type Conversation = {
 	id: string;
 	title: string;
   parts: Message[];
+	createdAt: Date;
+	updatedAt: Date;
+};
+
+export type ConversationSummary = {
+	id: string;
+	title: string;
 	createdAt: Date;
 	updatedAt: Date;
 };
@@ -120,4 +127,30 @@ export const createConversation = async ({
   });
 
   return { id };
+}
+
+export const listConversations = async (): Promise<ConversationSummary[]> => {
+  const encryptedConversations = await listEncryptedConversations();
+
+  // get the cached encryption key
+  const encryptionKey = getEncryptionKey();
+
+  // decrypt all titles in parallel
+  const titles = await Promise.all(
+    encryptedConversations.map(encryptedConversation =>
+      decryptField({
+        encryptedData: encryptedConversation.titleEncrypted,
+        iv: encryptedConversation.titleIv as BufferSource,
+        encryptionKey
+      })
+    )
+  );
+
+  // combine decrypted titles with conversation metadata
+  return encryptedConversations.map((encryptedConversation, index) => ({
+    id: encryptedConversation.id,
+    title: titles[index],
+    createdAt: encryptedConversation.createdAt,
+    updatedAt: encryptedConversation.updatedAt
+  }));
 }
