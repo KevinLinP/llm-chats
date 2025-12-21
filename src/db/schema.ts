@@ -6,10 +6,11 @@ const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
 
 export const conversations = pgTable('conversations', {
 	id: uuid('id').defaultRandom().primaryKey(),
-	iv: bytea('iv').notNull(),
+	titleIv: bytea('titleIv').notNull(),
 	createdAt: timestamp('createdAt', { withTimezone: true }).notNull(),
 	updatedAt: timestamp('updatedAt', { withTimezone: true }).notNull(),
 	titleEncrypted: bytea('titleEncrypted').notNull(),
-	partsEncrypted: bytea('partsEncrypted').array().notNull()
+	messagesEncrypted: bytea('messagesEncrypted').array().notNull(),
+	messagesIv: bytea('messagesIv').array().notNull()
 });
 

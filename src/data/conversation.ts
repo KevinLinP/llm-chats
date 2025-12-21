@@ -44,11 +44,12 @@ export const getConversation = async ({id}: {id: string}): Promise<Conversation 
   // get the cached encryption key
   const encryptionKey = getEncryptionKey();
 
-  // use the `iv` field and the encryption key to decrypt the title and parts
+  // use the `titleIv` field and the encryption key to decrypt the title
+  // use the `messagesIv` array and the encryption key to decrypt each message
   const [title, partsStrings] = await Promise.all([
-    decryptField({ encryptedData: encryptedConversation.titleEncrypted, iv: encryptedConversation.iv as BufferSource, encryptionKey }),
-    Promise.all(encryptedConversation.partsEncrypted.map(encryptedData => 
-      decryptField({ encryptedData, iv: encryptedConversation.iv as BufferSource, encryptionKey })
+    decryptField({ encryptedData: encryptedConversation.titleEncrypted, iv: encryptedConversation.titleIv as BufferSource, encryptionKey }),
+    Promise.all(encryptedConversation.messagesEncrypted.map((encryptedData, index) => 
+      decryptField({ encryptedData, iv: encryptedConversation.messagesIv[index] as BufferSource, encryptionKey })
     ))
   ]);
 

@@ -1,0 +1,75 @@
+{
+  "id": "19efbc0d-da2a-46cf-8993-755418330a89",
+  "prevId": "4701edf5-9115-4c30-9144-3f5e7e1a5160",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.conversations": {
+      "name": "conversations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "titleIv": {
+          "name": "titleIv",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titleEncrypted": {
+          "name": "titleEncrypted",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "messagesEncrypted": {
+          "name": "messagesEncrypted",
+          "type": "bytea[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "messagesIv": {
+          "name": "messagesIv",
+          "type": "bytea[]",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

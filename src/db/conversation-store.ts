@@ -4,9 +4,10 @@ import { getDb } from './db';
 
 export type EncryptedConversation = {
 	id: string;
-	iv: Uint8Array;
+	titleIv: Uint8Array;
 	titleEncrypted: Uint8Array;
-	partsEncrypted: Uint8Array[];
+	messagesEncrypted: Uint8Array[];
+	messagesIv: Uint8Array[];
 	createdAt: Date;
 	updatedAt: Date;
 };
@@ -26,15 +27,17 @@ export const getConversation = async (id: string): Promise<EncryptedConversation
   }
 
   // Convert Buffer to Uint8Array (postgres-js returns bytea as Buffer)
-  const ivBuffer = conversation.iv as unknown as ArrayBuffer;
+  const titleIvBuffer = conversation.titleIv as unknown as ArrayBuffer;
   const titleBuffer = conversation.titleEncrypted as unknown as ArrayBuffer;
-  const partsEncryptedArray = conversation.partsEncrypted as unknown as ArrayBuffer[];
+  const messagesEncryptedArray = conversation.messagesEncrypted as unknown as ArrayBuffer[];
+  const messagesIvArray = conversation.messagesIv as unknown as ArrayBuffer[];
   
   return {
     id: conversation.id,
-    iv: new Uint8Array(ivBuffer),
+    titleIv: new Uint8Array(titleIvBuffer),
     titleEncrypted: new Uint8Array(titleBuffer),
-    partsEncrypted: partsEncryptedArray.map(buffer => new Uint8Array(buffer)),
+    messagesEncrypted: messagesEncryptedArray.map(buffer => new Uint8Array(buffer)),
+    messagesIv: messagesIvArray.map(buffer => new Uint8Array(buffer)),
     createdAt: conversation.createdAt,
     updatedAt: conversation.updatedAt
   };
@@ -50,9 +53,10 @@ export const createConversation = async ({
   const db = getDb();
 
   // Convert Uint8Array to Buffer for database storage
-  const ivBuffer = Buffer.from(conversation.iv);
+  const titleIvBuffer = Buffer.from(conversation.titleIv);
   const titleBuffer = Buffer.from(conversation.titleEncrypted);
-  const partsEncryptedBuffers = conversation.partsEncrypted.map(arr => Buffer.from(arr));
+  const messagesEncryptedBuffers = conversation.messagesEncrypted.map(arr => Buffer.from(arr));
+  const messagesIvBuffers = conversation.messagesIv.map(arr => Buffer.from(arr));
 
   // Use server-side timestamps with specified timezone
   // PostgreSQL requires timezone to be a quoted string literal
@@ -63,9 +67,10 @@ export const createConversation = async ({
   const [inserted] = await db
     .insert(conversations)
     .values({
-      iv: ivBuffer,
+      titleIv: titleIvBuffer,
       titleEncrypted: titleBuffer,
-      partsEncrypted: partsEncryptedBuffers,
+      messagesEncrypted: messagesEncryptedBuffers,
+      messagesIv: messagesIvBuffers,
       createdAt: timestampExpr,
       updatedAt: timestampExpr
     })
