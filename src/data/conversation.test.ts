@@ -1,9 +1,12 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { setupDb } from '../db/db';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import { setDb } from '../db/db';
 import { setupEncryptionKey } from './encryption-key';
 import { createConversation, getConversation, type Message } from './conversation';
 import { getDb } from '../db/db';
 import { conversations } from '../db/schema';
+import * as schema from '../db/schema';
 
 describe('conversation', () => {
 	// Test database URL - adjust as needed for your local setup
@@ -22,9 +25,13 @@ describe('conversation', () => {
 		"kty": "oct"
 	}
 
+	let postgresClient: ReturnType<typeof postgres>;
+
 	beforeAll(async () => {
-		// Set up database connection
-		setupDb(testDatabaseUrl);
+		// Set up database connection using postgres.js for local testing
+		postgresClient = postgres(testDatabaseUrl);
+		const db = drizzle(postgresClient, { schema });
+		setDb(db);
 
 		// Set up encryption key
 		await setupEncryptionKey(testJwk);
@@ -34,6 +41,9 @@ describe('conversation', () => {
 		// Clean up: delete all test conversations
 		const db = getDb();
 		await db.delete(conversations);
+		
+		// Close the postgres connection
+		await postgresClient.end();
 	});
 
 	it('createConversation and getConversation', async () => {
