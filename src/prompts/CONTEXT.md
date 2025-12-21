@@ -9,7 +9,5 @@
 * Tech Stack
   * TypeScript
   * Bun.js
-  * Svelte 5
-* The app's UI is always in 'dark mode'
 * I don't like positional parameters. If there is more than one parameter, always take an object and deconstruct it.
 * Name `.ts` files with kebab-case names.
