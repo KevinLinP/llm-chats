@@ -26,13 +26,7 @@ export const messages = pgTable('messages', {
 	textEncrypted: bytea('textEncrypted'),
 	textIv: bytea('textIv'),
 	chunksEncrypted: bytea('chunksEncrypted'),
-	chunksIv: bytea('chunksIv'),
-	modelIdEncrypted: bytea('modelIdEncrypted'),
-	modelIdIv: bytea('modelIdIv'),
-	tokenUsageEncrypted: bytea('tokenUsageEncrypted'),
-	tokenUsageIv: bytea('tokenUsageIv'),
-	citationsEncrypted: bytea('citationsEncrypted'),
-	citationsIv: bytea('citationsIv')
+	chunksIv: bytea('chunksIv')
 }, (table) => ({
 	conversationIdIndexIdx: uniqueIndex('messages_conversationId_index_idx').on(table.conversationId, table.index)
 }));

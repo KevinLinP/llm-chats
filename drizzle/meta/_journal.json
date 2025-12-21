@@ -57,6 +57,13 @@
       "when": 1766353927706,
       "tag": "0007_lean_silver_fox",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1766354499391,
+      "tag": "0008_low_junta",
+      "breakpoints": true
     }
   ]
 }

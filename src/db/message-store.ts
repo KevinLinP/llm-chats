@@ -13,12 +13,6 @@ export type EncryptedMessage = {
 	textIv: Uint8Array | null;
 	chunksEncrypted: Uint8Array | null;
 	chunksIv: Uint8Array | null;
-	modelIdEncrypted: Uint8Array | null;
-	modelIdIv: Uint8Array | null;
-	tokenUsageEncrypted: Uint8Array | null;
-	tokenUsageIv: Uint8Array | null;
-	citationsEncrypted: Uint8Array | null;
-	citationsIv: Uint8Array | null;
 	createdAt: Date;
 	updatedAt: Date;
 };
@@ -43,12 +37,6 @@ export const listMessages = async ({ conversationId }: { conversationId: string 
 		textIv: toUint8ArrayOrNull(message.textIv),
 		chunksEncrypted: toUint8ArrayOrNull(message.chunksEncrypted),
 		chunksIv: toUint8ArrayOrNull(message.chunksIv),
-		modelIdEncrypted: toUint8ArrayOrNull(message.modelIdEncrypted),
-		modelIdIv: toUint8ArrayOrNull(message.modelIdIv),
-		tokenUsageEncrypted: toUint8ArrayOrNull(message.tokenUsageEncrypted),
-		tokenUsageIv: toUint8ArrayOrNull(message.tokenUsageIv),
-		citationsEncrypted: toUint8ArrayOrNull(message.citationsEncrypted),
-		citationsIv: toUint8ArrayOrNull(message.citationsIv),
 		createdAt: message.createdAt,
 		updatedAt: message.updatedAt
 	}));
@@ -69,12 +57,6 @@ export const insertMessage = async ({
 		textIv?: Uint8Array | null;
 		chunksEncrypted?: Uint8Array | null;
 		chunksIv?: Uint8Array | null;
-		modelIdEncrypted?: Uint8Array;
-		modelIdIv?: Uint8Array;
-		tokenUsageEncrypted?: Uint8Array;
-		tokenUsageIv?: Uint8Array;
-		citationsEncrypted?: Uint8Array;
-		citationsIv?: Uint8Array;
 	};
 	timezone: string;
 }): Promise<{ id: string; index: number }> => {
@@ -95,12 +77,6 @@ export const insertMessage = async ({
 			textIv: message.textIv ?? null,
 			chunksEncrypted: message.chunksEncrypted ?? null,
 			chunksIv: message.chunksIv ?? null,
-			modelIdEncrypted: message.modelIdEncrypted ?? null,
-			modelIdIv: message.modelIdIv ?? null,
-			tokenUsageEncrypted: message.tokenUsageEncrypted ?? null,
-			tokenUsageIv: message.tokenUsageIv ?? null,
-			citationsEncrypted: message.citationsEncrypted ?? null,
-			citationsIv: message.citationsIv ?? null,
 			createdAt: timestampExpr,
 			updatedAt: timestampExpr
 		})
