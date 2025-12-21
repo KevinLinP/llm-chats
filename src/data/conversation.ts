@@ -1,8 +1,8 @@
-import { getConversation as getEncryptedConversation, createConversation as createEncryptedConversation, type EncryptedConversation } from '../db/conversation-store';
+import { fetchEncryptedConversation, insertEncryptedConversation, type EncryptedConversation } from '../db/conversation-store';
 import { getEncryptionKey } from './encryption-key';
 
 export type Message = {
-	sender: string;
+	sender: 'system' | 'user' | 'agent';
 	text: string;
 	// Optional metadata following schema.org/Message patterns
 	modelId?: string; // LLM model identifier (e.g., "gpt-4", "claude-3-opus")
@@ -56,7 +56,7 @@ const encryptField = async ({ plaintext, encryptionKey }: { plaintext: string; e
 };
 
 export const getConversation = async ({id}: {id: string}): Promise<Conversation | null> => {
-  const encryptedConversation = await getEncryptedConversation(id);
+  const encryptedConversation = await fetchEncryptedConversation(id);
 
   if (!encryptedConversation) {
     return null;
@@ -109,7 +109,7 @@ export const createConversation = async ({
   ]);
 
   // create the encrypted conversation in the database
-  const { id } = await createEncryptedConversation({
+  const { id } = await insertEncryptedConversation({
     conversation: {
       titleIv: titleEncrypted.iv,
       titleEncrypted: titleEncrypted.encryptedData,

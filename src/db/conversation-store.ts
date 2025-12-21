@@ -12,7 +12,7 @@ export type EncryptedConversation = {
 	updatedAt: Date;
 };
 
-export const getConversation = async (id: string): Promise<EncryptedConversation | null> => {
+export const fetchEncryptedConversation = async (id: string): Promise<EncryptedConversation | null> => {
   const db = getDb();
 
   // fetch the conversation from the database
@@ -43,7 +43,7 @@ export const getConversation = async (id: string): Promise<EncryptedConversation
   };
 }
 
-export const createConversation = async ({
+export const insertEncryptedConversation = async ({
   conversation,
   timezone
 }: {
