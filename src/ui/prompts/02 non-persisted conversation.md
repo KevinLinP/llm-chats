@@ -49,3 +49,7 @@ agent: No, `.trim()` on a blank string returns an empty string `""`, not `null`.
 user: Yeah, go with the length check please
 
 agent: Updated the validation check to use explicit length checks (`.trim().length > 0`) instead of relying on truthiness, making the intent clearer and more explicit.
+
+User: Add form submit button
+
+agent: Added a submit button to the form, positioned below the user message textarea. The button uses dark mode styling with a blue background that matches the focus ring color, includes hover and focus states, and will trigger the form submission when clicked.

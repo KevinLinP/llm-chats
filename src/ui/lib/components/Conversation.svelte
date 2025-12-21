@@ -7,6 +7,8 @@
 
 	const handleSubmit = async (event: SubmitEvent) => {
 		event.preventDefault();
+
+		console.log('handleSubmit', title, systemMessageText, userMessageText);
 		
 		if (title.trim().length > 0 && systemMessageText.trim().length > 0 && userMessageText.trim().length > 0) {
 			const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -69,6 +71,12 @@
 					rows="3"
 					class="w-full px-4 py-2 bg-gray-800 text-gray-100 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
 				></textarea>
+				<button
+					type="submit"
+					class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium transition-colors"
+				>
+					Submit
+				</button>
 			</div>
 		</form>
 	</div>

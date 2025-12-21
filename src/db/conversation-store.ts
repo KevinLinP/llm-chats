@@ -26,18 +26,26 @@ export const fetchEncryptedConversation = async (id: string): Promise<EncryptedC
     return null;
   }
 
-  // Convert Buffer to Uint8Array (postgres-js returns bytea as Buffer)
-  const titleIvBuffer = conversation.titleIv as unknown as ArrayBuffer;
-  const titleBuffer = conversation.titleEncrypted as unknown as ArrayBuffer;
-  const messagesEncryptedArray = conversation.messagesEncrypted as unknown as ArrayBuffer[];
-  const messagesIvArray = conversation.messagesIv as unknown as ArrayBuffer[];
+  // Convert to Uint8Array (Neon HTTP driver may return ArrayBuffer or Uint8Array)
+  const titleIv = conversation.titleIv instanceof Uint8Array 
+    ? conversation.titleIv 
+    : new Uint8Array(conversation.titleIv as ArrayBuffer);
+  const titleEncrypted = conversation.titleEncrypted instanceof Uint8Array
+    ? conversation.titleEncrypted
+    : new Uint8Array(conversation.titleEncrypted as ArrayBuffer);
+  const messagesEncrypted = conversation.messagesEncrypted.map(item =>
+    item instanceof Uint8Array ? item : new Uint8Array(item as ArrayBuffer)
+  );
+  const messagesIv = conversation.messagesIv.map(item =>
+    item instanceof Uint8Array ? item : new Uint8Array(item as ArrayBuffer)
+  );
   
   return {
     id: conversation.id,
-    titleIv: new Uint8Array(titleIvBuffer),
-    titleEncrypted: new Uint8Array(titleBuffer),
-    messagesEncrypted: messagesEncryptedArray.map(buffer => new Uint8Array(buffer)),
-    messagesIv: messagesIvArray.map(buffer => new Uint8Array(buffer)),
+    titleIv,
+    titleEncrypted,
+    messagesEncrypted,
+    messagesIv,
     createdAt: conversation.createdAt,
     updatedAt: conversation.updatedAt
   };
@@ -52,12 +60,6 @@ export const insertEncryptedConversation = async ({
 }): Promise<{id: string}> => {
   const db = getDb();
 
-  // Convert Uint8Array to Buffer for database storage
-  const titleIvBuffer = Buffer.from(conversation.titleIv);
-  const titleBuffer = Buffer.from(conversation.titleEncrypted);
-  const messagesEncryptedBuffers = conversation.messagesEncrypted.map(arr => Buffer.from(arr));
-  const messagesIvBuffers = conversation.messagesIv.map(arr => Buffer.from(arr));
-
   // Use server-side timestamps with specified timezone
   // PostgreSQL requires timezone to be a quoted string literal
   // Note: timezone should be a valid PostgreSQL timezone name (e.g., 'UTC', 'America/New_York')
@@ -67,20 +69,21 @@ export const insertEncryptedConversation = async ({
 
   // Convert bytea arrays to PostgreSQL array format using sql template
   // PostgreSQL bytea arrays need to be cast properly
+  // Uint8Array works directly with Neon HTTP driver
   const messagesEncryptedArray = sql`ARRAY[${sql.join(
-    messagesEncryptedBuffers.map(buf => sql`${buf}::bytea`),
+    conversation.messagesEncrypted.map(arr => sql`${arr}::bytea`),
     sql`, `
   )}]::bytea[]`;
   const messagesIvArray = sql`ARRAY[${sql.join(
-    messagesIvBuffers.map(buf => sql`${buf}::bytea`),
+    conversation.messagesIv.map(arr => sql`${arr}::bytea`),
     sql`, `
   )}]::bytea[]`;
 
   const [inserted] = await db
     .insert(conversations)
     .values({
-      titleIv: titleIvBuffer,
-      titleEncrypted: titleBuffer,
+      titleIv: conversation.titleIv,
+      titleEncrypted: conversation.titleEncrypted,
       messagesEncrypted: messagesEncryptedArray,
       messagesIv: messagesIvArray,
       createdAt: timestampExpr,

@@ -1,9 +1,7 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/neon-http';
 import * as schema from './schema';
 
-// Cache for single postgres client and drizzle instance
-let cachedClient: postgres.Sql | null = null;
+// Cache for single drizzle instance
 let cachedDb: ReturnType<typeof drizzle> | null = null;
 let cachedDatabaseUrl: string | null = null;
 
@@ -20,9 +18,8 @@ export const setupDb = (databaseUrl: string) => {
 		return cachedDb;
 	}
 
-	// Create new postgres client and drizzle instance
-	cachedClient = postgres(databaseUrl);
-	cachedDb = drizzle(cachedClient, { schema });
+	// Create new drizzle instance
+	cachedDb = drizzle(databaseUrl, { schema });
 	cachedDatabaseUrl = databaseUrl;
 
 	return cachedDb;
