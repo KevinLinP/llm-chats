@@ -43,6 +43,13 @@
       "when": 1766340883442,
       "tag": "0005_unique_leper_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1766349819344,
+      "tag": "0006_fearless_spacker_dave",
+      "breakpoints": true
     }
   ]
 }

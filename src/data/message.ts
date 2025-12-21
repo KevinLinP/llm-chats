@@ -12,6 +12,7 @@ export type Message = {
 		reasoning?: number; // Reasoning tokens (if applicable, e.g., o1 models)
 		output?: number; // Output/generated tokens
 	};
+	citations?: Record<string, string>; // Maps citation numbers to URLs (e.g., { "1": "https://...", "2": "https://..." })
 };
 
 export type MessageWithMetadata = Message & {
@@ -31,7 +32,7 @@ export const listMessages = async ({ conversationId }: { conversationId: string 
 	// decrypt each message field
 	const messages = await Promise.all(
 		encryptedMessages.map(async (encryptedMessage) => {
-			const [sender, text, modelId, tokenUsage] = await Promise.all([
+			const [sender, text, modelId, tokenUsage, citations] = await Promise.all([
 				decryptField({
 					encryptedData: encryptedMessage.senderEncrypted,
 					iv: encryptedMessage.senderIv as BufferSource,
@@ -55,6 +56,13 @@ export const listMessages = async ({ conversationId }: { conversationId: string 
 							iv: encryptedMessage.tokenUsageIv as BufferSource,
 							encryptionKey
 						}).then(str => JSON.parse(str))
+					: Promise.resolve(undefined),
+				encryptedMessage.citationsEncrypted && encryptedMessage.citationsIv
+					? decryptField({
+							encryptedData: encryptedMessage.citationsEncrypted,
+							iv: encryptedMessage.citationsIv as BufferSource,
+							encryptionKey
+						}).then(str => JSON.parse(str))
 					: Promise.resolve(undefined)
 			]);
 
@@ -66,6 +74,7 @@ export const listMessages = async ({ conversationId }: { conversationId: string 
 				text,
 				...(modelId && { modelId }),
 				...(tokenUsage && { tokenUsage }),
+				...(citations && { citations }),
 				createdAt: encryptedMessage.createdAt,
 				updatedAt: encryptedMessage.updatedAt
 			};
@@ -90,7 +99,7 @@ export const insertMessage = async ({
 	const encryptionKey = getEncryptionKey();
 
 	// encrypt all message fields
-	const [senderEncrypted, textEncrypted, modelIdEncrypted, tokenUsageEncrypted] = await Promise.all([
+	const [senderEncrypted, textEncrypted, modelIdEncrypted, tokenUsageEncrypted, citationsEncrypted] = await Promise.all([
 		encryptField({ plaintext: message.sender, encryptionKey }),
 		encryptField({ plaintext: message.text, encryptionKey }),
 		message.modelId
@@ -98,6 +107,9 @@ export const insertMessage = async ({
 			: Promise.resolve(null),
 		message.tokenUsage
 			? encryptField({ plaintext: JSON.stringify(message.tokenUsage), encryptionKey })
+			: Promise.resolve(null),
+		message.citations
+			? encryptField({ plaintext: JSON.stringify(message.citations), encryptionKey })
 			: Promise.resolve(null)
 	]);
 
@@ -117,6 +129,10 @@ export const insertMessage = async ({
 			...(tokenUsageEncrypted && {
 				tokenUsageEncrypted: tokenUsageEncrypted.encryptedData,
 				tokenUsageIv: tokenUsageEncrypted.iv
+			}),
+			...(citationsEncrypted && {
+				citationsEncrypted: citationsEncrypted.encryptedData,
+				citationsIv: citationsEncrypted.iv
 			})
 		},
 		timezone

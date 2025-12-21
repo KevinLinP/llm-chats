@@ -1,6 +1,7 @@
 import { getOpenRouter } from './open-router';
 import { listMessages, insertMessage } from './message';
 import { toOpenAIMessages } from './messages';
+import type { ChatCompletionChunk } from 'openai/resources/chat/completions';
 
 export const sendMessage = async ({
 	conversationId,
@@ -37,10 +38,24 @@ export const sendMessage = async ({
 	let streamingText = '';
 	let modelIdFromStream: string | undefined;
 	let tokenUsage: { input?: number; reasoning?: number; output?: number } | undefined;
+	let citations: Record<string, string> | undefined;
+	let firstChunk: ChatCompletionChunk | null = null;
 
 	for await (const chunk of completion) {
 		const choice = chunk.choices[0];
 		if (!choice) continue;
+
+		// Track first chunk for citations extraction
+		if (!firstChunk) {
+			firstChunk = chunk;
+			// Extract citations from first chunk (Perplexity Sonar models)
+			if ((chunk as any).citations && Array.isArray((chunk as any).citations)) {
+				citations = (chunk as any).citations.reduce((acc: Record<string, string>, url: string, index: number) => {
+					acc[(index + 1).toString()] = url;
+					return acc;
+				}, {});
+			}
+		}
 
 		// Extract model ID from first chunk if available
 		if (chunk.model && !modelIdFromStream) {
@@ -76,7 +91,8 @@ export const sendMessage = async ({
 			sender: 'assistant',
 			text: streamingText,
 			...(modelIdFromStream && { modelId: modelIdFromStream }),
-			...(tokenUsage && { tokenUsage })
+			...(tokenUsage && { tokenUsage }),
+			...(citations && { citations })
 		},
 		timezone
 	});
