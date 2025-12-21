@@ -1,28 +1,76 @@
 <script lang="ts">
-	// TODO: Load current conversation messages
-	// For now, using placeholder
-	let messages = $state([
-		{ id: '1', role: 'user', content: 'Hello, how are you?' },
-		{ id: '2', role: 'assistant', content: 'I am doing well, thank you!' },
-	]);
+	import { createConversation } from '../../../data/conversation';
+
+	let title = $state('');
+	let systemMessageText = $state('');
+	let userMessageText = $state('');
+
+	const handleSubmit = async (event: SubmitEvent) => {
+		event.preventDefault();
+		
+		if (title.trim().length > 0 && systemMessageText.trim().length > 0 && userMessageText.trim().length > 0) {
+			const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+			
+			await createConversation({
+				title: title.trim(),
+				systemMessage: {
+					sender: 'system',
+					text: systemMessageText.trim()
+				},
+				userMessage: {
+					sender: 'user',
+					text: userMessageText.trim()
+				},
+				timezone
+			});
+		}
+	};
 </script>
 
-<main class="flex-1 overflow-y-auto h-full bg-gray-950">
-	<div class="max-w-4xl mx-auto p-6">
-		<div class="space-y-4">
-			{#each messages as message (message.id)}
-				<div
-					class="rounded-lg p-4 {message.role === 'user'
-						? 'bg-blue-900 ml-auto max-w-[80%]'
-						: 'bg-gray-800 mr-auto max-w-[80%]'}"
-				>
-					<div class="text-sm font-medium mb-1 text-gray-200">
-						{message.role === 'user' ? 'You' : 'Assistant'}
-					</div>
-					<div class="text-gray-100">{message.content}</div>
+<main class="flex-1 overflow-y-auto h-full bg-gray-950 flex flex-col">
+	<div class="max-w-4xl mx-auto p-6 flex-1 flex flex-col">
+		<form onsubmit={handleSubmit} class="flex-1 flex flex-col">
+			<div class="space-y-4 mb-6">
+				<div>
+					<label for="title" class="block text-sm font-medium text-gray-300 mb-2">
+						Title
+					</label>
+					<input
+						id="title"
+						type="text"
+						bind:value={title}
+						placeholder="Enter conversation title"
+						class="w-full px-4 py-2 bg-gray-800 text-gray-100 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+					/>
 				</div>
-			{/each}
-		</div>
+				
+				<div>
+					<label for="systemMessage" class="block text-sm font-medium text-gray-300 mb-2">
+						System Message
+					</label>
+					<textarea
+						id="systemMessage"
+						bind:value={systemMessageText}
+						placeholder="Enter system message"
+						rows="3"
+						class="w-full px-4 py-2 bg-gray-800 text-gray-100 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+					></textarea>
+				</div>
+			</div>
+
+			<div class="mt-auto pt-6">
+				<label for="userMessage" class="block text-sm font-medium text-gray-300 mb-2">
+					User Message
+				</label>
+				<textarea
+					id="userMessage"
+					bind:value={userMessageText}
+					placeholder="Enter your message"
+					rows="3"
+					class="w-full px-4 py-2 bg-gray-800 text-gray-100 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+				></textarea>
+			</div>
+		</form>
 	</div>
 </main>
 
