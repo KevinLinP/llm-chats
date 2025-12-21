@@ -1,0 +1,222 @@
+{
+  "id": "cecde87a-1e1b-4439-b619-230ea29fbb10",
+  "prevId": "dcaaf82c-f958-417c-acf1-b52f613c816a",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.conversations": {
+      "name": "conversations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "titleIv": {
+          "name": "titleIv",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titleEncrypted": {
+          "name": "titleEncrypted",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "conversations_createdAt_idx": {
+          "name": "conversations_createdAt_idx",
+          "columns": [
+            {
+              "expression": "createdAt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "conversations_updatedAt_idx": {
+          "name": "conversations_updatedAt_idx",
+          "columns": [
+            {
+              "expression": "updatedAt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.messages": {
+      "name": "messages",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "conversationId": {
+          "name": "conversationId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "index": {
+          "name": "index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "senderEncrypted": {
+          "name": "senderEncrypted",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "senderIv": {
+          "name": "senderIv",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "textEncrypted": {
+          "name": "textEncrypted",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "textIv": {
+          "name": "textIv",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "modelIdEncrypted": {
+          "name": "modelIdEncrypted",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "modelIdIv": {
+          "name": "modelIdIv",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tokenUsageEncrypted": {
+          "name": "tokenUsageEncrypted",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tokenUsageIv": {
+          "name": "tokenUsageIv",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "messages_conversationId_index_idx": {
+          "name": "messages_conversationId_index_idx",
+          "columns": [
+            {
+              "expression": "conversationId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "index",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "messages_conversationId_conversations_id_fk": {
+          "name": "messages_conversationId_conversations_id_fk",
+          "tableFrom": "messages",
+          "tableTo": "conversations",
+          "columnsFrom": [
+            "conversationId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
