@@ -55,5 +55,3 @@ Uncaught (in promise) ReferenceError: Buffer is not defined
 agent: Fixed the browser error by removing the unused `drizzlePostgres` import from `db.ts`. The issue was that importing `drizzle-orm/postgres-js` at the top level caused Vite to bundle `postgres.js` for the browser, which uses Node.js-specific APIs like `Buffer` that don't exist in the browser.
 
 Since `drizzlePostgres` was never actually used in `db.ts` (only `drizzleNeon` is used for production), and the test file already imports `drizzle` from `drizzle-orm/postgres-js` directly, removing the unused import prevents `postgres.js` from being bundled for the browser while keeping the test functionality intact.
-
-user: Try putting back the Database union type

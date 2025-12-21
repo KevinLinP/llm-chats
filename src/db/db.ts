@@ -1,5 +1,4 @@
-import { drizzle as drizzleNeon } from 'drizzle-orm/neon-http';
-import { drizzle as drizzlePostgres } from 'drizzle-orm/postgres-js';
+import { drizzle } from 'drizzle-orm/neon-http';
 import * as schema from './schema';
 
 // Cache for single drizzle instance
@@ -20,7 +19,7 @@ export const setupDb = (databaseUrl: string) => {
 	}
 
 	// Create new drizzle instance (using neon-http for production)
-	cachedDb = drizzleNeon(databaseUrl, { schema });
+	cachedDb = drizzle(databaseUrl, { schema });
 	cachedDatabaseUrl = databaseUrl;
 
 	return cachedDb;
