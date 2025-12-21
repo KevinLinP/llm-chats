@@ -13,7 +13,7 @@
 			<h2 class="text-lg font-semibold text-gray-100">Conversations</h2>
 			<a
 				href="/"
-				class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium transition-colors"
+				class="px-3 py-1.5 text-sm border border-gray-600 text-gray-300 rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 font-medium transition-colors"
 			>
 				New
 			</a>

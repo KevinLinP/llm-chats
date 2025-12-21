@@ -279,7 +279,7 @@
 					<div class="text-red-400">{conversationError || messagesError}</div>
 				</div>
 			{:else if conversation}
-				<div class="flex-1 flex flex-col">
+				<div class="flex-1 flex flex-col w-full">
 					<div class="mb-6 flex items-center gap-4">
 						{#if isEditingTitle}
 							<input
@@ -317,7 +317,7 @@
 							type="button"
 							onclick={handleDelete}
 							disabled={deletingConversation}
-							class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+							class="px-4 py-2 text-gray-400 rounded-lg hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 							title="Delete conversation"
 						>
 							Delete
