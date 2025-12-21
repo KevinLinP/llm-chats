@@ -53,6 +53,7 @@
 	},
 	"dependencies": {
 		"@neondatabase/serverless": "^1.0.2",
+		"openai": "^4.24.1",
 		"postgres": "^3.4.7"
 	}
 }

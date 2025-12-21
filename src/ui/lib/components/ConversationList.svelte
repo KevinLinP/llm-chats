@@ -3,7 +3,7 @@
 	import { conversationStore } from '../stores/conversation.svelte';
 
 	onMount(() => {
-		conversationStore.loadSummaries();
+		conversationStore.loadConversations();
 	});
 </script>
 
@@ -21,7 +21,7 @@
 					</div>
 				{/each}
 			{:else}
-				{#each conversationStore.summaries as conversation (conversation.id)}
+				{#each conversationStore.conversations as conversation (conversation.id)}
 					<a
 						href="/{conversation.id}"
 						class="block px-3 py-2 rounded-md text-sm hover:bg-gray-800 transition-colors"

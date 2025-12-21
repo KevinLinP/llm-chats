@@ -1,20 +1,20 @@
-import { listConversations, type ConversationSummary } from '../../../data/conversation';
+import { listConversations, getConversation as fetchConversation, type Conversation } from '../../../data/conversation';
 
 type ConversationStore = {
-	summaries: ConversationSummary[];
+	conversations: Conversation[];
 	loading: boolean;
 	error: string | null;
 };
 
 const store = $state<ConversationStore>({
-	summaries: [],
+	conversations: [],
 	loading: false,
 	error: null
 });
 
 export const conversationStore = {
-	get summaries() {
-		return store.summaries;
+	get conversations() {
+		return store.conversations;
 	},
 	
 	get loading() {
@@ -25,11 +25,7 @@ export const conversationStore = {
 		return store.error;
 	},
 	
-	getSummary(id: string): ConversationSummary | undefined {
-		return store.summaries.find(c => c.id === id);
-	},
-	
-	async loadSummaries() {
+	async loadConversations() {
 		store.loading = true;
 		store.error = null;
 		
@@ -44,7 +40,7 @@ export const conversationStore = {
 			await new Promise((resolve) => setTimeout(resolve, 0));
 
 			const result = await listConversations();
-			store.summaries = result;
+			store.conversations = result;
 		} catch (error) {
 			console.error('Failed to load conversations:', error);
 			store.error = error instanceof Error ? error.message : 'Failed to load conversations';
@@ -53,16 +49,49 @@ export const conversationStore = {
 		}
 	},
 	
-	// Update a conversation summary (e.g., after creating a new conversation)
-	updateSummary(summary: ConversationSummary) {
-		const index = store.summaries.findIndex(c => c.id === summary.id);
+	// Get a conversation by ID, checking store first, then fetching if not found
+	async getConversation(id: string): Promise<Conversation | null> {
+		// First check if it's already in the store
+		const existing = store.conversations.find(c => c.id === id);
+		if (existing) {
+			return existing;
+		}
+
+		// If not in store, fetch it from the database
+		// This handles cases where the conversation isn't in the limited loadConversations() result
+		try {
+			const databaseUrl = localStorage.getItem('databaseUrl');
+			if (!databaseUrl) {
+				return null;
+			}
+
+			// Wait one tick to ensure setupDb in +layout.svelte's onMount has run
+			await new Promise((resolve) => setTimeout(resolve, 0));
+
+			const conversation = await fetchConversation({ id });
+			
+			// If found, add it to the store for future lookups
+			if (conversation) {
+				this.updateConversation(conversation);
+			}
+			
+			return conversation;
+		} catch (error) {
+			console.error('Failed to get conversation:', error);
+			return null;
+		}
+	},
+	
+	// Update a conversation (e.g., after creating a new conversation)
+	updateConversation(conversation: Conversation) {
+		const index = store.conversations.findIndex(c => c.id === conversation.id);
 		if (index >= 0) {
-			store.summaries[index] = summary;
+			store.conversations[index] = conversation;
 		} else {
-			store.summaries.unshift(summary);
+			store.conversations.unshift(conversation);
 		}
 		// Sort by updatedAt descending
-		store.summaries.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+		store.conversations.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 	}
 };
 

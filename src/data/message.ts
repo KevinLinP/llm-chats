@@ -3,7 +3,7 @@ import { getEncryptionKey } from './encryption-key';
 import { decryptField, encryptField } from './crypto';
 
 export type Message = {
-	sender: 'system' | 'user' | 'agent';
+	sender: 'system' | 'user' | 'assistant';
 	text: string;
 	// Optional metadata following schema.org/Message patterns
 	modelId?: string; // LLM model identifier (e.g., "gpt-4", "claude-3-opus")
@@ -62,7 +62,7 @@ export const listMessages = async ({ conversationId }: { conversationId: string 
 				id: encryptedMessage.id,
 				conversationId: encryptedMessage.conversationId,
 				index: encryptedMessage.index,
-				sender: sender as 'system' | 'user' | 'agent',
+				sender: sender as 'system' | 'user' | 'assistant',
 				text,
 				...(modelId && { modelId }),
 				...(tokenUsage && { tokenUsage }),

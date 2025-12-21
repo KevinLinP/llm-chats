@@ -9,13 +9,6 @@ export type Conversation = {
 	updatedAt: Date;
 };
 
-export type ConversationSummary = {
-	id: string;
-	title: string;
-	createdAt: Date;
-	updatedAt: Date;
-};
-
 export const getConversation = async ({id}: {id: string}): Promise<Conversation | null> => {
   const encryptedConversation = await fetchEncryptedConversation(id);
 
@@ -67,7 +60,7 @@ export const createConversation = async ({
   return { id };
 }
 
-export const listConversations = async (): Promise<ConversationSummary[]> => {
+export const listConversations = async (): Promise<Conversation[]> => {
   const encryptedConversations = await listEncryptedConversations();
 
   // get the cached encryption key
