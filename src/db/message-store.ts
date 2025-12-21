@@ -1,6 +1,7 @@
 import { messages } from './schema';
 import { eq, sql } from 'drizzle-orm';
 import { getDb } from './db';
+import { toUint8Array, toUint8ArrayOrNull } from './buffer-utils';
 
 export type EncryptedMessage = {
 	id: string;
@@ -32,38 +33,14 @@ export const listMessages = async ({ conversationId }: { conversationId: string 
 		id: message.id,
 		conversationId: message.conversationId,
 		index: message.index,
-		senderEncrypted: message.senderEncrypted instanceof Uint8Array
-			? message.senderEncrypted
-			: new Uint8Array(message.senderEncrypted as ArrayBuffer),
-		senderIv: message.senderIv instanceof Uint8Array
-			? message.senderIv
-			: new Uint8Array(message.senderIv as ArrayBuffer),
-		textEncrypted: message.textEncrypted instanceof Uint8Array
-			? message.textEncrypted
-			: new Uint8Array(message.textEncrypted as ArrayBuffer),
-		textIv: message.textIv instanceof Uint8Array
-			? message.textIv
-			: new Uint8Array(message.textIv as ArrayBuffer),
-		modelIdEncrypted: message.modelIdEncrypted
-			? (message.modelIdEncrypted instanceof Uint8Array
-				? message.modelIdEncrypted
-				: new Uint8Array(message.modelIdEncrypted as ArrayBuffer))
-			: null,
-		modelIdIv: message.modelIdIv
-			? (message.modelIdIv instanceof Uint8Array
-				? message.modelIdIv
-				: new Uint8Array(message.modelIdIv as ArrayBuffer))
-			: null,
-		tokenUsageEncrypted: message.tokenUsageEncrypted
-			? (message.tokenUsageEncrypted instanceof Uint8Array
-				? message.tokenUsageEncrypted
-				: new Uint8Array(message.tokenUsageEncrypted as ArrayBuffer))
-			: null,
-		tokenUsageIv: message.tokenUsageIv
-			? (message.tokenUsageIv instanceof Uint8Array
-				? message.tokenUsageIv
-				: new Uint8Array(message.tokenUsageIv as ArrayBuffer))
-			: null,
+		senderEncrypted: toUint8Array(message.senderEncrypted),
+		senderIv: toUint8Array(message.senderIv),
+		textEncrypted: toUint8Array(message.textEncrypted),
+		textIv: toUint8Array(message.textIv),
+		modelIdEncrypted: toUint8ArrayOrNull(message.modelIdEncrypted),
+		modelIdIv: toUint8ArrayOrNull(message.modelIdIv),
+		tokenUsageEncrypted: toUint8ArrayOrNull(message.tokenUsageEncrypted),
+		tokenUsageIv: toUint8ArrayOrNull(message.tokenUsageIv),
 		createdAt: message.createdAt,
 		updatedAt: message.updatedAt
 	}));

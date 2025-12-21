@@ -1,6 +1,7 @@
 import { conversations } from './schema';
 import { eq, sql, desc } from 'drizzle-orm';
 import { getDb } from './db';
+import { toUint8Array } from './buffer-utils';
 
 export type EncryptedConversation = {
 	id: string;
@@ -25,12 +26,8 @@ export const fetchEncryptedConversation = async (id: string): Promise<EncryptedC
   }
 
   // Convert to Uint8Array (Neon HTTP driver may return ArrayBuffer or Uint8Array)
-  const titleIv = conversation.titleIv instanceof Uint8Array 
-    ? conversation.titleIv 
-    : new Uint8Array(conversation.titleIv as ArrayBuffer);
-  const titleEncrypted = conversation.titleEncrypted instanceof Uint8Array
-    ? conversation.titleEncrypted
-    : new Uint8Array(conversation.titleEncrypted as ArrayBuffer);
+  const titleIv = toUint8Array(conversation.titleIv);
+  const titleEncrypted = toUint8Array(conversation.titleEncrypted);
   
   return {
     id: conversation.id,
@@ -90,12 +87,8 @@ export const listEncryptedConversations = async (): Promise<EncryptedConversatio
   // Convert to Uint8Array (Neon HTTP driver may return ArrayBuffer or Uint8Array)
   return results.map((conversation: typeof results[0]) => ({
     id: conversation.id,
-    titleIv: conversation.titleIv instanceof Uint8Array 
-      ? conversation.titleIv 
-      : new Uint8Array(conversation.titleIv as ArrayBuffer),
-    titleEncrypted: conversation.titleEncrypted instanceof Uint8Array
-      ? conversation.titleEncrypted
-      : new Uint8Array(conversation.titleEncrypted as ArrayBuffer),
+    titleIv: toUint8Array(conversation.titleIv),
+    titleEncrypted: toUint8Array(conversation.titleEncrypted),
     createdAt: conversation.createdAt,
     updatedAt: conversation.updatedAt
   }));
