@@ -126,7 +126,7 @@
 </script>
 
 <main class="flex-1 overflow-y-auto h-full bg-gray-950 flex flex-col">
-	<div class="max-w-4xl mx-auto p-6 flex-1 flex flex-col">
+	<div class="max-w-4xl mx-auto p-6 flex-1 flex flex-col w-full">
 		{#if id}
 			{#if loader.conversationError || loader.messagesError}
 				<div class="flex-1 flex items-center justify-center">
