@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { modelGroups, defaultModelId } from '../../../data/open-router';
+	import ConversationSystemMessage from './ConversationSystemMessage.svelte';
 
 	let { onSubmit }: { onSubmit: (title: string, systemMessage: string, userMessage: string, modelId: string) => Promise<void> } = $props();
 
@@ -20,6 +21,17 @@
 <form onsubmit={handleSubmit} class="flex-1 flex flex-col w-full">
 	<div class="space-y-4 mb-6">
 		<div>
+			<ConversationSystemMessage
+				systemMessage={systemMessageText}
+				onUpdate={(newSystemMessage) => {
+					systemMessageText = newSystemMessage;
+				}}
+			/>
+		</div>
+	</div>
+
+	<div class="mt-auto pt-6 space-y-4">
+		<div>
 			<label for="title" class="block text-sm font-medium text-gray-300 mb-2">
 				Title
 			</label>
@@ -33,21 +45,6 @@
 		</div>
 
 		<div>
-			<label for="systemMessage" class="block text-sm font-medium text-gray-300 mb-2">
-				System Message
-			</label>
-			<textarea
-				id="systemMessage"
-				bind:value={systemMessageText}
-				placeholder="Enter system message"
-				rows="3"
-				class="w-full px-4 py-2 bg-gray-800 text-gray-100 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-			></textarea>
-		</div>
-	</div>
-
-	<div class="mt-auto pt-6 space-y-4">
-		<div>
 			<label for="userMessage" class="block text-sm font-medium text-gray-300 mb-2">
 				User Message
 			</label>
@@ -60,31 +57,33 @@
 			></textarea>
 		</div>
 
-		<div>
-			<label for="model-select" class="block text-sm font-medium text-gray-300 mb-2">
-				Model
-			</label>
-			<select
-				id="model-select"
-				bind:value={selectedModelId}
-				class="w-full px-4 py-2 bg-gray-800 text-gray-100 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-			>
-				{#each modelGroups as { name: groupName, models }}
-					<optgroup label={groupName}>
-						{#each models as { id, name }}
-							<option value={id}>{groupName} {name}</option>
-						{/each}
-					</optgroup>
-				{/each}
-			</select>
-		</div>
+		<div class="flex items-end gap-4">
+			<div class="flex-1">
+				<label for="model-select" class="block text-sm font-medium text-gray-300 mb-2">
+					Model
+				</label>
+				<select
+					id="model-select"
+					bind:value={selectedModelId}
+					class="w-full px-4 py-2 bg-gray-800 text-gray-100 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+				>
+					{#each modelGroups as { name: groupName, models }}
+						<optgroup label={groupName}>
+							{#each models as { id, name }}
+								<option value={id}>{groupName} {name}</option>
+							{/each}
+						</optgroup>
+					{/each}
+				</select>
+			</div>
 
-		<button
-			type="submit"
-			class="w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium transition-colors"
-		>
-			Submit
-		</button>
+			<button
+				type="submit"
+				class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium transition-colors"
+			>
+				Send
+			</button>
+		</div>
 	</div>
 </form>
 

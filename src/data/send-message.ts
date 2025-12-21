@@ -40,10 +40,13 @@ export const sendMessage = async ({
 	let tokenUsage: { input?: number; reasoning?: number; output?: number } | undefined;
 	let citations: Record<string, string> | undefined;
 	let firstChunk: ChatCompletionChunk | null = null;
+  const chunks: ChatCompletionChunk[] = [];
 
 	for await (const chunk of completion) {
 		const choice = chunk.choices[0];
 		if (!choice) continue;
+
+		chunks.push(chunk);
 
 		// Track first chunk for citations extraction
 		if (!firstChunk) {
