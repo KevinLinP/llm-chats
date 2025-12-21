@@ -16,6 +16,16 @@
 			await onSubmit(title.trim(), systemMessageText.trim(), userMessageText.trim(), selectedModelId);
 		}
 	};
+
+	const handleKeyDown = (event: KeyboardEvent) => {
+		if (event.key === 'Enter' && !event.shiftKey) {
+			event.preventDefault();
+			const form = (event.target as HTMLElement).closest('form');
+			if (form) {
+				form.requestSubmit();
+			}
+		}
+	};
 </script>
 
 <form onsubmit={handleSubmit} class="flex-1 flex flex-col w-full">
@@ -53,6 +63,7 @@
 				bind:value={userMessageText}
 				placeholder="Enter your message"
 				rows="3"
+				onkeydown={handleKeyDown}
 				class="w-full px-4 py-2 bg-gray-800 text-gray-100 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
 			></textarea>
 		</div>

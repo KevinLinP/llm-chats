@@ -70,6 +70,9 @@
 			})
 		]);
 
+		// Refresh the conversation list to show the new conversation
+		await conversationStore.loadConversations();
+
 		// Navigate to the new conversation using SvelteKit navigation (no full page reload)
 		await goto(`/${conversationId}`, { noScroll: true });
 	};

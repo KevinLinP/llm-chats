@@ -45,7 +45,6 @@ export const sendMessage = async ({
 	for await (const chunk of completion) {
 		const choice = chunk.choices[0];
 		if (!choice) continue;
-
 		chunks.push(chunk);
 
 		// Track first chunk for citations extraction

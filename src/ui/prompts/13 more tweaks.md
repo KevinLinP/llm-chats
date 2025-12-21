@@ -59,3 +59,18 @@ MessageCard: text-gray-600 seems to have no effect. Skip the MarkdownRenderer fo
 agent:
 
 Updated `MessageCard.svelte` to skip `MarkdownRenderer` for system and user messages, rendering them as plain text instead. This allows the `text-gray-600` color to properly apply to system messages. The `MarkdownRenderer` is still used for assistant messages (which may contain markdown formatting and citations).
+
+user: Add an enter-key handler to the non-persisted Conversation user message input.
+
+agent:
+
+Added an enter-key handler to the user message textarea in `ConversationForm.svelte`. The handler:
+- Submits the form when Enter is pressed (without Shift)
+- Allows Shift+Enter for new lines
+- Matches the behavior of the persisted conversation's `MessageInput.svelte` component
+
+The `handleKeyDown` function prevents the default Enter behavior and triggers form submission via `form.requestSubmit()`.
+
+user: After a conversation is created, refresh the ConversationList list.
+
+agent: Updated `handleFormSubmit` in `Conversation.svelte` to call `conversationStore.loadConversations()` after creating a conversation and inserting messages, but before navigating to the new conversation. This ensures the conversation list is refreshed and displays the newly created conversation.
