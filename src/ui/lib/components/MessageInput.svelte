@@ -4,15 +4,24 @@
 	let {
 		conversationId,
 		onSend,
-		streaming
+		streaming,
+		defaultModelId: propDefaultModelId
 	}: {
 		conversationId: string;
 		onSend: (userMessage: string, modelId: string) => Promise<void>;
 		streaming: boolean;
+		defaultModelId?: string;
 	} = $props();
 
 	let userMessage = $state('');
-	let selectedModelId = $state(defaultModelId);
+	let selectedModelId = $state(propDefaultModelId || defaultModelId);
+
+	// Update selectedModelId when propDefaultModelId changes
+	$effect(() => {
+		if (propDefaultModelId) {
+			selectedModelId = propDefaultModelId;
+		}
+	});
 
 	const handleSubmit = async (event: SubmitEvent) => {
 		event.preventDefault();

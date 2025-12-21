@@ -19,7 +19,8 @@
 	const loader = useConversationLoader({
 		getId: () => id,
 		onAutoTrigger: async (userMessage: string, modelId: string) => {
-			await messageSender.triggerAgentResponse(userMessage, modelId);
+			// Messages should already be loaded in the loader at this point
+			await messageSender.triggerAgentResponse(userMessage, modelId, loader.messages);
 		}
 	});
 
@@ -160,6 +161,13 @@
 							conversationId={id}
 							onSend={handleSendMessage}
 							streaming={messageSender.isStreaming}
+							defaultModelId={(() => {
+								// Find the last assistant message and use its modelId
+								const lastAssistantMessage = [...loader.messages]
+									.reverse()
+									.find((msg) => msg.sender === 'assistant' && msg.modelId);
+								return lastAssistantMessage?.modelId;
+							})()}
 						/>
 					</div>
 				</div>

@@ -2,6 +2,7 @@ import { getConversation } from '../../../data/conversation';
 import { listMessages } from '../../../data/message';
 import type { MessageWithMetadata } from '../../../data/message';
 import { defaultModelId } from '../../../data/open-router';
+import { messagesStore } from '../stores/messages.svelte';
 
 type Conversation = {
 	id: string;
@@ -66,6 +67,7 @@ export function useConversationLoader(options: UseConversationLoaderOptions) {
 				try {
 					const msgs = await listMessages({ conversationId: currentId });
 					messages = msgs;
+					messagesStore.setMessages(currentId, msgs);
 
 					// Auto-trigger agent response for new conversations (only system + user messages, no assistant yet)
 					if (
@@ -126,6 +128,7 @@ export function useConversationLoader(options: UseConversationLoaderOptions) {
 			try {
 				const msgs = await listMessages({ conversationId: currentId });
 				messages = msgs;
+				messagesStore.setMessages(currentId, msgs);
 			} catch (error) {
 				console.error('Failed to reload messages:', error);
 				messagesError = error instanceof Error ? error.message : 'Failed to reload messages';

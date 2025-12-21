@@ -1,18 +1,21 @@
 import { getOpenRouter } from './open-router';
-import { listMessages, insertMessage } from './message';
+import { insertMessage } from './message';
 import { toOpenAIMessages } from './messages';
 import type { ChatCompletionChunk } from 'openai/resources/chat/completions';
+import type { MessageWithMetadata } from './message';
 
 export const sendMessage = async ({
 	conversationId,
 	userMessage,
 	modelId,
+	messages,
 	onStreamUpdate,
 	timezone
 }: {
 	conversationId: string;
 	userMessage: string;
 	modelId: string;
+	messages: MessageWithMetadata[];
 	onStreamUpdate: (text: string) => void;
 	timezone: string;
 }): Promise<{ id: string; index: number }> => {
@@ -21,11 +24,8 @@ export const sendMessage = async ({
 		throw new Error('OpenRouter API key not configured');
 	}
 
-	// Load existing messages (which should already include the user message that was just inserted)
-	const existingMessages = await listMessages({ conversationId });
-
 	// Convert to OpenAI format (includes all messages including the new user message)
-	const openAIMessages = toOpenAIMessages({ messages: existingMessages });
+	const openAIMessages = toOpenAIMessages({ messages });
 
 	// Create streaming completion request
 	const completion = await openRouter.chat.completions.create({
@@ -55,7 +55,7 @@ export const sendMessage = async ({
 
 	// Insert agent message when stream completes
 	// The index should be after all existing messages (including the user message that was just added)
-	const nextIndex = existingMessages.length;
+	const nextIndex = messages.length;
 	const inserted = await insertMessage({
 		conversationId,
 		index: nextIndex,

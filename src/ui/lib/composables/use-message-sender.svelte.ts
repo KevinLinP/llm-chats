@@ -2,6 +2,7 @@ import { listMessages, insertMessage } from '../../../data/message';
 import { sendMessage } from '../../../data/send-message';
 import { modelNamesById } from '../../../data/open-router';
 import type { MessageWithMetadata } from '../../../data/message';
+import { messagesStore } from '../stores/messages.svelte';
 
 type UseMessageSenderOptions = {
 	getConversationId: () => string | undefined;
@@ -17,7 +18,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
 	let streamingMessage = $state<string | null>(null);
 	let streamingModelName = $state<string>('');
 
-	const triggerAgentResponse = async (userMessage: string, modelId: string) => {
+	const triggerAgentResponse = async (userMessage: string, modelId: string, messages: MessageWithMetadata[]) => {
 		if (!currentConversationId) return;
 
 		const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -27,18 +28,20 @@ export function useMessageSender(options: UseMessageSenderOptions) {
 		streamingModelName = modelNamesById[modelId] || modelId;
 
 		try {
-			await sendMessage({
+			const inserted = await sendMessage({
 				conversationId: currentConversationId,
 				userMessage,
 				modelId,
+				messages,
 				onStreamUpdate: (text) => {
 					streamingMessage = text;
 				},
 				timezone
 			});
 
-			// Reload messages after agent message is inserted
+			// Reload messages after agent message is inserted to get the complete assistant message
 			const finalMessages = await listMessages({ conversationId: currentConversationId });
+			messagesStore.setMessages(currentConversationId, finalMessages);
 			onMessagesUpdate(finalMessages);
 		} catch (error) {
 			console.error('Failed to send message:', error);
@@ -56,7 +59,7 @@ export function useMessageSender(options: UseMessageSenderOptions) {
 
 		// Insert user message first
 		const nextIndex = currentMessages.length;
-		await insertMessage({
+		const insertedUserMessage = await insertMessage({
 			conversationId: currentConversationId,
 			index: nextIndex,
 			message: {
@@ -66,12 +69,14 @@ export function useMessageSender(options: UseMessageSenderOptions) {
 			timezone
 		});
 
-		// Reload messages to include the new user message
+		// Create updated messages array with the new user message
+		// We need to reload to get the full message with metadata (id, timestamps, etc.)
 		const updatedMessages = await listMessages({ conversationId: currentConversationId });
+		messagesStore.setMessages(currentConversationId, updatedMessages);
 		onMessagesUpdate(updatedMessages);
 
-		// Trigger agent response
-		await triggerAgentResponse(userMessage, modelId);
+		// Trigger agent response with the updated messages
+		await triggerAgentResponse(userMessage, modelId, updatedMessages);
 	};
 
 	return {

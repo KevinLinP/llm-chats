@@ -17,7 +17,38 @@
 	</div>
 {:else}
 	<div class="mb-6">
-		<MarkdownRenderer content={message.text} citations={message.citations} messageId={message.id} />
+		<div class="relative">
+			<MarkdownRenderer content={message.text} citations={message.citations} messageId={message.id} />
+			{#if message.modelId || message.tokenUsage}
+				<div class="text-xs text-gray-500 mt-2 text-right">
+					{#if message.modelId}
+						<span>{message.modelId}</span>
+					{/if}
+					{#if message.tokenUsage && (message.tokenUsage.input || message.tokenUsage.reasoning || message.tokenUsage.output)}
+						{#if message.modelId}
+							<span class="mx-1">•</span>
+						{/if}
+						<span>
+							{#if message.tokenUsage.input}
+								in: {message.tokenUsage.input.toLocaleString()}
+							{/if}
+							{#if message.tokenUsage.reasoning}
+								{#if message.tokenUsage.input}
+									<span class="mx-1">•</span>
+								{/if}
+								reasoning: {message.tokenUsage.reasoning.toLocaleString()}
+							{/if}
+							{#if message.tokenUsage.output}
+								{#if message.tokenUsage.input || message.tokenUsage.reasoning}
+									<span class="mx-1">•</span>
+								{/if}
+								out: {message.tokenUsage.output.toLocaleString()}
+							{/if}
+						</span>
+					{/if}
+				</div>
+			{/if}
+		</div>
 		{#if message.citations}
 			<ul class="list-none mt-4">
 				{#each Object.entries(message.citations) as [number, url]}
