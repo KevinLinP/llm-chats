@@ -1,12 +1,13 @@
 import devtoolsJson from 'vite-plugin-devtools-json';
 import { defineConfig } from 'vitest/config';
-import { playwright } from '@vitest/browser-playwright';
+// import { playwright } from '@vitest/browser-playwright';
 import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
 	plugins: [sveltekit(), devtoolsJson()],
 
 	test: {
+		environment: 'jsdom',
 		expect: { requireAssertions: true },
 
 		projects: [
@@ -16,11 +17,11 @@ export default defineConfig({
 				test: {
 					name: 'client',
 
-					browser: {
-						enabled: true,
-						provider: playwright(),
-						instances: [{ browser: 'chromium', headless: true }]
-					},
+					// browser: {
+					// 	enabled: true,
+					// 	provider: playwright(),
+					// 	instances: [{ browser: 'chromium', headless: true }]
+					// },
 
 					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
 					exclude: ['src/lib/server/**']
@@ -38,5 +39,12 @@ export default defineConfig({
 				}
 			}
 		]
-	}
+		
+	},
+
+	resolve: process.env.VITEST
+	? {
+			conditions: ['browser']
+		}
+	: undefined
 });
