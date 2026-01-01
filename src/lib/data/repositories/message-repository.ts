@@ -1,9 +1,7 @@
 import type { ColumnType, Insertable } from "kysely"
 import type { EncryptedColumn, UUID } from "./helpers/types";
+import { insert, withErrorHandling } from "./helpers/common-operations";
 import { getDb } from "./helpers/database";
-import { insertOne } from "./helpers/common-operations";
-
-type Sender = 'system' | 'user' | 'assistant';
 
 export interface EncryptedMessageTable {
   id: ColumnType<UUID, never, never>
@@ -16,10 +14,17 @@ export interface EncryptedMessageTable {
 }
 export type NewEncryptedMessage = Insertable<EncryptedMessageTable>;
 
+const tableName = 'messages';
+
 export async function insertEncryptedMessage(message: NewEncryptedMessage) {
-  return insertOne({
-    db: getDb(),
-    table: 'messages',
+  return insert({
+    tableName,
     values: message
   });
 }
+
+export async function getEncryptedMessages( { conversationId }: { conversationId: UUID}) {
+  return withErrorHandling(async () => {
+    return getDb().selectFrom(tableName).selectAll().where('conversationId', '=', conversationId).orderBy('index', 'asc').execute();
+  });
+};

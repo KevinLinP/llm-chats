@@ -23,18 +23,20 @@ export async function insertEncryptedConversation(conversation: NewEncryptedConv
 };
 
 export async function getEncryptedConversation(id: UUID) {
-  return get({
-    tableName,
-    id: id
-  });
+  return withErrorHandling(() =>
+    getDb().selectFrom(tableName)
+      .where('id', '=', id)
+      .selectAll()
+      .executeTakeFirstOrThrow()
+  );
 };
 
-export async function getAllEncryptedConversations({ limit, orderByColumn, orderByDirection }: { limit: number, orderByColumn: 'createdAt' | 'updatedAt', orderByDirection: 'asc' | 'desc' }) {
-  return getAll({
-    tableName: 'conversations',
-    limit,
-    orderByColumn,
-    orderByDirection
+export async function getAllEncryptedConversations(
+  { limit, orderByColumn, orderByDirection }:
+  { limit: number, orderByColumn: 'createdAt' | 'updatedAt', orderByDirection: 'asc' | 'desc' }
+) {
+  return withErrorHandling(async () => {
+    return getDb().selectFrom(tableName).selectAll().orderBy(orderByColumn, orderByDirection).limit(limit).execute();
   });
 };
 

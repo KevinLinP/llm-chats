@@ -17,6 +17,6 @@ export async function up(db: Kysely<any>): Promise<void> {
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable('messages').execute()
   await db.schema.dropIndex('messages_conversation_id_index').execute();
+  await db.schema.dropTable('messages').execute()
 }
