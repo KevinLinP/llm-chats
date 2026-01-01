@@ -70,6 +70,7 @@ class FetchConnection implements DatabaseConnection {
     });
 
     const url = this.config.url;
+    console.log('body', body);
     const res = await fetch(url, {
       ...this.config.init,
       method: 'POST',

@@ -1,11 +1,10 @@
 import { getDb } from './database'
 import type { ColumnType, Insertable } from "kysely"
-import type { DateWithTimezone, DateWithTimezoneInput } from './types'
 
 export interface ConversationTable {
-  id: ColumnType<string, never, never>
-  createdAt: ColumnType<DateWithTimezone, DateWithTimezoneInput, never>
-  updatedAt: ColumnType<DateWithTimezone, DateWithTimezoneInput, DateWithTimezoneInput>
+  id: ColumnType<string, undefined, undefined>
+  createdAt: ColumnType<Date, 'now()', 'now()'>
+  updatedAt: ColumnType<Date, 'now()', 'now()'>
   title: Uint8Array[]
 }
 export type NewEncryptedConversation = Insertable<ConversationTable>;

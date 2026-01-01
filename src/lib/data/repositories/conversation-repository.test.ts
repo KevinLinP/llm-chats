@@ -10,15 +10,16 @@ beforeAll(async () => {
 });
 
 test('create', async () => {
-  const { id, createdAt, updatedAt } = await insertEncryptedConversation({
+  const { id, createdAt, updatedAt, title } = await insertEncryptedConversation({
     title: [new Uint8Array([1, 2, 3]), new Uint8Array([4, 5, 6])],
-    createdAt: { date: new Date('2026-01-01'), timezone: 'Europe/Madrid' },
-    updatedAt: {timezone: 'Europe/Berlin'},
+    createdAt: 'now()',
+    updatedAt: 'now()',
   });
 
   expect(id).toBeDefined();
-  expect(createdAt).toEqual({ date: new Date('2026-01-01'), timezone: 'Europe/Madrid' });
-  expect(updatedAt.timezone).toEqual('Europe/Berlin');
-  expect(updatedAt.date).toBeInstanceOf(Date);
-  expect(updatedAt.date.getTime()).toBeGreaterThan(new Date('2025-01-01').getTime());
+  expect(title).toEqual([new Uint8Array([1, 2, 3]), new Uint8Array([4, 5, 6])]);
+  expect(createdAt).toBeInstanceOf(Date);
+  expect(updatedAt).toBeInstanceOf(Date);
+  expect(createdAt.getTime()).toBeGreaterThan(new Date('2025-01-01').getTime());
+  expect(updatedAt.getTime()).toBeGreaterThan(new Date('2025-01-01').getTime());
 });
