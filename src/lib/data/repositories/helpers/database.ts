@@ -1,10 +1,12 @@
-import type { ConversationTable } from './conversation-repository'
+import type { ConversationTable } from '../conversation-repository'
+import type { EncryptedMessageTable } from '../message-repository'
 import { Kysely, PostgresAdapter, PostgresIntrospector, PostgresQueryCompiler, CamelCasePlugin } from 'kysely'
 import { FetchDriver } from './fetch-driver-modified';
 import superjson from 'superjson';
 
-interface Database {
+export interface Database {
   conversations: ConversationTable
+  messages: EncryptedMessageTable
 }
 
 let db: Kysely<Database> | null = null;
@@ -25,34 +27,36 @@ superjson.registerCustom<Uint8Array, string>(
   'binary'
 );
 
-const transformer = {
-  serialize: (value: any): string => {
-    return superjson.stringify(value);
-  },
-  deserialize: (str: string): any => {
-    return superjson.parse(str);
-  },
-};
-
 export const setupDatabase = ({url, authorizationBearerToken}: {url: string, authorizationBearerToken: string}) => {
+  const transformer = {
+    serialize: (value: any): string => {
+      return superjson.stringify(value);
+    },
+    deserialize: (str: string): any => {
+      return superjson.parse(str);
+    },
+  };
+
+  const createDriver = () => {
+    return new FetchDriver({
+      transformer,
+      url,
+      init: {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authorizationBearerToken}`,
+          'Content-Type': 'text/plain',
+        },
+      },
+    });
+  };
+
   db = new Kysely<Database>({
     dialect: {
       createAdapter: () => new PostgresAdapter(),
       createIntrospector: (db) => new PostgresIntrospector(db),
       createQueryCompiler: () => new PostgresQueryCompiler(),
-      createDriver: () => {
-        return new FetchDriver({
-          transformer,
-          url,
-          init: {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${authorizationBearerToken}`,
-              'Content-Type': 'text/plain',
-            },
-          },
-        });
-      },
+      createDriver,
     },
     plugins: [new CamelCasePlugin()],
   });

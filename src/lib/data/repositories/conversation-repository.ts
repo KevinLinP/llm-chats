@@ -1,57 +1,46 @@
-import { getDb } from './database'
-import type { ColumnType, Insertable, Updateable } from "kysely"
-
-// unique 'branded' type
-export type UUID = string & { readonly __brand: unique symbol }
-
-async function withErrorHandling<T>(operation: () => Promise<T>): Promise<T> {
-  try {
-    return await operation();
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
+import { getDb } from './helpers/database'
+import type { ColumnType, Insertable, Selectable, Updateable } from "kysely"
+import type { EncryptedColumn, UUID } from './helpers/types';
+import { get, getAll, insert, withErrorHandling } from './helpers/common-operations';
 
 export interface ConversationTable {
-  id: ColumnType<UUID, undefined, undefined>
-  createdAt: ColumnType<Date, 'now()', 'now()'>
+  id: ColumnType<UUID, never, never>
+  createdAt: ColumnType<Date, 'now()', never>
   updatedAt: ColumnType<Date, 'now()', 'now()'>
-  title: Uint8Array[]
+  title: EncryptedColumn
 }
+export type EncryptedConversation = Selectable<ConversationTable>;
 export type NewEncryptedConversation = Insertable<ConversationTable>;
 export type EncryptedConversationUpdate = Updateable<ConversationTable>;
 
+const tableName = 'conversations';
+
 export async function insertEncryptedConversation(conversation: NewEncryptedConversation)  {
-  return withErrorHandling(() => {
-    return getDb().insertInto('conversations')
-      .values(conversation)
-      .returningAll()
-      .executeTakeFirstOrThrow()
+  return insert({
+    tableName,
+    values: conversation
   });
 };
 
 export async function getEncryptedConversation(id: UUID) {
-  return withErrorHandling(() => {
-    return getDb().selectFrom('conversations')
-      .where('id', '=', id)
-      .selectAll()
-      .executeTakeFirstOrThrow()
+  return get({
+    tableName,
+    id: id
   });
 };
 
 export async function getAllEncryptedConversations({ limit, orderByColumn, orderByDirection }: { limit: number, orderByColumn: 'createdAt' | 'updatedAt', orderByDirection: 'asc' | 'desc' }) {
-  return withErrorHandling(() => {
-    return getDb().selectFrom('conversations')
-      .selectAll()
-      .orderBy(orderByColumn, orderByDirection)
-      .limit(limit)
-      .execute()
+  return getAll({
+    tableName: 'conversations',
+    limit,
+    orderByColumn,
+    orderByDirection
   });
 };
 
 export async function updateEncryptedConversation(id: UUID, conversation: EncryptedConversationUpdate) {
-  return withErrorHandling(() => {
+  return withErrorHandling(
+   () => {
     return getDb().updateTable('conversations')
       .where('id', '=', id)
       .set(conversation)

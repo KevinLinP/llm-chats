@@ -1,5 +1,5 @@
 import { expect, test, beforeAll } from 'vitest';
-import { setupDatabase } from './database';
+import { setupDatabase } from './helpers/database';
 import { getAllEncryptedConversations, getEncryptedConversation, insertEncryptedConversation, updateEncryptedConversation } from './conversation-repository';
 
 beforeAll(async () => {
