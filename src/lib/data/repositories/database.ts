@@ -1,5 +1,5 @@
 import type { ConversationTable } from './conversation-repository'
-import { Kysely, PostgresDialect, PostgresAdapter, PostgresIntrospector, PostgresQueryCompiler } from 'kysely'
+import { Kysely, PostgresAdapter, PostgresIntrospector, PostgresQueryCompiler, CamelCasePlugin } from 'kysely'
 import { FetchDriver } from './fetch-driver-modified';
 import superjson from 'superjson';
 
@@ -54,6 +54,7 @@ export const setupDatabase = ({url, authorizationBearerToken}: {url: string, aut
         });
       },
     },
+    plugins: [new CamelCasePlugin()],
   });
 };
 

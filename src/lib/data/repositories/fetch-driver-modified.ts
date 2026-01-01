@@ -92,7 +92,7 @@ class FetchConnection implements DatabaseConnection {
         throw new Error("failed to parse response");
       }
     } else {
-      throw new Error(`${res.status} ${res.statusText}`);
+      throw new Error(`${res.status} ${res.statusText} ${await res.text()}`);
     }
   }
 }
