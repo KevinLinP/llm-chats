@@ -1,16 +1,6 @@
 import { expect, test, beforeAll } from 'vitest';
 import { setCryptoKey, encrypt, decrypt } from './cryptography';
-
-const testJwk: JsonWebKey = {
-  "alg": "A256GCM",
-  "ext": true,
-  "k": "kISGaHbZ04MPu8Gf8eFDiJVPTwhwb9Rxp-MQlpr7_mg",
-  "key_ops": [
-    "encrypt",
-    "decrypt"
-  ],
-  "kty": "oct"
-}
+import { testJwk } from '../test-fixtures';
 
 beforeAll(async () => {
   await setCryptoKey(testJwk);
